@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Application</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- Include Admin Header -->
+    <% if (user && user.isAdmin) { %>
+        <%- include('partials/adminHeader') %>
+    <% } else { %>
+        <%- include('partials/userHeader') %>
+    <% } %>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Admin Dashboard or User Home -->
+        <% if (user && user.isAdmin) { %>
+            <%- include('admin/adminDashboard') %>
+        <% } else { %>
+            <%- include('user/home') %>
+        <% } %>
+    </div>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+</body>
+</html>
