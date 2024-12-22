@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ease & Style - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .signup-container {
+            height: 100%;
+            width: 100%;
+            background-color: #f5f1ed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding : 40px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .form-input::placeholder {
+            color: #a0aec0;
+        }
+        
+        .signup-btn {
+            background-color: #000;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .signup-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .image-container {
+            background-color: #a7b7c7;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden on smaller screens */
+        }
+        
+        @media (min-width: 768px) {
+            .signup-container {
+                flex-direction: row;
+            }
+            .image-container {
+                display: block;
+                width: 50%;
+            }
+        }
+        
+        .custom-logo {
+            height: 50px; 
+            width: auto; 
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .social-signup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .social-signup-btn {
+            background-color: #3b5998; /* Facebook color */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .social-signup-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .google-signup-btn {
+            background-color: #dd4b39; /* Google color */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .google-signup-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <!-- Left Image Section -->
+        <div class="image-container w-auto h-auto">
+            <img src="img/signup/signup-image-1.jpg" alt="Fashion Models" class="w-auto h-auto object-fit-cover">
+        </div>
+        
+         
+      
+           
+            
+            <!-- Signup Form -->
+            <form class="space-y-4 m-auto" onsubmit="return validateForm()">
+                 <!-- Logo -->
+            <div class="d-flex justify-content-center mb-5">
+                <img src="img/signup/logo.png" alt="Ease & Style Logo" class="custom-logo">
+            </div>
+              
+                <div class="mb-3">
+                    <label for="yourName" class="form-label">Your Name</label>
+                    <input type="text" id="yourName" placeholder="Full Name" class="form-input" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" placeholder="name@gmail.com" class="form-input" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                    <input type="text" id="phoneNumber" placeholder="Phone Number" class="form-input" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" placeholder="Password" class="form-input" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm password" class="form-input" required>
+                </div>
+                <div class="pt-4">
+                    <button type="submit" class="signup-btn">
+                        SIGN UP →
+                    </button>
+                </div>
+                <div class="social-signup">
+                    <button class="social-signup-btn">
+                        Sign up with Facebook
+                    </button>
+                    <button class="google-signup-btn">
+                        Sign up with Google
+                    </button>
+                </div>
+                <div id="error-messages" class="error-message"></div>
+                <div class="login-link">
+                    Already registered? <a href="/login">Log in</a>
+                </div>
+            </form>
+        
+    </div>
+    <script>
+        function validateForm() {
+            let name = document.getElementById('yourName').value;
+            let email = document.getElementById('email').value;
+            let phoneNumber = document.getElementById('phoneNumber').value;
+            let password = document.getElementById('password').value;
+            let confirmPassword = document.getElementById('confirmPassword').value;
+            let errorMessages = document.getElementById('error-messages');
+
+            // Validate name
+            if (name === '') {
+                errorMessages.textContent = 'Name is required';
+                return false;
+            }
+            if (name.trim() === '') {
+                errorMessages.textContent = 'Name cannot be whitespace';
+                return false;
+            }
+
+            // Validate email
+            if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+                errorMessages.textContent = 'Invalid email format';
+                return false;
+            }
+
+            // Validate phone number
+            if (!/^\d+$/.test(phoneNumber)) {
+                errorMessages.textContent = 'Phone number must be numeric';
+                return false;
+            }
+            if (phoneNumber.length < 10 || phoneNumber.length > 15) {
+                errorMessages.textContent = 'Phone number must be between 10 and 15 digits';
+                return false;
+            }
+
+            // Validate password
+            if (password.length < 8) {
+                errorMessages.textContent = 'Password must be at least 8 characters long';
+                return false;
+            }
+            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/.test(password)) {
+                errorMessages.textContent = 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character';
+                return false;
+            }
+
+            // Validate confirm password
+            if (password !== confirmPassword) {
+                errorMessages.textContent = 'Passwords do not match';
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</body>
+</html>
