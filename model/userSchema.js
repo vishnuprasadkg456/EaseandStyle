@@ -2,25 +2,21 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-    firstName: {
+    name: {
         type: String,
         required: true
     },
-    lastName: {
-        type: String,
-        required: true
-    },
+    
     email : {
         type:String,
         required : true,
         unique : true,
     },
-    phone : {
+    phoneNumber : {
         type:String,
-        required:false,
-        unique:false,
-        sparse:true,
-        default : null
+        required:true,
+        unique:true,
+        
     },
     googleId: {
         type:String,
@@ -53,7 +49,7 @@ const userSchema = new Schema({
           ref: "Product",
         }],
     orderHistory : [{
-        type:Schema.types.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"order"
     }],
     createdOn : {
@@ -62,13 +58,16 @@ const userSchema = new Schema({
     },
     referalCode : {
         type :String
+        // required : true
     },
     redeemed : {
         type : Boolean
+        // required : false
     },
     redeemedUsers : [{
         type:Schema.Types.ObjectId,
         ref : "User"
+        // required :true
     }],
     searchHistory : [{
         category : {
@@ -84,18 +83,15 @@ const userSchema = new Schema({
         }
     }],
     
-    mobile_number: {
-        type: Number,
-        required: true
-    },
+    
     isActive: {
         type: Boolean,
-        default: true
+        // default: true
     },
     gender: {
         type: String,
         enum: ['Male', 'Female', 'Other'],
-        required: true
+        // required: true
     },
     created_At: {
         type: Date,

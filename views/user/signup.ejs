@@ -127,7 +127,7 @@
            
             
             <!-- Signup Form -->
-            <form class="space-y-4 m-auto" onsubmit="return validateForm()">
+            <form class="space-y-4 m-auto" onsubmit="return validateForm()" method="post" action="/signup">
                  <!-- Logo -->
             <div class="d-flex justify-content-center mb-5">
                 <img src="img/signup/logo.png" alt="Ease & Style Logo" class="custom-logo">
@@ -135,23 +135,28 @@
               
                 <div class="mb-3">
                     <label for="yourName" class="form-label">Your Name</label>
-                    <input type="text" id="yourName" placeholder="Full Name" class="form-input" required>
+                    <input type="text" name="name" id="yourName" placeholder="Full Name" class="form-input" required>
+                    <div id="name-error" class="error-message"></div>
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" id="email" placeholder="name@gmail.com" class="form-input" required>
+                    <input type="email"  name="email" id="email" placeholder="name@gmail.com" class="form-input" required>
+                    <div id="email-error" class="error-message"></div>
                 </div>
                 <div class="mb-3">
                     <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="text" id="phoneNumber" placeholder="Phone Number" class="form-input" required>
+                    <input type="text" name="phoneNumber" id="phoneNumber" placeholder="Phone Number" class="form-input" required>
+                    <div id="phone-error" class="error-message"></div>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" placeholder="Password" class="form-input" required>
+                    <input type="password" name="password" id="password" placeholder="Password" class="form-input" required>
+                    <div id="password-error" class="error-message"></div>
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirm Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm password" class="form-input" required>
+                    <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm password" class="form-input" required>
+                    <div id="confirm-password-error" class="error-message"></div>
                 </div>
                 <div class="pt-4">
                     <button type="submit" class="signup-btn">
@@ -182,49 +187,63 @@
             let confirmPassword = document.getElementById('confirmPassword').value;
             let errorMessages = document.getElementById('error-messages');
 
+            // Clear previous error messages
+            document.getElementById('name-error').textContent = '';
+            document.getElementById('email-error').textContent = '';
+            document.getElementById('phone-error').textContent = '';
+            document.getElementById('password-error').textContent = '';
+            document.getElementById('confirm-password-error').textContent = '';
+            errorMessages.textContent = '';
+
+            let isValid = true; // Flag to track overall validity
+
             // Validate name
             if (name === '') {
-                errorMessages.textContent = 'Name is required';
-                return false;
-            }
-            if (name.trim() === '') {
-                errorMessages.textContent = 'Name cannot be whitespace';
-                return false;
+                document.getElementById('name-error').textContent = 'Name is required';
+                isValid = false;
+            } else if (name.trim() === '') {
+                document.getElementById('name-error').textContent = 'Name cannot be whitespace';
+                isValid = false;
             }
 
             // Validate email
             if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-                errorMessages.textContent = 'Invalid email format';
-                return false;
+                document.getElementById('email-error').textContent = 'Invalid email format';
+                isValid = false;
             }
 
             // Validate phone number
             if (!/^\d+$/.test(phoneNumber)) {
-                errorMessages.textContent = 'Phone number must be numeric';
-                return false;
+                document.getElementById('phone-error').textContent = 'Phone number must be numeric';
+                isValid = false;
             }
             if (phoneNumber.length < 10 || phoneNumber.length > 15) {
-                errorMessages.textContent = 'Phone number must be between 10 and 15 digits';
-                return false;
+                document.getElementById('phone-error').textContent = 'Phone number must be between 10 and 15 digits';
+                isValid = false;
             }
 
             // Validate password
             if (password.length < 8) {
-                errorMessages.textContent = 'Password must be at least 8 characters long';
-                return false;
+                document.getElementById('password-error').textContent = 'Password must be at least 8 characters long';
+                isValid = false;
             }
             if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/.test(password)) {
-                errorMessages.textContent = 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character';
-                return false;
+                document.getElementById('password-error').textContent = 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character';
+                isValid = false;
             }
 
             // Validate confirm password
             if (password !== confirmPassword) {
-                errorMessages.textContent = 'Passwords do not match';
+                document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
+                isValid = false;
+            }
+
+            // If any validation fails, prevent form submission
+            if (!isValid) {
                 return false;
             }
 
-            return true;
+            return true; // Form is valid
         }
     </script>
 </body>
