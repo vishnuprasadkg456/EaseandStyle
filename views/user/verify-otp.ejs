@@ -129,7 +129,7 @@
                     <div id="otpTimer" class="otp-timer">
                         <span id="timerValue">60</span>
                     </div>
-                    <button type="button" class="btn btn-secondary">Resend OTP</button>
+                    <button type="button" class="btn btn-secondary" onclick="resendOTP()">Resend OTP</button>
                 </div>
                 <% if (locals.message && message.length > 0) { %>
                 <div class="alert alert-danger"><%= message %></div>
@@ -150,6 +150,7 @@
     let timerInterval;
 
     function startTimer() {
+        console.log("Starting timer...");
         timerInterval = setInterval(() => {
             timer--;
             document.getElementById("timerValue").textContent = timer;
@@ -200,7 +201,36 @@
     })
     return false;
    }
-
+   
+   function resendOTP(){
+        clearInterval(timerInterval);
+        timer = 60;
+        document.getElementById("otp").disabled = false;
+        document.getElementById("timerValue").classList.remove("expired");
+        document.getElementById("timerValue").textContent = timer;
+        startTimer();
+        $.ajax({
+            type : "POST",
+            url : "/resend-otp",
+            success : function(response){
+                if(response.success){
+                    Swal.fire({
+                        icon : "success",
+                        title : "OTP Resend Successfully",
+                        showConfirmButton:false,
+                        timer : 1500,
+                    })
+                }else{
+                    Swal.fire({
+                        icon : "error",
+                        title : "Error",
+                        text : "An error occurred while resending OTP. Please try again",
+                    })
+                }
+            }
+        })
+        return false;
+   } 
 
 </script>
 
