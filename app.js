@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const env = require("dotenv");
 const session = require("express-session");
+const passport = require("./config/passsport");
 env.config();
 const db = require("./config/dbConfig");
 const userRouter = require("./routes/user/userRoute");
@@ -23,6 +24,9 @@ app.use(session({
         maxAge : 72*60*60*1000
     }
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req,res,next)=>{
     res.set('cache-control','no-store')
