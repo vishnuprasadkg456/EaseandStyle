@@ -24,6 +24,7 @@ router.post("/login",userController.login)
 
 //Home 
 router.get("/",userController.loadHomePage);
+router.get("/logout",userController.logout);
 router.get("/shop",userController.loadShopping);
 
 module.exports = router;

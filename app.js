@@ -33,6 +33,12 @@ app.use((req,res,next)=>{
     next();
 })
 
+// app.use((req, res, next) => {
+//     res.locals.user = req.session.user || null; // Set user globally
+//     next();
+// });
+
+
 app.set("view engine","ejs");
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
 app.use(express.static(path.join(__dirname,"public")));

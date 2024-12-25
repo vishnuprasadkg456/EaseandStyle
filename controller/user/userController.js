@@ -2,6 +2,7 @@ const User = require("../../model/userSchema");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
 //pageNotFound
 const pageNotFound = async (req, res) => {
@@ -15,10 +16,32 @@ const pageNotFound = async (req, res) => {
 //loadHomePage
 const loadHomePage = async (req, res) => {
     try {
-        return res.render("home");
+        const user = req.session.user;
+        console.log("User from session:", user);
+        
+        if (user) {
+            // Checking the user ID is valid
+            if (!mongoose.Types.ObjectId.isValid(user)) {
+                console.error("Invalid user ID:", user);
+                
+            }
+
+            // Convert the string to ObjectId using 'new'
+            const userData = await User.findOne({ _id: new mongoose.Types.ObjectId(user) });
+            console.log("User data retrieved:", userData);
+
+            if (!userData) {
+                console.error("User not found for ID:", user);
+               
+            }
+
+            res.render("home", { user: userData });
+        } else {
+            return res.render("home");
+        }
     } catch (error) {
-        console.log("home page not found");
-        res.status(500).send("server error");
+        console.error("Error in loadHomePage:", error);
+        res.status(500).send("Server error");
     }
 }
 
@@ -227,7 +250,21 @@ const login = async (req, res) => {
     }
 }
 
-
+//logout
+const logout = async (req,res)=>{
+    try {
+        req.session.destroy((err)=>{
+            if(err){
+                console.log("Session destruction error",error);
+                return res.redirect("/pageNotFound");
+            }
+            return res.redirect("/login");
+        })
+    } catch (error) {
+        console.log("Logout error",error);
+        res.redirect("/pageNotFound");
+    }
+}
 
 module.exports = {
     loadHomePage,
@@ -238,5 +275,6 @@ module.exports = {
     verifyOtp,
     resendOtp,
     loadLogin,
-    login
+    login,
+    logout
 }
