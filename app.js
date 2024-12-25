@@ -7,6 +7,7 @@ const passport = require("./config/passsport");
 env.config();
 const db = require("./config/dbConfig");
 const userRouter = require("./routes/user/userRoute");
+const adminRouter = require("./routes/admin/adminRoute");
 db();
 
 
@@ -33,10 +34,6 @@ app.use((req,res,next)=>{
     next();
 })
 
-// app.use((req, res, next) => {
-//     res.locals.user = req.session.user || null; // Set user globally
-//     next();
-// });
 
 
 app.set("view engine","ejs");
@@ -44,6 +41,7 @@ app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/ad
 app.use(express.static(path.join(__dirname,"public")));
 
 app.use("/",userRouter);
+app.use("/admin",adminRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT,()=>{
