@@ -256,25 +256,6 @@ const logout = async (req,res)=>{
     }
 }
 
-// // Example Google login handler
-// const googleLogin = async (req, res) => {
-//     try {
-//         const googleUser = req.user; // Assuming you're using passport.js or similar
-//         if (googleUser) {
-//             // Save user ID and name to session
-//             req.session.user = googleUser._id; // Save the user ID
-//             req.session.userName = googleUser.name; // Save the user's name
-//             console.log("User logged in:", googleUser); // Log the entire user object
-//             console.log("Session data:", req.session); // Log the session data
-//             return res.redirect("/home"); // Redirect to home or wherever appropriate
-//         } else {
-//             return res.redirect("/login");
-//         }
-//     } catch (error) {
-//         console.error("Google login error:", error);
-//         res.redirect("/pageNotFound");
-//     }
-// }
 
 module.exports = {
     loadHomePage,
