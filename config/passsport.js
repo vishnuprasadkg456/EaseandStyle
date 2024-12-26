@@ -14,6 +14,7 @@ async (accessToken,refreshToken,profile,done)=>{
     try {
         let user = await User.findOne({googleId:profile.id});
         if(user){
+            console.log("User found:", user);
             return done(null,user);
         }else{
             user = new User ({
@@ -22,25 +23,27 @@ async (accessToken,refreshToken,profile,done)=>{
                 googleId :profile.id
             });
             await user.save();
+            console.log("New user created:", user);
             return done(null,user);
         }
     } catch (error) {
+        console.error("Error in Google strategy:", error);
         return done(error,null);
     }
 }
 ));
 
-passport.serializeUser((user,done)=>{
-    done(null,user.id)
+passport.serializeUser((user, done) => {
+    done(null, user.id);
 });
 
-passport.deserializeUser((id,done)=>{
-    User.findById(id).then(user=>{
-        done(null,user)
+passport.deserializeUser((id, done) => {
+    User.findById(id).then(user => {
+        done(null, user);
     })
-    .catch(err =>{
-        done(err,null)
-    })
+    .catch(err => {
+        done(err, null);
+    });
 });
 
 module.exports = passport;

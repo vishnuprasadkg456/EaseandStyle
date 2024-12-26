@@ -12,38 +12,22 @@ const pageNotFound = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 };
-
-//loadHomePage
 const loadHomePage = async (req, res) => {
     try {
-        const user = req.session.user;
-        console.log("User from session:", user);
-        
+        const user = req.session.user || req.user;
+
+        console.log("User from session or req.user:", user);
+
         if (user) {
-            // Checking the user ID is valid
-            if (!mongoose.Types.ObjectId.isValid(user)) {
-                console.error("Invalid user ID:", user);
-                
-            }
-
-            // Convert the string to ObjectId using 'new'
-            const userData = await User.findOne({ _id: new mongoose.Types.ObjectId(user) });
-            console.log("User data retrieved:", userData);
-
-            if (!userData) {
-                console.error("User not found for ID:", user);
-               
-            }
-
-            res.render("home", { user: userData });
+            res.render("home", { user });
         } else {
-            return res.render("home");
+            res.render("home");
         }
     } catch (error) {
         console.error("Error in loadHomePage:", error);
         res.status(500).send("Server error");
     }
-}
+};
 
 //loadSignup page
 const loadSignup = async (req, res) => {
@@ -235,18 +219,24 @@ const login = async (req, res) => {
             return res.render("login", { message: "User is blocked by admin" });
         }
 
-        const passwordMatch = await bcrypt.compare(password,findUser.password);
+        const passwordMatch = await bcrypt.compare(password, findUser.password);
 
-        if(!passwordMatch){
-            return res.render("login",{message:"Incorrect Password"});
+        if (!passwordMatch) {
+            return res.render("login", { message: "Incorrect Password" });
         }
 
-        req.session.user = findUser._id;
+        // Store user information in the session
+        req.session.user = {
+            id: findUser._id,
+            name: findUser.name,
+            email: findUser.email
+        };
+
         res.redirect("/");
 
     } catch (error) {
-        console.error("login error",error);
-        res.render("login",{message:"login failed. Please try again later"});
+        console.error("login error", error);
+        res.render("login", { message: "login failed. Please try again later" });
     }
 }
 
@@ -265,6 +255,26 @@ const logout = async (req,res)=>{
         res.redirect("/pageNotFound");
     }
 }
+
+// // Example Google login handler
+// const googleLogin = async (req, res) => {
+//     try {
+//         const googleUser = req.user; // Assuming you're using passport.js or similar
+//         if (googleUser) {
+//             // Save user ID and name to session
+//             req.session.user = googleUser._id; // Save the user ID
+//             req.session.userName = googleUser.name; // Save the user's name
+//             console.log("User logged in:", googleUser); // Log the entire user object
+//             console.log("Session data:", req.session); // Log the session data
+//             return res.redirect("/home"); // Redirect to home or wherever appropriate
+//         } else {
+//             return res.redirect("/login");
+//         }
+//     } catch (error) {
+//         console.error("Google login error:", error);
+//         res.redirect("/pageNotFound");
+//     }
+// }
 
 module.exports = {
     loadHomePage,
