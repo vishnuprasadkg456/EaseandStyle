@@ -67,8 +67,7 @@
         color: red;
       }
 
-      .text-start {}
-
+      
       .btn-small {
         padding: 2px 10px;
         /* Adjust padding */
@@ -112,8 +111,8 @@
                     required></textarea>
                   <div id="description-error" class="error-message"></div>
                 </div>
-                <div class="d-grid">
-                  <button class="btn btn-primary" type="submit">
+                <div class="d-grid gap-2  ">
+                  <button class="btn btn-primary btn-md  " type="submit">
                     Create category
                   </button>
                 </div>
@@ -184,7 +183,7 @@
                           
                         </td>
                         <td class="text-start">
-                          <a href="" class="btn btn-info text-white btn-small ">Edit</a>
+                          <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white btn-small ">Edit</a>
                         </td>
                       </tr>
                       <%})%>
@@ -229,7 +228,8 @@
         fetch('/admin/addCategory', {
           method: 'POST',
           headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            
           },
           body: JSON.stringify({ name, description })
         }).then(response => {
@@ -241,10 +241,15 @@
           }
           return response.json();
         })
-          .then(data => {
-            location.reload();
-
-          })
+        .then(data => {
+          Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: data.message, 
+          }).then(() => {
+              location.reload(); 
+          });
+      })
           .catch(error => {
             if (error.message === "Category already exists") {
               Swal.fire({
