@@ -67,7 +67,7 @@
         color: red;
       }
 
-      
+
       .btn-small {
         padding: 2px 10px;
         /* Adjust padding */
@@ -130,7 +130,9 @@
                       <th>Offer</th>
                       <th>Status</th>
                       <th>List/Unlist</th>
+
                       <th class="text-start">Edit</th>
+                      <th class="text-start">Delete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -168,7 +170,7 @@
                             <%}else{%>
                               <span class="badge rounded-pill alert-danger mb-1" style="width: 60px">Unlisted</span>
                               <%}%>
-                          
+
                         </td>
                         <td class="text-start">
                           <%if(category.isListed){%>
@@ -180,11 +182,23 @@
                                 <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white">List</a>
                               </button>
                               <%}%>
-                          
+
                         </td>
                         <td class="text-start">
-                          <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white btn-small ">Edit</a>
+                          <a href="/admin/editCategory?id=<%=category._id%>"
+                            class="btn btn-info text-white btn-small ">Edit</a>
                         </td>
+
+                        <td class="text-start">
+                          <% if (category.isDeleted) { %>
+                            <span class="badge rounded-pill alert-warning mb-1">Deleted</span>
+                          <% } else { %>
+                            <button class="btn btn-danger btn-small mb-1" style="width: 70px" onclick="softDeleteCategory('<%= category._id %>')">
+                              Delete
+                            </button>
+                          <% } %>
+                        </td>
+                        
                       </tr>
                       <%})%>
                   </tbody>
@@ -195,23 +209,27 @@
         </div>
       </div>
       <div class="pagination-container">
-        <% if (currentPage > 1) { %>
+        <% if (currentPage> 1) { %>
           <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
-        <% } %>
-      
-        <% for (let i = 1; i <= totalPages; i++) { %>
-          <% if (i === currentPage) { %>
-            <span class="current-page"><%= i %></span>
-          <% } else { %>
-            <a href="?page=<%= i %>"><%= i %></a>
           <% } %>
-        <% } %>
-      
-        <% if (currentPage < totalPages) { %>
-          <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
-        <% } %>
+
+            <% for (let i=1; i <=totalPages; i++) { %>
+              <% if (i===currentPage) { %>
+                <span class="current-page">
+                  <%= i %>
+                </span>
+                <% } else { %>
+                  <a href="?page=<%= i %>">
+                    <%= i %>
+                  </a>
+                  <% } %>
+                    <% } %>
+
+                      <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+                        <% } %>
       </div>
-      
+
     </section>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -229,7 +247,7 @@
           method: 'POST',
           headers: {
             'content-type': 'application/json',
-            
+
           },
           body: JSON.stringify({ name, description })
         }).then(response => {
@@ -241,15 +259,15 @@
           }
           return response.json();
         })
-        .then(data => {
-          Swal.fire({
+          .then(data => {
+            Swal.fire({
               icon: 'success',
               title: 'Success',
-              text: data.message, 
-          }).then(() => {
-              location.reload(); 
-          });
-      })
+              text: data.message,
+            }).then(() => {
+              location.reload();
+            });
+          })
           .catch(error => {
             if (error.message === "Category already exists") {
               Swal.fire({
@@ -267,6 +285,8 @@
           });
 
       }
+
+      
 
       function validateForm() {
         clearErrorMessages();
@@ -305,7 +325,7 @@
 
       }
 
-      /* addoffer */      
+      /* addoffer */
 
       async function addOffer(categoryId) {
         const { value: amount } = await Swal.fire({
@@ -339,8 +359,8 @@
               ).then(() => {
                 location.reload();
               })
-            }else{
-              Swal.fire("Failed",data.message || "Adding offer failed", "error");
+            } else {
+              Swal.fire("Failed", data.message || "Adding offer failed", "error");
             }
           } catch (error) {
 
@@ -349,7 +369,7 @@
               "An Error occured while adding the offer",
               "error"
             );
-            console.log("Error adding offer",error);
+            console.log("Error adding offer", error);
 
           }
         }
@@ -378,8 +398,8 @@
             ).then(() => {
               location.reload();
             })
-          }else{
-            Swal.fire("Failed",data.message || "Removing offer failed", "error");
+          } else {
+            Swal.fire("Failed", data.message || "Removing offer failed", "error");
           }
         } catch (error) {
 
@@ -388,11 +408,46 @@
             "An Error occured while removing the offer",
             "error"
           );
-          console.log("Error removing offer",error);
+          console.log("Error removing offer", error);
 
         }
       }
 
+
+      async function softDeleteCategory(categoryId) {
+        const confirmDelete = await Swal.fire({
+          title: "Are you sure?",
+          text: "Do you really want to delete this category?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel!",
+        });
+      
+        if (confirmDelete.isConfirmed) {
+          try {
+            const response = await fetch(`/admin/softDeleteCategory/${categoryId}`, {
+              method: "POST", // Send POST request to the backend
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+      
+            const data = await response.json();
+            if (response.ok) {
+              Swal.fire("Deleted!", "The category has been deleted.", "success").then(() => {
+                location.reload();
+              });
+            } else {
+              Swal.fire("Failed", data.message || "Error during soft delete", "error");
+            }
+          } catch (error) {
+            Swal.fire("Error", "An error occurred while deleting the category.", "error");
+            console.log("Error deleting category", error);
+          }
+        }
+      }
+      
 
 
 

@@ -4,11 +4,16 @@ const adminController = require ("../../controller/admin/adminController");
 const customerController = require("../../controller/admin/customerController");
 const categoryController = require("../../controller/admin/categoryController")
 const {userAuth,adminAuth} = require("../../middlewares/auth");
+const multer = require("multer");
+const storage = require("../../helpers/multer");
+const upload = multer({storage:storage});
+const brandController = require("../../controller/admin/brandController");
 
-
+//error management
+router.get("/pageerror",adminController.pageerror);
 
 //admin-login management
-router.get("/pageerror",adminController.pageerror);
+
 router.get("/login",adminController.loadLogin);
 router.post("/login",adminController.login);
 router.get("/",adminAuth,adminController.loadDashboard);
@@ -28,5 +33,12 @@ router.get("/listCategory",adminAuth,categoryController.getListCategory);
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory);
 router.get("/editCategory",adminAuth,categoryController.getEditCategory);
 router.post("/editCategory/:id",adminAuth,categoryController.editCategory);
+router.post("/softDeleteCategory/:id", adminAuth, categoryController.softDeleteCategory);
+
+
+
+//brand management
+
+router.get("/brands",adminAuth,brandController.getBrandPage);
 
 module.exports = router;
