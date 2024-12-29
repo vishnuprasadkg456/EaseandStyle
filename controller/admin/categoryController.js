@@ -10,7 +10,7 @@ const categoryInfo = async (req, res) => {
         const limit = 4;
         const skip = (page - 1) * limit;
 
-        const categoryData = await Category.find({isDeleted: false})
+        const categoryData = await Category.find({})
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
@@ -147,7 +147,7 @@ const getUnlistCategory = async (req, res) => {
 const getEditCategory = async (req, res) => {
     try {
         const id = req.query.id;
-        const category = await Category.findOne({ _id: id, isDeleted: false });
+        const category = await Category.findOne({ _id: id});
 
         if (!category) {
             return res.status(404).json({ error: "Category not found or has been deleted " });
@@ -194,27 +194,6 @@ const editCategory = async (req, res) => {
     }
 
 }
-//softDeleteCategory
-const softDeleteCategory = async (req, res) => {
-    try {
-        const categoryId = req.params.id;
-        
-        const updatedCategory = await Category.findByIdAndUpdate(
-            categoryId, 
-            { isDeleted: true },  // Set isDeleted to true instead of removing
-            { new: true }
-        );
-
-        if (!updatedCategory) {
-            return res.status(404).json({ error: "Category not found" });
-        }
-
-        res.json({ message: "Category marked as deleted successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error during soft delete" });
-    }
-};
 
 
 module.exports = {
@@ -226,5 +205,5 @@ module.exports = {
     getUnlistCategory,
     getEditCategory,
     editCategory,
-    softDeleteCategory
+    
 }

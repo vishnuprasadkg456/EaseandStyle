@@ -47,27 +47,33 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-3">
-          <form method="post" action="/admin/addBrand" enctype="multipart/form-data">
+          <form id="addBrandForm" method="post" action="/admin/addBrand" enctype="multipart/form-data">
             <div class="mb-4">
-              <label for="product_name" class="form-label">Brand Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="Type here"
-                class="form-control"
-              />
+                <label for="brand_name" class="form-label">Brand Name</label>
+                <input
+                    type="text"
+                    name="name"
+                    id="brand_name"
+                    placeholder="Type here"
+                    class="form-control"
+                />
+                <small class="error-message" id="nameError"></small>
             </div>
-            <label for="product_name" class="form-label">Brand Image</label>
-            <div class="input-upload ">
-              <img src="" alt=""/>
-              <input class="form-control border " name="image" type="file" />
+            <label for="brand_image" class="form-label">Brand Image</label>
+            <div class="input-upload">
+                <input
+                    class="form-control border"
+                    name="image"
+                    id="brand_image"
+                    type="file"
+                    accept=".jpeg, .jpg, .png, .gif"
+                />
+                <small class="error-message" id="imageError"></small>
             </div>
             <div class="d-grid">
-              <button class="btn btn-primary btn-custom btn-md mt-10" type="submit">
-                Add Brand
-              </button>
+                <button class="btn btn-primary btn-custom btn-md mt-10" type="submit">Add Brand</button>
             </div>
-          </form>
+        </form>
         </div>
         <div class="col-md-7 ml-105">
           <div class="table-responsive">
@@ -83,7 +89,7 @@
               <tbody>
                 <%data.reverse().forEach((brand,index)=>{%>
                 <tr>
-                  <td class="text-start"></td>
+                  <td class="text-start"><%=brand.brandName%></td>
                   <td class="text-start">
                     <div
                       class="d-flex align-items-center justify-content-center"
@@ -95,37 +101,42 @@
                       "
                     >
                       <img
-                        src=""
-                        alt=""
+                        src="/uploads/re-image/<%=brand.brandImage[0]%>"
+                        alt="<%=brand.brandName%>"
                         class="img-fluid rounded-circle"
                         style="width: 100%; height: auto"
                       />
                     </div>
                   </td>
                   <td class="text-start">
+                    <%if(brand.isBlocked===true){%>
                     <span
                       class="badge rounded-pill alert-danger btn-small">Blocked</span
                     >
+                    <%}else{%> 
 
                     <span
-                      class="badge rounded-pill alert-success  btn-small">Active</span
-                    >
+                      class="badge rounded-pill alert-success  btn-small">Active</span>
+                      <%}%>
                   </td>
                   <td class="text-start">
+                    <%if(brand.isBlocked===false){%>
+
                     <button class="btn btn-danger btn-small" >
-                      <a href="" class="text-white">Block</a>
+                      <a href="/admin/blockBrand?id=<%=brand._id%>" class="text-white">Block</a>
                     </button>
+                    <%}else{%>
 
                     <button class="btn btn-success btn-small" >
-                      <a href="" class="text-white">Unblock</a>
+                      <a href="/admin/unBlockBrand?id=<%=brand._id%>" class="text-white">Unblock</a>
                     </button>
-
+                     <%}%>
                     <button
                       class="btn btn-danger btn-small"
                         
-                      onclick=""
+                      onclick="return ConfirmDelete();"
                     >
-                      <a href="" class="text-white">Delete</a>
+                      <a href="/admin/deleteBrand?id=<%=brand._id%>" class="text-white">Delete</a>
                     </button>
                   </td>
                 </tr>
@@ -140,4 +151,65 @@
   <div class="pagination-container">
 </div>
 </section>
+
+
+<script>
+  // JavaScript Validation
+  document.getElementById("addBrandForm").addEventListener("submit", function (e) {
+      let isValid = true;
+
+      // Validate Brand Name
+      const nameInput = document.getElementById("brand_name");
+      const nameError = document.getElementById("nameError");
+      const nameValue = nameInput.value.trim();
+
+      if (!nameValue) {
+          nameError.textContent = "Brand name is required.";
+          isValid = false;
+      } else if (nameValue.length < 3 || nameValue.length > 50) {
+          nameError.textContent = "Brand name must be between 3 and 50 characters.";
+          isValid = false;
+      } else {
+          nameError.textContent = ""; // Clear error
+      }
+
+      // Validate Brand Image
+      const imageInput = document.getElementById("brand_image");
+      const imageError = document.getElementById("imageError");
+      const imageFiles = imageInput.files;
+
+      if (imageFiles.length === 0) {
+          imageError.textContent = "Brand image is required.";
+          isValid = false;
+      } else {
+          const validExtensions = ["image/jpeg", "image/png", "image/gif"];
+          const fileType = imageFiles[0].type;
+
+          if (!validExtensions.includes(fileType)) {
+              imageError.textContent = "Only JPEG, PNG, and GIF formats are allowed.";
+              isValid = false;
+          } else {
+              imageError.textContent = ""; // Clear error
+          }
+      }
+
+      // Prevent form submission if validation fails
+      if (!isValid) {
+          e.preventDefault();
+      }
+  });
+
+
+
+
+
+  // Confirm Delete
+
+  function ConfirmDelete() {
+      return confirm("Are you sure you want to delete?");
+  }
+
+
+
+</script>
 <%- include("../../views/partials/admin/footer") %>
