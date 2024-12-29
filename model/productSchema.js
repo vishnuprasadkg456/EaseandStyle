@@ -23,7 +23,7 @@ const productSchema = new Schema ({
     },
     subCategory : {
         type :String,
-        required : true
+        required : false,
     },
     regularPrice : {
         type : Number,
