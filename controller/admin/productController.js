@@ -177,6 +177,30 @@ const removeProductOffer = async (req, res) => {
 
 }
 
+//block product
+
+const blockProduct = async (req, res) => {
+ 
+    try {
+        let id = req.query.id;
+        await Product.updateOne({_id:id},{$set:{isBlocked:true}});
+        res.redirect("/admin/products");
+    } catch (error) {
+        res.redirect("/pageerror");
+    }
+}
+
+//unblock product
+
+const unblockProduct = async (req, res) => {
+    try {
+        let id = req.query.id;
+        await Product.updateOne({_id:id},{$set:{isBlocked:false}});
+        res.redirect("/admin/products");
+    }catch (error) {
+        res.redirect("/pageerror");
+    }
+}
 
 
 module.exports = {
@@ -184,6 +208,8 @@ module.exports = {
        addProducts,
        getAllProductPage,
          addProductOffer,
-         removeProductOffer
+         removeProductOffer,
+            blockProduct,
+            unblockProduct
 
 }
