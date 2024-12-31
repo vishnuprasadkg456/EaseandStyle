@@ -1,6 +1,11 @@
 // Import the User model from the userSchema file
 const User = require("../../model/userSchema");
 
+
+
+const pageerror = async (req,res)=>{
+    res.render("admin-error");
+}
 // Controller function to retrieve customer information
 const customerInfo = async (req, res) => {
     try {

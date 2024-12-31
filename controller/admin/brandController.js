@@ -2,6 +2,10 @@ const { model } = require("mongoose");
 const Brand = require("../../model/brandSchema");
 const product = require("../../model/productSchema");
 
+const pageerror = async (req,res)=>{
+    res.render("admin-error");
+}
+
 const getBrandPage = async (req, res) => {
 
     try {

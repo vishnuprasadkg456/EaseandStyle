@@ -3,6 +3,10 @@ const Product = require("../../model/productSchema");
 
 
 
+const pageerror = async (req,res)=>{
+    res.render("admin-error");
+}
+
 
 const categoryInfo = async (req, res) => {
     try {
