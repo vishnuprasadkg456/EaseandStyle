@@ -14,7 +14,8 @@ const pageNotFound = async (req, res) => {
 };
 const loadHomePage = async (req, res) => {
     try {
-        const user = req.session.user || req.user;
+        // const user = req.session.user || req.user;
+        const user =  req.session.user || req.user|| await User.findById(req.session.user.id).lean() 
 
         console.log("User from session or req.user:", user);
 
@@ -133,7 +134,7 @@ const securePassword = async (password) => {
         const passwordHash = await bcrypt.hash(password, 10)
         return passwordHash
     } catch (error) {
-        console.error("password hasing failed", error);
+        console.error("password hashing failed", error);
     }
 }
 
@@ -154,7 +155,14 @@ const verifyOtp = async (req, res) => {
             })
 
             await saveUserData.save();
-            req.session.user = saveUserData._id;
+            const savedUser = await saveUserData.save();
+
+            // Store full user data in the session(for diplaying the user details)
+            req.session.user = {
+                id: savedUser._id,
+                name: savedUser.name,
+                email: savedUser.email,
+            };
             res.json({ success: true, redirectUrl: "/" })
 
         } else {

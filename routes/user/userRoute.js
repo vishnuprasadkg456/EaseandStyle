@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const userController = require ("../../controller/user/userController");
 const passport = require("passport");
+const userController = require ("../../controller/user/userController");
+const profileController = require("../../controller/user/profileController");
 
 router.get("/pageNotFound",userController.pageNotFound);
 
@@ -27,5 +28,14 @@ router.post("/login",userController.login)
 router.get("/",userController.loadHomePage);
 router.get("/logout",userController.logout);
 router.get("/shop",userController.loadShopping);
+
+//profile managemennt
+router.get("/forgot-password",profileController.getForgotPassPage);
+router.post("/forgot-email-valid",profileController.forgotEmailValid);
+router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp);
+router.get("/reset-password",profileController.getResetPassPage);
+router.post("/resend-forgot-otp",profileController.resendOtp);
+router.post("/reset-password",profileController.postNewPassword);
+
 
 module.exports = router;
