@@ -328,10 +328,15 @@ const editProduct = async (req, res) => {
            
         }
 
-       if(req.files.length>0){
-        updateFields.$push = {productImage:{$each:images}};
-       }
-        
+    //    if(req.files.length>0){
+    //     updateFields.$push = {productImage:{$each:images}};
+    //    }
+    if (req.files && req.files.length > 0) {
+        updateFields.$push = { productImage: { $each: images } };
+    } else {
+        updateFields.productImage = product.productImage; // Keep existing images
+    }
+    
 
         await Product.findByIdAndUpdate(id,updateFields,{new:true});
         res.redirect("/admin/products");

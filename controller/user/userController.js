@@ -1,4 +1,6 @@
 const User = require("../../model/userSchema");
+const Category =  require("../../model/categorySchema");
+const Product = require("../../model/productSchema"); 
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
 const bcrypt = require("bcrypt");
@@ -15,14 +17,20 @@ const pageNotFound = async (req, res) => {
 const loadHomePage = async (req, res) => {
     try {
         // const user = req.session.user || req.user;
-        const user =  req.session.user || req.user|| await User.findById(req.session.user.id).lean() 
+        const user =  req.session.user || req.user
+        const categories = await Category.find({isListed:true});
+        let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}});
+        productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));//latest arrival to be shown
+        productData = productData.slice(0,4);
 
         console.log("User from session or req.user:", user);
 
         if (user) {
-            res.render("home", { user });
+            const userData = await User.findOne({_id: user._id})||user;
+            res.render("home",{user : userData , productData});
+           // res.render("home", { user });
         } else {
-            res.render("home");
+            res.render("home" , {products:productData});
         }
     } catch (error) {
         console.error("Error in loadHomePage:", error);
