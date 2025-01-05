@@ -27,7 +27,7 @@ const loadHomePage = async (req, res) => {
 
         if (user) {
             const userData = await User.findOne({_id: user._id})||user;
-            res.render("home",{user : userData , productData});
+            res.render("home",{user : userData ,  products: productData });
            // res.render("home", { user });
         } else {
             res.render("home" , {products:productData});
@@ -150,7 +150,8 @@ const securePassword = async (password) => {
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
-        console.log("recived", otp);
+        console.log("verifyOtp triggered");
+        console.log("user verification otp recived", otp);
         if (otp === req.session.userOtp) {
             const user = req.session.userData
             const passwordHash = await securePassword(user.password);

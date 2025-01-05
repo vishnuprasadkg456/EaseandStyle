@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
 const session = require("express-session");
-
+const mongoose = require("mongoose");
 //otp generation
 function generateOtp(){
     const digits = "1234567890";
@@ -54,10 +54,19 @@ const sendVerificationEmail =async(email,otp)=>{
 const securePassword = async(password)=>{
 
     try {
+
+        if (!password) {
+            console.error("Password is undefined or null.");
+            throw new Error("Password is required for hashing.");
+        }
+
+        console.log("Hashing password:", password);
+
         const passwordHash = await bcrypt.hash(password,10);
         return passwordHash;
     } catch (error) {
         console.error("password hasing failed",error);
+        throw error; 
     }
 }
 
@@ -106,7 +115,7 @@ const verifyForgotPassOtp = async(req,res)=>{
     try {
        
         const enteredOtp = req.body.otp;
-        if(enteredOtp===req.session.userOtp){
+        if (String(enteredOtp) === String(req.session.userOtp)){
             res.json({success:true,redirectUrl:"/reset-password"});
         }else{
             res.json({success:false,message:'OTP not Matching'});
@@ -133,7 +142,15 @@ const getResetPassPage = async(req,res)=>{
 
 const resendOtp = async (req, res) => {
     try {
-        const email = req.session.email;
+
+       
+            // Check if userData is defined in session
+            if (!req.session.userData || !req.session.userData.email) {
+                return res.status(400).json({ success: false, message: "Email not found in session. Please restart the process." });
+            }
+
+        // const email = req.session.email;
+        const email = req.session.userData.email;
 
         if (!email) {
             console.error("Email not found in session.");
@@ -166,7 +183,7 @@ const postNewPassword = async(req,res)=>{
         if(newPass1===newPass2){
             const passwordHash = await securePassword(newPass1);
             await User.updateOne(
-                {email:email},{$set:{passwordHash}}
+                {email:email},{$set:{password:passwordHash}}
             )
             res.redirect("/login");
         }else{
@@ -177,11 +194,213 @@ const postNewPassword = async(req,res)=>{
     }
 }
 
+//user Profile 
+
+
+const userProfile = async(req,res)=>{
+    try {
+        const userId = req.session.user.id || req.session.user._id;
+
+         // Validate the ID
+         if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.error("Invalid ObjectId:", userId);
+            return res.redirect("/pageNotFound");
+        }
+
+
+        const userdata = await User.findById(userId);
+
+        if (!userdata) {
+            console.error("User not found for ID:", userId);
+            return res.redirect("/pageNotFound");
+        }
+
+        res.render("profile",{user:userdata});
+    } catch (error) {
+        console.error("Error retrieving user profile",error);
+        res.redirect("/pageNotFound");
+    }
+}
+
+//change email
+
+const changeEmail = async(req,res)=>{
+    
+    try {
+        res.render("change-email");
+    } catch (error) {
+        res.redirect("/pageNotFound");
+    }
+
+}
+
+//profile change email
+const changeEmailValid = async (req, res) => {
+    try {
+        const { email } = req.body;
+        console.log("Received new email in request body:", email);
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            const otp = generateOtp();
+            const emailSent = await sendVerificationEmail(email, otp);
+
+            if (emailSent) {
+                req.session.userOtp = otp;
+                req.session.userData = { email, name: userExists.name }; // Store relevant user data in session
+                console.log("Email stored in session:", req.session.userData);
+                
+                res.render("change-email-otp", { email }); // Pass email for contextual display
+                console.log("Email sent:", email);
+                console.log("Email change OTP:", otp);
+            } else {
+                res.render("change-email", { message: "Failed to send verification email. Please try again." });
+            }
+        } else {
+            res.render("change-email", { message: "User with this email does not exist." });
+        }
+    } catch (error) {
+        console.error("Error in changeEmailValid:", error);
+        res.redirect("/pageNotFound");
+    }
+};
+
+
+//verify email otp
+const verifyEmailOtp = async (req, res) => {
+    try {
+        console.log("verifyEmailOtp triggered");
+        const enteredOtp = req.body.otp;
+
+        console.log("Session data in verifyEmailOtp:", req.session);
+        console.log("Entered OTP:", enteredOtp);
+        console.log("Stored OTP:", req.session.userOtp);
+
+        if (String(enteredOtp) === String(req.session.userOtp)) {
+            // Ensure userData is defined in the session
+            if (!req.session.userData) {
+                console.warn("userData is missing in session.");
+                return res.redirect("/change-email", { message: "Session expired. Please restart the process." });
+            }
+
+            console.log("Session userData before rendering new-email:", req.session.userData);
+            return res.render("new-email", { userData: req.session.userData });
+        } else {
+            return res.render("change-email-otp", {
+                message: "OTP not matching. Please try again.",
+                email: req.session.userData?.email || null, // Send email for context
+            });
+        }
+    } catch (error) {
+        console.error("Error in verifyEmailOtp:", error);
+        res.redirect("/pageNotFound");
+    }
+};
+
+//update Email
+
+const updateEmail = async (req, res) => {
+    try {
+        const newEmail = req.body.newEmail;
+
+        // Extract the user ID from the session
+        const userId = req.session.user?.id; // Use optional chaining to handle undefined cases
+
+        if (!userId) {
+            throw new Error("User ID is missing from the session.");
+        }
+
+        // Ensure the userId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("Invalid user ID format.");
+        }
+
+        // Update the user's email
+        await User.findByIdAndUpdate(userId, { email: newEmail });
+
+        // Redirect to the user profile page on success
+        res.redirect("/userProfile");
+    } catch (error) {
+        console.error("Error updating email", error);
+
+        // Redirect to the error page on failure
+        res.redirect("/pageNotFound");
+    }
+};
+
+//change password user profile
+
+const changePassword = async(req,res)=>{
+    try {
+        res.render("change-password");
+    } catch (error) {
+        res.redirect("/pageNotFound");
+    }
+}
+
+//change password validation user profile
+
+const changePasswordValid = async (req, res) => {
+
+    try {
+        const {email} = req.body;
+        const userExists = await User.findOne({email: email});
+        if(userExists){
+            const otp = generateOtp();
+            const emailSent = await sendVerificationEmail(email, otp);
+            if(emailSent){
+                req.session.userOtp = otp;
+                req.session.userData = req.body;
+                req.session.email = email;
+                res.render("change-password-otp");
+                console.log("change password OTP: ",otp)
+               
+            }else{
+                
+                res.json({success:false,message:"Failed to send OTP.please try again"});
+            }
+        }else{
+            res.json({success:false,message:"User not found with this email"});
+        
+        }
+    } catch (error) {
+        console.log("Error in change password validation " , error);
+        res.redirect("/pageNotFound")
+    }
+
+
+}
+
+//verify changepassword otp 
+
+const  verifyChangePassOtp = async(req,res)=>{
+
+    try {
+        const enteredOtp = req.body.otp;
+        if(enteredOtp === req.session.userOtp){
+            res.json({success:true,redirectUrl:"/reset-password"});
+        }else{
+            res.json({success:false,message:"OTP not matching"});
+        }
+    } catch (error) {
+        res.status(500).json({success:false,message:"An error occured. Please try again later "});
+    }
+
+}
+
 module.exports = {
     getForgotPassPage,
     forgotEmailValid,
     verifyForgotPassOtp,
     getResetPassPage,
     resendOtp,
-    postNewPassword
-}
+    postNewPassword,
+    userProfile,
+    changeEmail,
+    changeEmailValid,
+    verifyEmailOtp,
+    updateEmail,
+    changePassword,
+    changePasswordValid ,
+    verifyChangePassOtp
+ };
