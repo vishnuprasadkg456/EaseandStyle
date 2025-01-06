@@ -1,5 +1,5 @@
 const mongoose = require ("mongoose");
-const {schema} = mongoose;
+const {Schema} = mongoose;
 
 const addressSchema = new Schema({
     userId:{
@@ -28,7 +28,7 @@ const addressSchema = new Schema({
             type : String,
             required : true
         },
-        pinCode : {
+        pincode : {
             type : Number,
             required : true
         },

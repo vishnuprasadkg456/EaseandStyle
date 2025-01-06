@@ -1,4 +1,5 @@
 const User = require("../../model/userSchema");
+const Address = require("../../model/addressSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
@@ -215,7 +216,10 @@ const userProfile = async(req,res)=>{
             return res.redirect("/pageNotFound");
         }
 
-        res.render("profile",{user:userdata});
+        const addressData = await Address.findOne({userId:userId})
+
+
+        res.render("profile",{user:userdata,userAddress : addressData});
     } catch (error) {
         console.error("Error retrieving user profile",error);
         res.redirect("/pageNotFound");
@@ -388,6 +392,46 @@ const  verifyChangePassOtp = async(req,res)=>{
 
 }
 
+//addAddress
+
+const addAddress = async (req,res)=>{
+    try {
+        
+        const user = req.session.user;
+        res.render("add-address",{user: user});
+
+    } catch (error) {
+        res.redirect("/pageNotFound")
+    }
+}
+//postAddAddress
+
+const postAddAddress = async(req,res)=>{
+    try {
+        const userId = req.session.user.id;
+        const userData = await User.findOne({_id: userId});
+        const {addressType,name,city,landMark,state,pincode,phone,altPhone} = req.body;
+        const userAddress = await Address.findOne({userId:userData._id});
+
+        if(!userAddress){
+            const newAddress = new Address({
+                userId : userData._id,
+                address : [{addressType,name,city,landMark,state,pincode,phone,altPhone}],
+
+            });
+
+            await newAddress.save();
+        }else{
+            userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone});
+            await userAddress.save();
+        }
+
+        res.redirect("/userProfile");
+    } catch (error) {
+        console.error("Error adding address:",error);
+        res.redirect("/pageNotFound");
+    }
+}
 module.exports = {
     getForgotPassPage,
     forgotEmailValid,
@@ -402,5 +446,7 @@ module.exports = {
     updateEmail,
     changePassword,
     changePasswordValid ,
-    verifyChangePassOtp
+    verifyChangePassOtp,
+    addAddress,
+    postAddAddress
  };

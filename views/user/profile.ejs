@@ -109,6 +109,17 @@
 .breadcrumb a:hover::after {
  transform: scaleX(1);
 }
+
+.mlft-6{
+  margin: 15px!important;
+}
+
+.card .card-header {
+  padding: 1rem;
+  margin-bottom: 0;
+  background-color: #903131;
+  border: 1px solid #956d6d; 
+}
 </style>
 
 <main class="main">
@@ -153,11 +164,11 @@
                      <i class="fi-rs-shopping-cart-check mr-10"></i>Wallet History
                    </a>
                  </li>
-                 <li class="nav-item">
+                 <!-- <li class="nav-item">
                    <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#referal" role="tab" aria-controls="track-orders" aria-selected="false">
                      <i class="fi-rs-shopping-cart-check mr-10"></i>Referals
                    </a>
-                 </li>
+                 </li> -->
                  <li class="nav-item">
                    <a class="nav-link" href="/logout">
                      <i class="fi-rs-sign-out mr-10"></i>Logout
@@ -196,20 +207,28 @@
                  role="tabpanel"
                  aria-labelledby="address-tab"
                >
-                 <div class="row">
+                 <div class="row ">
+                  <%if(userAddress){%>
+                    <% userAddress.address.forEach((address)=>{ %>
+                    
                 
-                   <div class="col-lg-6">
+                   <div class="col-lg-6 mt-10 mb-10">
                      <div class="card mb-3 mb-lg-0">
                        <div class="card-header">
-                         <h5 class="mb-0"></h5>
+                         <h5 class="mb-0" style="color: #eee2e9;"><%= address.addressType%></h5>
                        </div>
 
                        <div class="card-body">
                          <address>
-                        
+                        <%=address.name%><br/>
+                        <%=address.city%><br/>
+                        <%=address.landMark%><br/>
+                        <%=address.state%>
                         
                          </address>
-                         <p></p>
+                         <p><%=address.pincode%></p>
+                         <p><%=address.phone%></p>
+                         <p><%=address.altPhone%></p>
                       
                          <div class="d-flex justify-content-between">
                            <a href="#" class="btn-small">Edit</a>
@@ -220,6 +239,9 @@
                      </div>
                    </div>
                 
+
+                   <%});%>
+                   <%}else{%>
                    <div class="col-lg-6">
                      <div class="card mb-3 mb-lg-0">
                        <div class="card-header">
@@ -230,10 +252,11 @@
                        </div>
                      </div>
                    </div>
+                   <%}%>
               
                    <div>
-                     <a href="#">
-                       <button class="btn btn-primary w-70">
+                     <a href="/addAddress">
+                       <button class="btn btn-primary w-70 mlft-6">
                          Add address
                        </button>
                      </a>
@@ -322,7 +345,7 @@
                  </div>
                </div>
 
-               <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
+               <!-- <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
                  <div class="card">
                    <div class="card-header">
                      <h5 class="mb-0">Referal</h5>
@@ -333,7 +356,7 @@
                      <p>Earned: ₹</p>
                    </div>
                  </div>
-               </div>
+               </div> -->
        </div>
      </div>
    </div>
