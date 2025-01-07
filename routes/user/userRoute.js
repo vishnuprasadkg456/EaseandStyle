@@ -24,11 +24,11 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 //login management
 router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
-
-//Home 
-router.get("/",userController.loadHomePage);
 router.get("/logout",userController.logout);
-router.get("/shop",userController.loadShopping);
+//Home & shop
+router.get("/",userController.loadHomePage);
+router.get("/shop",userAuth,userController.loadShoppingPage);
+router.get("/filter",userAuth,userController.filterProduct);
 
 //profile managemennt
 router.get("/forgot-password",profileController.getForgotPassPage);
@@ -50,6 +50,10 @@ router.post("/verify-changepassword-otp",userAuth,profileController.verifyChange
 
 router.get("/addAddress",userAuth,profileController.addAddress);
 router.post("/addAddress",userAuth,profileController.postAddAddress)
+router.get("/editAddress",userAuth,profileController.editAddress);
+router.post("/editAddress",userAuth,profileController.postEditAddress);
+router.get("/deleteAddress",userAuth,profileController.deleteAddress);
+
 
 
 module.exports = router;

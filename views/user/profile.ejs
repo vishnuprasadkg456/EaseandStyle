@@ -112,6 +112,7 @@
 
 .mlft-6{
   margin: 15px!important;
+ 
 }
 
 .card .card-header {
@@ -119,6 +120,10 @@
   margin-bottom: 0;
   background-color: #903131;
   border: 1px solid #956d6d; 
+}
+.btn-small{
+  
+  color: #088178;
 }
 </style>
 
@@ -231,8 +236,9 @@
                          <p><%=address.altPhone%></p>
                       
                          <div class="d-flex justify-content-between">
-                           <a href="#" class="btn-small">Edit</a>
-                           <a href="#" class="btn-small" onclick="">Delete</a>
+                           <a href="/editAddress?id=<%=address._id%>" class="btn-small">Edit</a>
+                           <a href="#" class="btn-small delete-address-btn" data-id="<%=address._id%>" data-bs-toggle="modal" data-bs-target="#deleteAddressModal">Delete</a>
+
                          </div>
                         
                        </div>
@@ -362,6 +368,40 @@
    </div>
  </section>
 </main>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteAddressModal" tabindex="-1" aria-labelledby="deleteAddressModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteAddressModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this address?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="#" id="confirmDeleteButton" class="btn btn-danger">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-address-btn');
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', (event) => {
+        const addressId = button.getAttribute('data-id');
+        confirmDeleteButton.href = `/deleteAddress?id=${addressId}`;
+      });
+    });
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 <%- include("../../views/partials/user/userFooter") %>
 
 

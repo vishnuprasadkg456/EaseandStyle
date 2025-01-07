@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Product = require("../../model/productSchema");
 const Category = require("../../model/categorySchema");
 const Brand = require("../../model/brandSchema");
