@@ -29,6 +29,7 @@ router.get("/logout",userController.logout);
 router.get("/",userController.loadHomePage);
 router.get("/shop",userAuth,userController.loadShoppingPage);
 router.get("/filter",userAuth,userController.filterProduct);
+router.post("/search",userAuth,userController.searchProducts);
 
 //profile managemennt
 router.get("/forgot-password",profileController.getForgotPassPage);

@@ -882,17 +882,17 @@ button.submit, button[type='submit'] {
   padding: 12px 40px;
   color: #ffffff;
   border: none;
-  background-color: #088178;
-  border: 1px solid #046963;
+  background-color: #201919;
+  border: 1px solid #424242;
   border-radius: 5px;
 }
 
 button.submit:hover, button[type='submit']:hover {
-  background-color: #046963 !important;
+  background-color: #882f2f !important;
 }
 
 .btn-brand:hover {
-  background-color: #046963 !important;
+  background-color: #882f2f !important;
 }
 
 .btn-login {
@@ -967,7 +967,7 @@ button.submit:hover, button[type='submit']:hover {
 
 .btn.btn-brush, .button.btn-brush {
   background-color: transparent;
-  color: #088178;
+  color: #882f2f;
   border: 0;
   padding: 14px 80px 14px 65px;
   background-repeat: no-repeat;
@@ -1046,7 +1046,7 @@ input {
 
 input:focus {
   background: transparent;
-  border: 1px solid #5ba7a3;
+  border: 1px solid #a75b5b;
 }
 
 input.square {
@@ -1071,7 +1071,7 @@ option {
 }
 
 textarea {
-  border: 1px solid #e2e9e1;
+  border: 1px solid #e9e1e1;
   border-radius: 4px;
   height: 45px;
   -webkit-box-shadow: none;
@@ -1085,7 +1085,7 @@ textarea {
 
 textarea:focus {
   background: transparent;
-  border: 1px solid #88c1be;
+  border: 1px solid #c18888;
 }
 
 .select2-container--default .select2-selection--single {
