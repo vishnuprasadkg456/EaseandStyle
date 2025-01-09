@@ -1,0 +1,284 @@
+<%- include("../../views/partials/user/userHeader") %>
+    <style>
+        /* General styles for the product image gallery */
+        .detail-gallery {
+            position: relative;
+        }
+
+        .product-image-slider figure img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .slider-nav-thumbnails div img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .button.disabled {
+            background-color: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            pointer-events: none;
+            border: 1px solid #ddd;
+        }
+        
+        /* Responsive Design using Media Queries */
+        @media (max-width: 992px) {
+
+            /* For tablets and smaller screens */
+            .col-md-6 {
+                width: 100%;
+                padding: 0;
+            }
+
+            .detail-gallery {
+                margin-bottom: 20px;
+            }
+
+            .slider-nav-thumbnails {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .slider-nav-thumbnails div {
+                flex: 0 0 20%;
+                max-width: 20%;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            /* For smaller tablets and larger phones */
+            .slider-nav-thumbnails div {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+
+            .product-image-slider figure img {
+                height: auto;
+                object-fit: contain;
+            }
+        }
+
+        @media (max-width: 576px) {
+
+            /* For mobile phones */
+            .slider-nav-thumbnails div {
+                flex: 0 0 33.33%;
+                max-width: 33.33%;
+            }
+
+            .product-image-slider figure img {
+                height: auto;
+            }
+        }
+
+        @media (max-width: 400px) {
+
+            /* For very small screens */
+            .slider-nav-thumbnails div {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+    </style>
+    <main class="main">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="#" rel="nofollow">Home</a>
+                    <span></span> Shop
+                    <span></span> Products
+                </div>
+            </div>
+        </div>
+        <section class="mt-50 mb-50">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="product-detail accordion-detail">
+                            <div class="row mb-50">
+                                <!-- Product Image Gallery -->
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="detail-gallery">
+                                        <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                        <div class="product-image-slider">
+                                            <% product.productImage.forEach((image, index)=> { %>
+                                                <figure class="border-radius-10">
+                                                    <img src="/uploads/re-image/<%= image %>"
+                                                        alt="Product Image <%= index + 1 %>">
+                                                </figure>
+                                                <% }); %>
+                                        </div>
+                                        <div class="slider-nav-thumbnails pl-15 pr-15">
+                                            <% product.productImage.forEach((image)=> { %>
+                                                <div>
+                                                    <img style="object-fit:contain;"
+                                                        src="/uploads/re-image/<%= image %>" alt="Thumbnail">
+                                                </div>
+                                                <% }); %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Product Details -->
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="detail-info">
+                                        <h2 class="title-detail">
+                                            <%= product.productName %>
+                                        </h2>
+                                        <div class="product-detail-rating">
+                                            <div class="pro-details-brand">
+                                                <span>Brand : <a href="/shop"><%= product.brand %></a></span>
+                                            </div>
+                                            <div class="product-rate-cover text-end">
+                                                <div class="product-rate d-inline-block">
+                                                    <div class="product-rating" style="width:90%"></div>
+                                                </div>
+                                                <span class="font-small ml-5 text-muted"> (25 reviews)</span>
+                                            </div>
+                                        </div>
+                                        <!-- Check product availability -->
+                                        <% if (quantity> 0) { %>
+                                            <!-- Show price if product is available -->
+                                            <div class="clearfix product-price-cover">
+                                                <div class="product-price primary-color float-left">
+                                                    <ins><span class="text-brand">
+                                                        ₹ <%= product.salePrice %>
+                                                        </span></ins>
+                                                    <ins><span class="old-price font-md ml-15">
+                                                        ₹ <%= product.regularPrice %>
+                                                        </span></ins>
+                                                    <span class="save-price font-md color3 ml-15">
+                                                        <% if (!totalOffer) { %>
+                                                            NO Offers
+                                                            <% } else { %>
+                                                                <%= totalOffer %> % off
+                                                                    <% } %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                            <div class="short-desc mb-30">
+                                                <p>
+                                                    <%= product.description %>
+                                                </p>
+                                                <div class="product_sort_info font-xs mb-30">
+                                                    <ul>
+                                                        <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year Brand Warranty</li>
+                                                        <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
+                                                        <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                                    </ul>
+                                                </div>
+                                            <div class="detail-extralink">
+                                                <div class="detail-qty border radius">
+                                                    <a href="#" class="qty-down"><i
+                                                            class="fi-rs-angle-small-down"></i></a>
+                                                    <span class="qty-val" id="quantity">1</span>
+                                                    <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                                </div>
+                                                <div class="product-extra-link2">
+                                                    <button type="submit" class="button button-add-to-cart">Add to
+                                                        Cart</button>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                        href="#"><i class="fi-rs-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <ul class="product-meta font-xs color-grey mt-50">
+                                                <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
+                                                <li class="mb-5">Tags: <a href="#" rel="tag">
+                                                        <%= category.name %>
+                                                    </a></li>
+                                                <li>Availability: <span class="in-stock text-success ml-5">
+                                                        <%= quantity %> Items in Stock
+                                                    </span></li>
+                                            </ul>
+                                            <% } else { %>
+                                                <!-- Show 'Out of Stock' message if product is unavailable -->
+                                                <div class="clearfix product-price-cover">
+                                                    <div class="product-price primary-color float-left">
+                                                        <span class="text-danger font-md">Out of Stock</span>
+                                                    </div>
+                                                </div>
+                                                <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                                <div class="short-desc mb-30">
+                                                    <p>We're sorry, but this product is currently unavailable. Please
+                                                        check back later or explore similar items.</p>
+                                                </div>
+                                                <div class="detail-extralink">
+                                                    <button type="submit" class="button button-add-to-cart disabled"
+                                                        disabled>Unavailable</button>
+                                                </div>
+                                                <ul class="product-meta font-xs color-grey mt-50">
+                                                    <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
+                                                    <li class="mb-5">Tags: <a href="#" rel="tag">
+                                                            <%= category.name %>
+                                                        </a></li>
+                                                    <li>Availability: <span class="text-danger ml-5">Out of Stock</span>
+                                                    </li>
+                                                </ul>
+                                                <% } %>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="related-products spad">
+            <div class="container pro-container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h3 class="section-title">Related Products</h3>
+                    </div>
+                </div>
+                <div class="row product__filter">
+                    <% for (let i = 0; i < relatedProducts.length; i++) { %>
+                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                            <div class="product-cart-wrap">
+                                <div class="product-container">
+                                    <div class="product-img-action-wrap">
+                                        <div class="product-img product-img-zoom">
+                                            <a href="/productDetails?id=<%= relatedProducts[i]._id %>">
+                                                <img class="default-img"
+                                                    src="/uploads/re-image/<%= relatedProducts[i].productImage[0] %>"
+                                                    alt="<%= relatedProducts[i].productName %>">
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="product-action-1">
+                                        <a aria-label="Add to Wishlist" class="action-btn hover-up"
+                                            href="/addToWishlist?id=<%= relatedProducts[i]._id %>">
+                                            <i class="fa-solid fa-heart" style="color: #ff0000;"></i>
+                                        </a>
+                                    </div>
+                                    <div class="product-content-wrap">
+                                        <h6>
+                                            <%= relatedProducts[i].productName %>
+                                        </h6>
+                                        <h5>
+                                            <%= relatedProducts[i].salePrice %>
+                                        </h5>
+                                        <a href="/addToCart?id=<%= relatedProducts[i]._id %>">Add to cart</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+        
+
+    </main>
+    <%- include("../../views/partials/user/userFooter") %>

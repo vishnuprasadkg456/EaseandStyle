@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require("passport");
 const userController = require ("../../controller/user/userController");
 const profileController = require("../../controller/user/profileController");
+const productController = require("../../controller/user/productController");
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 
 router.get("/pageNotFound",userController.pageNotFound);
@@ -27,9 +28,14 @@ router.post("/login",userController.login)
 router.get("/logout",userController.logout);
 //Home & shop
 router.get("/",userController.loadHomePage);
+
 router.get("/shop",userAuth,userController.loadShoppingPage);
 router.get("/filter",userAuth,userController.filterProduct);
 router.post("/search",userAuth,userController.searchProducts);
+
+//contacts
+router.get("/contacts",userAuth,userController.contacts);
+
 
 //profile managemennt
 router.get("/forgot-password",profileController.getForgotPassPage);
@@ -55,6 +61,8 @@ router.get("/editAddress",userAuth,profileController.editAddress);
 router.post("/editAddress",userAuth,profileController.postEditAddress);
 router.get("/deleteAddress",userAuth,profileController.deleteAddress);
 
+//product Management
+router.get("/productDetails",userAuth,productController.productDetails);
 
 
 module.exports = router;

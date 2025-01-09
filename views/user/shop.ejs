@@ -152,7 +152,7 @@
             padding: 8px;
             background-color: white;
         }
-        
+
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -301,32 +301,36 @@
                     <main class="product-grid">
                         <% for(let i=0; i < products.length; i++) { %>
                             <div class="product-card">
-                                <div class="product-image-container">
-                                    <img src="/uploads/re-image/<%=products[i].productImage[0]%>"
-                                        alt="<%=products[i].productName%>" class="product-image" />
-                                    <div class="product-hover">
-                                        <button class="wishlist-btn">
-                                            <i class="fa-solid fa-heart " style="color: #333;"></i>
-                                        </button>
+                                
+                                <a href="/productDetails?id=<%=products[i]._id%>">
 
+                                    <div class="product-image-container">
+                                        <img src="/uploads/re-image/<%=products[i].productImage[0]%>"
+                                            alt="<%=products[i].productName%>" class="product-image" />
+                                        <div class="product-hover">
+                                            <button class="wishlist-btn">
+                                                <i class="fa-solid fa-heart " style="color: #333;"></i>
+                                            </button>
+
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="product-details">
-                                    <h4 class="product-name">
-                                        <%=products[i].productName%>
-                                    </h4>
-                                    <p class="product-brand">Brand: <%=products[i].brand%>
-                                    </p>
-                                    <div class="product-price">
-                                        <span
-                                            class="sale-price">₹<%=products[i].salePrice.toLocaleString('en-IN')%></span>
-                                        <span
-                                            class="regular-price"><strike>₹<%=products[i].regularPrice.toLocaleString('en-IN')%></strike></span>
-                                    </div>
-                                    <button class="add-to-cart-btn">Add to Cart</button>
-                                </div>
+                                    <div class="product-details">
+                                        <h4 class="product-name">
+                                            <%=products[i].productName%>
+                                        </h4>
+                                        <p class="product-brand">Brand: <%=products[i].brand%>
+                                        </p>
+                                        <div class="product-price">
+                                            <span
+                                                class="sale-price">₹<%=products[i].salePrice.toLocaleString('en-IN')%></span>
+                                            <span
+                                                class="regular-price"><strike>₹<%=products[i].regularPrice.toLocaleString('en-IN')%></strike></span>
+                                        </div>
+                                </a>
+                                <button class="add-to-cart-btn">Add to Cart</button>
                             </div>
-                            <% } %>
+                </div>
+                <% } %>
                     </main>
 
 
@@ -355,9 +359,9 @@
                         </div>
                     </div>
 
-                </div>
-                <!-- Product Grid End -->
             </div>
+            <!-- Product Grid End -->
+        </div>
         </div>
     </section>
     <!-- Shop Section End -->
@@ -383,7 +387,7 @@
             url.searchParams.set('sort', sortValue);
             window.location.href = url.toString();  // Refresh the page with the new sort
         }
-        
+
     </script>
 
 

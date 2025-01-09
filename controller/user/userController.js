@@ -322,7 +322,7 @@ const loadShoppingPage = async (req, res) => {
 
         const query = {
             isBlocked: false,
-            quantity: { $gt: 0 },
+            quantity: { $gte: 0 },
         };
 
         if (selectedCategory) query.category = selectedCategory;
@@ -385,7 +385,7 @@ const filterProduct = async (req, res) => {
 
         const query = {
             isBlocked: false,
-            quantity: { $gt: 0 },
+            quantity: { $gte: 0 },
         };
 
         if (category) query.category = category;
@@ -488,7 +488,16 @@ const searchProducts = async(req,res)=>{
     }
 }
 
+//load contacts
 
+const contacts = async (req,res)=>{
+    try {
+        const user = req.session.user;
+        res.render("contacts",{user});
+    } catch (error) {
+        res.redirect("/pageNotFound"); 
+    }
+}
 
 module.exports = {
     loadHomePage,
@@ -502,6 +511,8 @@ module.exports = {
     logout,
     loadShoppingPage,
     filterProduct,
-    searchProducts
+    searchProducts,
+    contacts,
+    
  
 }

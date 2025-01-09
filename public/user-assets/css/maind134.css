@@ -128,7 +128,7 @@ input:focus::-moz-placeholder {
 }
 
 a {
-  color: #088178;
+  color:#811515;
 }
 
 a:hover {
@@ -137,18 +137,18 @@ a:hover {
 
 /*--- Common Classes---------------------*/
 ::-moz-selection {
-  background: #088178;
+  background: #811515;
   /* WebKit/Blink Browsers */
   color: #fff;
 }
 ::selection {
-  background: #088178;
+  background: #811515;
   /* WebKit/Blink Browsers */
   color: #fff;
 }
 
 ::-moz-selection {
-  background: #088178;
+  background: #811515;
   /* Gecko Browsers */
   color: #fff;
 }
@@ -279,7 +279,7 @@ input[type=number]:focus,
 }
 
 .text-brand {
-  color: #088178 !important;
+  color: #811515 !important;
 }
 
 .text-primary {
@@ -295,7 +295,7 @@ input[type=number]:focus,
 }
 
 .text-success {
-  color: #3ed092 !important;
+  color: #410202 !important;
 }
 
 .text-info {
@@ -323,7 +323,7 @@ input[type=number]:focus,
 }
 
 .bg-brand {
-  background-color: #088178 !important;
+  background-color: #811515!important;
 }
 
 .bg-primary {
@@ -448,7 +448,7 @@ input[type=number]:focus,
 }
 
 .border-brand {
-  border-color: #088178 ;
+  border-color: #811515 ;
 }
 
 .border-muted {
@@ -2146,8 +2146,8 @@ label {
 .card .card-header {
   padding: 1rem;
   margin-bottom: 0;
-  background-color: #f7f8f9;
-  border-bottom: 1px solid #e2e9e1;
+  background-color: #171717;
+  border-bottom: 1px solid #212121;
 }
 
 .border-radius {
@@ -2240,7 +2240,7 @@ label {
 
 .dashboard-menu ul li a.active {
   color: #fff;
-  background-color: #903131;
+  background-color:#1e1e1e;
 }
 
 .dashboard-menu ul li a.active i {
