@@ -4,6 +4,7 @@ const passport = require("passport");
 const userController = require ("../../controller/user/userController");
 const profileController = require("../../controller/user/profileController");
 const productController = require("../../controller/user/productController");
+const cartController = require("../../controller/user/cartController");
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 
 router.get("/pageNotFound",userController.pageNotFound);
@@ -64,5 +65,13 @@ router.get("/deleteAddress",userAuth,profileController.deleteAddress);
 //product Management
 router.get("/productDetails",userAuth,productController.productDetails);
 
+//cart management
+
+router.get("/cart",userAuth,cartController.cart);
+router.post("/addToCart",userAuth,cartController.addToCart);
+router.post("/updateCartQuantity", userAuth, cartController.updateCartQuantity);
+router.post("/removeFromCart", userAuth, cartController.removeFromCart);
+
+// router.post("/applyCoupon",userAuth,userController.applyCoupon);
 
 module.exports = router;

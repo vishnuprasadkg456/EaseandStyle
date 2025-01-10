@@ -42,12 +42,12 @@ const addProducts = async (req, res) => {
         //log
         logDebugInfo("addProducts", "req.body", products);
 
-        
+
 
         const productExist = await Product.findOne({ productName: products.productName });
 
         logDebugInfo("addProducts", "productExist", productExist);
-       
+
 
 
         if (!productExist) {
@@ -105,7 +105,7 @@ const addProducts = async (req, res) => {
         }
 
     } catch (error) {
-         console.error("[ERROR] Error in addProducts:", error);
+        console.error("[ERROR] Error in addProducts:", error);
         return res.status(500).redirect("/pageerror");
     }
 
@@ -270,17 +270,24 @@ const getEditProduct = async (req, res) => {
         const product = await Product.findOne({ _id: id });
         const category = await Category.find({});
         const brand = await Brand.find({});
+       
+
+        
+
 
         if (!product) {
             return res.status(404).send("Product not found");
         }
 
+        const colors = product.variants.colors || [];
+
         res.render("edit-product", {
             product,
             brand: brand,
             cat: category,
-          
-           
+            colors
+
+
         });
     } catch (error) {
         console.error("Error in getEditProduct:", error);
@@ -295,51 +302,54 @@ const editProduct = async (req, res) => {
 
     try {
         const id = req.params.id;
-        const product = await Product.findOne({_id:id});
+        const product = await Product.findOne({ _id: id });
         const data = req.body;
-        const existingProduct = await Product.findOne({productName:data.productName,_id:{$ne:id}});
+        const existingProduct = await Product.findOne({ productName: data.productName, _id: { $ne: id } });
 
-        if(existingProduct){
-            return res.status(400).json({error:"Product already exist,Please try with another name"});
+        if (existingProduct) {
+            return res.status(400).json({ error: "Product already exist,Please try with another name" });
         }
 
-         // Find the category ObjectId by category name (e.g., "Caps")
-         const category = await Category.findOne({ name: data.category });
+        // Find the category ObjectId by category name (e.g., "Caps")
+        const category = await Category.findOne({ name: data.category });
 
-         if (!category) {
-             return res.status(400).json({ error: "Invalid category" });
-         }
-         const images = [];
-        if(req.files && req.files.length>0){
-            for(let i=0;i<req.files.length;i++){
+        if (!category) {
+            return res.status(400).json({ error: "Invalid category" });
+        }
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            for (let i = 0; i < req.files.length; i++) {
                 images.push(req.files[i].filename);
             }
         }
 
+          // Parse and update colors
+          const updatedColors = data.color ? data.color.split(',').map(c => c.trim()) : product.variants.colors;
+
         const updateFields = {
-            productName:data.productName,
-            description:data.description,
-            brand:data.brand,
-            category:category._id,
-            regularPrice:data.regularPrice,
-            salePrice:data.salePrice,
-            quantity:data.quantity,
-            size:data.size,
-            color:data.color,
-           
+            productName: data.productName,
+            description: data.description,
+            brand: data.brand,
+            category: category._id,
+            regularPrice: data.regularPrice,
+            salePrice: data.salePrice,
+            quantity: data.quantity,
+            size: data.size,
+            'variants.colors': updatedColors,
+
         }
 
-    //    if(req.files.length>0){
-    //     updateFields.$push = {productImage:{$each:images}};
-    //    }
-    if (req.files && req.files.length > 0) {
-        updateFields.$push = { productImage: { $each: images } };
-    } else {
-        updateFields.productImage = product.productImage; // Keep existing images
-    }
-    
+        //    if(req.files.length>0){
+        //     updateFields.$push = {productImage:{$each:images}};
+        //    }
+        if (req.files && req.files.length > 0) {
+            updateFields.$push = { productImage: { $each: images } };
+        } else {
+            updateFields.productImage = product.productImage; // Keep existing images
+        }
 
-        await Product.findByIdAndUpdate(id,updateFields,{new:true});
+
+        await Product.findByIdAndUpdate(id, updateFields, { new: true });
         res.redirect("/admin/products");
 
 
@@ -354,17 +364,17 @@ const editProduct = async (req, res) => {
 const deleteSingleImage = async (req, res) => {
 
     try {
-        const {imageNameToServer,productIdToServer} = req.body;
-        const product  = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}});
-        const imagePath = path.join("public","uploads","re-image",imageNameToServer);
-        if(fs.existsSync(imagePath)){
-           await fs.unlinkSync(imagePath);
+        const { imageNameToServer, productIdToServer } = req.body;
+        const product = await Product.findByIdAndUpdate(productIdToServer, { $pull: { productImage: imageNameToServer } });
+        const imagePath = path.join("public", "uploads", "re-image", imageNameToServer);
+        if (fs.existsSync(imagePath)) {
+            await fs.unlinkSync(imagePath);
             console.log(`Image ${imageNameToServer} deleted successfully`);
-        }else{
+        } else {
             console.log(`Image ${imageNameToServer} not found`);
         }
 
-        res.send({status:true});
+        res.send({ status: true });
 
 
     } catch (error) {

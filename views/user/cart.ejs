@@ -1,0 +1,191 @@
+<%- include("../../views/partials/user/userHeader") %>
+
+    <style>
+        .shopping__cart__table table {
+            border-collapse: collapse;
+            /* Ensures that borders don't double up */
+            border-spacing: 0;
+            /* Removes space between cells */
+        }
+
+        .shopping__cart__table table th,
+        .shopping__cart__table table td {
+            border: none;
+            /* Removes borders from table headers and cells */
+        }
+
+        .shopping__cart__table table tr {
+            border-bottom: none;
+            /* Removes borders between rows */
+        }
+
+        .shopping__cart__table {
+            box-shadow: none;
+            /* Removes any box-shadow if applied */
+            border: none;
+            /* Removes border from the entire table container */
+        }
+
+        /* Style for cart__close button */
+        .cart__close {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Style for the remove-item button */
+        .cart__close .remove-item {
+            background-color: transparent;
+            /* Transparent background for a clean look */
+            border: none;
+            /* Remove border */
+            cursor: pointer;
+            /* Pointer cursor to indicate clickability */
+            padding: 5px;
+            /* Add some padding for better click area */
+            border-radius: 50%;
+            /* Circle shape */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            /* Smooth transition effects */
+        }
+
+        /* Default icon style */
+        .cart__close .remove-item i {
+            font-size: 16px;
+            /* Adjust size as needed */
+            color: #ff4d4d;
+            /* Red color for remove icon */
+            transition: transform 0.3s ease;
+            /* Smooth scaling effect */
+        }
+
+        /* Hover effect for button */
+        .cart__close .remove-item:hover {
+            background-color: #ff4d4d;
+            /* Red background on hover */
+            color: white;
+            /* White color for icon on hover */
+        }
+
+        /* Hover effect for the icon */
+        .cart__close .remove-item:hover i {
+            transform: scale(1.2);
+            /* Slightly enlarge the icon on hover */
+        }
+    </style>
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shopping Cart</h4>
+                        <div class="breadcrumb__links">
+                            <a href="/">Home</a>
+                            <a href="/shop">Shop</a>
+                            <span>Shopping Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Shopping Cart Section Begin -->
+    <section class="shopping-cart spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="shopping__cart__table">
+                        <% if (cart && cart.items && cart.items.length> 0) { %>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% cart.items.forEach(item=> { %>
+                                        <tr data-product-id="<%= item.productId %>">
+                                            <td class="product__cart__item">
+                                                <div class="product__cart__item__pic">
+                                                    <img src="/uploads/re-image/<%= item.product.productImage[0] %>"
+                                                        alt="<%= item.product.productName %>">
+                                                </div>
+                                                <div class="product__cart__item__text">
+                                                    <h6>
+                                                        <%= item.product.productName %>
+                                                    </h6>
+                                                    <h5>₹<%= item.price %>
+                                                    </h5>
+                                                </div>
+                                            </td>
+                                            <td class="quantity__item">
+                                                <div class="quantity">
+                                                    <div class="pro-qty-2">
+
+                                                        <input type="text" value="<%= item.quantity %>" readonly>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="cart__price">₹<%= item.totalPrice %>
+                                            </td>
+                                            <td class="cart__close">
+                                                <button class="remove-item" data-product-id="<%= item.productId %>">
+                                                    <i class="fa fa-close"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                            <% } else { %>
+                                <div class="empty-cart-message">
+                                    <h3>Your cart is empty</h3>
+                                    <p>Browse our products and add items to your cart!</p>
+                                    <div class="continue__btn">
+                                        <a href="/shop">Continue Shopping</a>
+                                    </div>
+                                </div>
+                                <% } %>
+                    </div>
+                    <% if (cart && cart.items && cart.items.length> 0) { %>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="continue__btn">
+                                    <a href="/shop">Continue Shopping</a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="continue__btn update__btn">
+                                    <a href="#" id="updateCart"><i class="fa fa-spinner"></i> Update cart</a>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+                </div>
+                <% if (cart && cart.items && cart.items.length> 0) { %>
+                    <div class="col-lg-4">
+                        <div class="cart__total">
+                            <h6>Cart total</h6>
+                            <ul>
+                                <li>Subtotal <span>₹<%= cart.totalPrice %></span></li>
+                                <% if (cart.discount) { %>
+                                    <li>Discount <span>-₹<%= cart.discount %></span></li>
+                                    <% } %>
+                                        <li>Total <span>₹<%= cart.totalPrice - (cart.discount || 0) %></span></li>
+                            </ul>
+                            <a href="/checkout" class="primary-btn">Proceed to checkout</a>
+                        </div>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+    </section>
+    <!-- Shopping Cart Section End -->
+    <%- include("../../views/partials/user/userFooter") %>

@@ -40,6 +40,8 @@ const productDetails = async (req, res) => {
             category: findCategory,
             isOutOfStock: isOutOfStock, // Pass this flag to the frontend
             relatedProducts: relatedProducts,
+            quantity : product.quantity,
+        
         });
     } catch (error) {
         console.error("Error fetching product details", error);
@@ -48,8 +50,8 @@ const productDetails = async (req, res) => {
 };
 
 
-
 module.exports = {
     productDetails,
+    
  
 }

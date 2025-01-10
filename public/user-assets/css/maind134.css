@@ -1,34 +1,4 @@
-/***
- Theme Name: Evara
- Theme URI: http://wp.alithemes.com/html/Evara
- Description: eCommerce HTML + Admin Template
- Author: alithemes.com
- Author URI: http://alithemes.com
- Version: 1.0
- License: GNU General Public License v2 or later
- License URI: http://www.gnu.org/licenses/gpl-2.0.html
-==============================
-TABLE CONTENT
- Import Google Fonts
- Include Third Party CSS Library
- GENERAL
- HEADER
- Offcanvas Sidebar
- Search form
- Main header
- Mega menu
- Header layouts
- Page layouts
- Pagination
- Breadcrumb
- CATEGORY PAGES
- SINGLE POST
- Author box
- comment
- Post share social
- WP STYPE
- Custom amine
-***/
+
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,300;1,400;1,700;1,900&amp;display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@300;400;500;600;700&amp;display=swap");
 /*import vendors*/
@@ -1038,7 +1008,7 @@ input {
   height: 45px;
   -webkit-box-shadow: none;
           box-shadow: none;
-  padding-left: 20px;
+  
   font-size: 13px;
   color: #161c27;
   width: 100%;
@@ -1080,7 +1050,7 @@ textarea {
   font-size: 13px;
   color: #161c27;
   width: 100%;
-  min-height: 200px;
+  min-height: 200px; 
 }
 
 textarea:focus {
@@ -3522,7 +3492,7 @@ table .product-thumbnail img {
   -webkit-transition-delay: .1s;
   transition-delay: .1s;
   border: 7px solid transparent;
-  border-top-color: #088178;
+  border-top-color: #666666;
   z-index: 9;
   margin-bottom: -13px;
   transition-delay: .1s;
@@ -3541,7 +3511,7 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-action-1 button:hover, .product-cart-wrap .product-action-1 a.action-btn:hover {
-  background-color: #088178;
+  background-color: #691b14;
   border: 1px solid transparent;
 }
 
@@ -3623,7 +3593,7 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-content-wrap .product-category a:hover {
-  color: #088178;
+  color: #5d1212;
 }
 
 .product-cart-wrap .product-content-wrap h2 {
@@ -3646,11 +3616,11 @@ table .product-thumbnail img {
 .product-cart-wrap .product-content-wrap .product-price span {
   font-size: 18px;
   font-weight: bold;
-  color: #088178;
+  color: #810808;
 }
 
 .product-cart-wrap .product-content-wrap .product-price span.new-price {
-  color: #088178;
+  color: #810808;
 }
 
 .product-cart-wrap .product-content-wrap .product-price span.old-price {
@@ -4452,7 +4422,7 @@ table .product-thumbnail img {
   padding: 8px 40px;
 }
 
-.product-extra-link2 a {
+.product-extra-link2 .cstm {
   background: #fff none repeat scroll 0 0;
   border: 1px solid #e5e5e5;
   color: #333;
@@ -4470,7 +4440,7 @@ table .product-thumbnail img {
 }
 
 .product-extra-link2 a:hover {
-  background-color: #088178;
+  background-color: #7a1d1d;
   color: #fff;
 }
 
