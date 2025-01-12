@@ -66,10 +66,10 @@ router.get("/deleteAddress",userAuth,profileController.deleteAddress);
 router.get("/productDetails",userAuth,productController.productDetails);
 
 //cart management
-
 router.get("/cart",userAuth,cartController.cart);
 router.post("/addToCart",userAuth,cartController.addToCart);
 router.put("/updateQuantity", userAuth, cartController.updateCartQuantity);
+router.delete("/removeItemFromCart",userAuth, cartController.removeItemFromCart);
 
 
 module.exports = router;

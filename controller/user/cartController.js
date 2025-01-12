@@ -49,8 +49,7 @@ const cart = async (req, res) => {
 
         res.render("cart", {
             cart: transformedCart,
-            user: req.session.user,
-            activePage:'cart'
+            user: req.session.user
         });
 
     } catch (error) {
@@ -205,9 +204,61 @@ const updateCartQuantity = async (req, res) => {
 };
 
 
+  const calculateCartTotals = (cart)=>{
+    cart.totalPrice = cart.items.reduce((total,item)=>total+item.totalPrice,0);
+    cart.totalQuantity = cart.items.reduce((total,item)=>total + item.quantity,0);
+
+    cart.discount = cart.discount || 0;
+  };
+//remove item
+
+const removeItemFromCart = async (req,res)=>{
+    try{
+
+        const { productId } = req.body;
+        const userId = req.session.user.id;
+
+        //find the user's cart
+
+        const cart = await Cart.findOne({userId});
+        if(!cart){
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
+
+        // Find and remove the item from the cart
+        const itemIndex = cart.items.findIndex(item => item.productId.toString()=== productId);
+        if(itemIndex === -1){
+            return res.status(404).json({ success: false, message: 'Product not found in cart' });
+        }
+
+        cart.items.splice(itemIndex,1);
+
+        //recalculate totals
+        calculateCartTotals(cart);
+
+        await cart.save();
+
+        res.status(200).json({
+            success:true,
+            message : 'Item removed from cart successfully',
+            cartTotalPrice :cart.totalPrice,
+            cartTotalQuantity : cart.totalQuantity,
+            cartDiscount : cart.discount ||0
+        });
+
+
+
+    }catch(error){
+        console.error('Remove from cart error:', error);
+        res.status(500).json({ success: false, message: 'Failed to remove product from cart' });
+    }
+}
+
+
 module.exports = {
     cart,
     addToCart,
-    updateCartQuantity
+    updateCartQuantity,
+    removeItemFromCart,
   
 }
