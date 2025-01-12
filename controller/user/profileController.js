@@ -219,7 +219,7 @@ const userProfile = async(req,res)=>{
         const addressData = await Address.findOne({userId:userId})
 
 
-        res.render("profile",{user:userdata,userAddress : addressData , activePage:'user'});
+        res.render("profile",{user:userdata,userAddress : addressData});
     } catch (error) {
         console.error("Error retrieving user profile",error);
         res.redirect("/pageNotFound");
@@ -231,7 +231,8 @@ const userProfile = async(req,res)=>{
 const changeEmail = async(req,res)=>{
     
     try {
-        res.render("change-email");
+        const user = req.session.user;
+        res.render("change-email",{user});
     } catch (error) {
         res.redirect("/pageNotFound");
     }
@@ -336,7 +337,8 @@ const updateEmail = async (req, res) => {
 
 const changePassword = async(req,res)=>{
     try {
-        res.render("change-password");
+        const user = req.session.user
+        res.render("change-password",{user});
     } catch (error) {
         res.redirect("/pageNotFound");
     }

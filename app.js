@@ -37,7 +37,12 @@ app.use((req,res,next)=>{
     next();
 })
 
-
+// Middleware to set current route
+app.use((req, res, next) => {
+    res.locals.currentRoute = req.path; // Sets the current route for templates
+    next();
+  });
+  
 
 app.set("view engine","ejs");
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
