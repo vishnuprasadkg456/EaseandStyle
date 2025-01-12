@@ -49,7 +49,8 @@ const cart = async (req, res) => {
 
         res.render("cart", {
             cart: transformedCart,
-            user: req.session.user
+            user: req.session.user,
+            activePage:'cart'
         });
 
     } catch (error) {
@@ -145,73 +146,61 @@ const addToCart = async (req, res) => {
     }
 };
 
-// Update cart quantity
+
+
 const updateCartQuantity = async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId, action } = req.body;
         const userId = req.session.user.id;
 
+        // Find the user's cart
         const cart = await Cart.findOne({ userId });
         if (!cart) {
-            return res.status(404).json({ message: "Cart not found" });
+            return res.status(404).json({ success: false, message: 'Cart not found' });
         }
 
-        const itemIndex = cart.items.findIndex(item => 
-            item.productId.toString() === productId
-        );
-
+        // Find the item in the cart
+        const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
         if (itemIndex === -1) {
-            return res.status(404).json({ message: "Product not found in cart" });
+            return res.status(404).json({ success: false, message: 'Product not found in cart' });
         }
 
-        // Update quantity and total price
-        cart.items[itemIndex].quantity = quantity;
-        cart.items[itemIndex].totalPrice = cart.items[itemIndex].price * quantity;
+        const item = cart.items[itemIndex];
 
-        // Recalculate cart totals
+        // Handle the increment or decrement action
+        if (action === 'increment') {
+            const product = await Product.findById(productId);
+            if (!product || item.quantity >= product.quantity) {
+                return res.status(400).json({ success: false, message: 'Insufficient stock' });
+            }
+            item.quantity += 1;  // Increment the quantity
+        } else if (action === 'decrement') {
+            if (item.quantity > 1) {
+                item.quantity -= 1;  // Decrement the quantity
+            } else {
+                return res.status(400).json({ success: false, message: 'Minimum quantity is 1' });
+            }
+        }
+
+        // Update total price for the item
+        item.totalPrice = item.quantity * item.price;
+
+        // Update cart totals (recalculate the total quantity and price)
         cart.totalPrice = cart.items.reduce((total, item) => total + item.totalPrice, 0);
         cart.totalQuantity = cart.items.reduce((total, item) => total + item.quantity, 0);
 
         await cart.save();
-        res.status(200).json({ 
-            message: "Cart updated successfully",
-            cart 
+
+        res.status(200).json({
+            success: true,
+            updatedQuantity: item.quantity,        // Updated item quantity
+            updatedTotalPrice: item.totalPrice,   // Updated item total price
+            cartTotalPrice: cart.totalPrice,      // Updated cart total price
+            cartTotalQuantity: cart.totalQuantity // Updated cart total quantity
         });
-
     } catch (error) {
-        console.error('Update cart error:', error);
-        res.status(500).json({ message: "Failed to update cart" });
-    }
-};
-
-// Remove item from cart
-const removeFromCart = async (req, res) => {
-    try {
-        const { productId } = req.body;
-        const userId = req.session.user.id;
-
-        const cart = await Cart.findOne({ userId });
-        if (!cart) {
-            return res.status(404).json({ message: "Cart not found" });
-        }
-
-        cart.items = cart.items.filter(item => 
-            item.productId.toString() !== productId
-        );
-
-        // Recalculate cart totals
-        cart.totalPrice = cart.items.reduce((total, item) => total + item.totalPrice, 0);
-        cart.totalQuantity = cart.items.reduce((total, item) => total + item.quantity, 0);
-
-        await cart.save();
-        res.status(200).json({ 
-            message: "Item removed from cart",
-            cart 
-        });
-
-    } catch (error) {
-        console.error('Remove from cart error:', error);
-        res.status(500).json({ message: "Failed to remove item from cart" });
+        console.error('Update cart quantity error:', error);
+        res.status(500).json({ success: false, message: 'Failed to update cart quantity' });
     }
 };
 
@@ -219,6 +208,6 @@ const removeFromCart = async (req, res) => {
 module.exports = {
     cart,
     addToCart,
-    updateCartQuantity,
-    removeFromCart
+    updateCartQuantity
+  
 }

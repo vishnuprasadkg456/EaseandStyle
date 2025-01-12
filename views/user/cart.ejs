@@ -71,6 +71,70 @@
             transform: scale(1.2);
             /* Slightly enlarge the icon on hover */
         }
+
+        /* Container for quantity buttons */
+        .pro-qty-1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Style for the input field */
+        .pro-qty-1 input {
+            width: 40px;
+            height: 30px;
+            text-align: center;
+
+            font-size: 16px;
+            margin: 0 10px;
+            background-color: #ffffff00;
+        }
+
+        /* Button styling */
+        .qty-btn {
+            width: 25px;
+            height: 25px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Hover effect for buttons */
+        .qty-btn:hover {
+            background-color: #9b0606;
+        }
+
+        /* Disabled button styling */
+        .qty-btn.disabled {
+            background-color: #d6d6d6;
+            cursor: not-allowed;
+        }
+
+        /* Styling for the increment and decrement buttons */
+        .qty-btn.decrement {
+            margin-right: 10px;
+        }
+
+        .qty-btn.increment {
+            margin-left: 2px;
+        }
+
+        /* Optional: Add some space between buttons */
+        .qty-btn i {
+            font-size: 16px;
+        }
+
+        /* Optional: Add some focus/active styles */
+        .qty-btn:active {
+            background-color: #520303;
+        }
     </style>
 
     <!-- Breadcrumb Section Begin -->
@@ -124,16 +188,20 @@
                                                     </h5>
                                                 </div>
                                             </td>
-                                            <td class="quantity__item">
+                                            <td class="quantity__item" data-product-id="<%= item.productId %>">
                                                 <div class="quantity">
-                                                    <div class="pro-qty-2">
-
+                                                    <div class="pro-qty-1">
+                                                        <button class="qty-btn dec" data-action="decrement">
+                                                            <i class="fa fa-angle-left"></i>
+                                                        </button>
                                                         <input type="text" value="<%= item.quantity %>" readonly>
-
+                                                        <button class="qty-btn increment" data-action="increment">
+                                                            <i class="fa fa-angle-right"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="cart__price">₹<%= item.totalPrice %>
+                                            <td class="item-total-price">₹<%= item.totalPrice %>
                                             </td>
                                             <td class="cart__close">
                                                 <button class="remove-item" data-product-id="<%= item.productId %>">
@@ -161,11 +229,7 @@
                                     <a href="/shop">Continue Shopping</a>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="continue__btn update__btn">
-                                    <a href="#" id="updateCart"><i class="fa fa-spinner"></i> Update cart</a>
-                                </div>
-                            </div>
+
                         </div>
                         <% } %>
                 </div>
@@ -187,5 +251,95 @@
             </div>
         </div>
     </section>
+
+
     <!-- Shopping Cart Section End -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const updateCartQuantity = (productId, action) => {
+                fetch('/updateQuantity', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId, action }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Server response:', data);
+        
+                        if (data.success) {
+                            // Update quantity input
+                            const quantityInput = document.querySelector(`.quantity__item[data-product-id="${productId}"] input`);
+                            if (quantityInput) {
+                                quantityInput.value = data.updatedQuantity;
+                            }
+        
+                            // Update product total price
+                            const totalPriceElement = document.querySelector(`tr[data-product-id="${productId}"] .item-total-price`);
+                            if (totalPriceElement) {
+                                totalPriceElement.textContent = `₹${parseFloat(data.updatedTotalPrice).toFixed(2)}`;
+                            }
+        
+                            // Update cart subtotal
+                            const subtotalSpan = document.querySelector('.cart__total ul li:first-child span');
+                            if (subtotalSpan) {
+                                subtotalSpan.textContent = `₹${parseFloat(data.cartTotalPrice).toFixed(2)}`;
+                            }
+        
+                            // Calculate and update final total
+                            const cartTotal = parseFloat(data.cartTotalPrice);
+                            const cartDiscount = data.cartDiscount ? parseFloat(data.cartDiscount) : 0;
+                            const finalTotal = cartTotal - cartDiscount;
+        
+                            // Update discount if exists
+                            if (cartDiscount > 0) {
+                                const discountSpan = document.querySelector('.cart__total ul li:nth-child(2) span');
+                                if (discountSpan) {
+                                    discountSpan.textContent = `-₹${cartDiscount.toFixed(2)}`;
+                                }
+                            }
+        
+                            // Update final total
+                            const finalTotalSpan = document.querySelector('.cart__total ul li:last-child span');
+                            if (finalTotalSpan) {
+                                finalTotalSpan.textContent = `₹${finalTotal.toFixed(2)}`;
+                            }
+        
+                            console.log('Cart updated successfully');
+                        } else {
+                            alert(data.message || 'Failed to update cart.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating cart:', error);
+                        alert('An error occurred while updating the cart.');
+                    });
+            };
+        
+            // Event listener for quantity buttons
+            document.querySelectorAll('.qty-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+        
+                    // Find the closest button if clicked on the icon
+                    const btn = event.target.closest('.qty-btn');
+                    if (!btn) return;
+        
+                    // Get the quantity item container
+                    const quantityItem = btn.closest('.quantity__item');
+                    if (!quantityItem) return;
+        
+                    const productId = quantityItem.dataset.productId;
+                    const action = btn.classList.contains('increment') ? 'increment' : 'decrement';
+        
+                    updateCartQuantity(productId, action);
+                });
+            });
+        });
+
+    </script>
+
+
     <%- include("../../views/partials/user/userFooter") %>

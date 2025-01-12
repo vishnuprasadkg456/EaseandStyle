@@ -28,7 +28,7 @@ const loadHomePage = async (req, res) => {
 
         if (user) {
             const userData = await User.findOne({_id: user._id})||user;
-            res.render("home",{user : userData ,  products: productData });
+            res.render("home",{user : userData ,  products: productData ,activePage: 'home' });
            // res.render("home", { user });
         } else {
             res.render("home" , {products:productData});
@@ -358,6 +358,7 @@ const loadShoppingPage = async (req, res) => {
             selectedBrand,
             selectedPrice,
             selectedSort,
+            activePage: 'shop'
         });
     } catch (error) {
         console.error("Error loading shopping page:", error);
@@ -493,7 +494,7 @@ const searchProducts = async(req,res)=>{
 const contacts = async (req,res)=>{
     try {
         const user = req.session.user;
-        res.render("contacts",{user});
+        res.render("contacts",{user,activePage:'contacts'});
     } catch (error) {
         res.redirect("/pageNotFound"); 
     }

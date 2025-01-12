@@ -219,7 +219,7 @@ const userProfile = async(req,res)=>{
         const addressData = await Address.findOne({userId:userId})
 
 
-        res.render("profile",{user:userdata,userAddress : addressData});
+        res.render("profile",{user:userdata,userAddress : addressData , activePage:'user'});
     } catch (error) {
         console.error("Error retrieving user profile",error);
         res.redirect("/pageNotFound");

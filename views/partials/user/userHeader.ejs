@@ -80,58 +80,55 @@
         }
     </style>
 </head>
-
 <body>
-    
     <!-- Header Section Begin -->
     <header class="header">
-        
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3">
-                    <div class="header__logo" ">
+                    <div class="header__logo">
                         <a href="/"><img src="img/logo.png" alt="logo" class="company_logo"></a>
                     </div>
                 </div>
-                <div class="col-lg-5 col-md-5  d-flex justify-content-center align-items-center">
-                    <nav class="header__menu mobile-menu ">
+                <div class="col-lg-5 col-md-5 d-flex justify-content-center align-items-center">
+                    <nav class="header__menu mobile-menu">
                         <ul>
-                            <li class="active"><a href="/">Home</a></li>
-                            <li><a href="/shop">Shop</a></li>
-                            <!-- <li><a href="#">Pages</a> -->
-                                <!-- <ul class="dropdown">
-                                    <li><a href="./about.html">About Us</a></li>
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="./shopping-cart.html">Shopping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
-                                </ul> -->
+                            <li class="<%= activePage === 'home' ? 'active' : '' %>">
+                                <a href="/">Home</a>
                             </li>
-                            
-                            <li><a href="/contacts">Contacts</a></li>
+                            <li class="<%= activePage === 'shop' ? 'active' : '' %>">
+                                <a href="/shop">Shop</a>
+                            </li>
+                            <li class="<%= activePage === 'contacts' ? 'active' : '' %>">
+                                <a href="/contacts">Contacts</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
                 <div class="col-lg-4 col-md-4">
                     <div class="header__nav__option">
-                        <!-- user info injected -->
                         <% if (locals.user) { %>
                             <div class="dropdown">
-                                <a href="#" class="sign-in-link" > <%=locals.user.name%></a>
+                                <a href="#" class="sign-in-link"><%= locals.user.name %></a>
                                 <div class="dropdown-content">
-                                    <a href="/userProfile">Profile</a>
-                                    <a href="/logout">Logout</a>
+                                    <ul>                                   <li class="<%= activePage === 'user' ? 'active' : '' %>">
+                                        <a href="/userProfile">Profile</a>
+                                        <a href="/logout">Logout</a>
+                                    </li>
+                                  </ul>
+ 
+                                    
                                 </div>
                             </div>
                         <% } else { %>
-                        <!-- Show sign up and login links when not logged in -->
-                        <a href="/signup" class="sign-in-link" ">Sign up</a>
-                        <a href="/login" class="sign-in-link" ">Log in</a>
+                            <a href="/signup" class="sign-in-link">Sign up</a>
+                            <a href="/login" class="sign-in-link">Log in</a>
                         <% } %>
                         
-                        <a href="#"><img src="img/icon/heart.png" alt=""></a>
-                        <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
-                        <!-- <div class="price">$0.00</div> -->
+                        <a href="#" ><img src="img/icon/heart.png" alt=""></a>
+                            
+                        <a href="/cart" class="<%= activePage === 'cart' ? 'active' : '' %>"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+                   
                     </div>
                 </div>
             </div>
@@ -139,3 +136,4 @@
         </div>
     </header>
     <!-- Header Section End -->
+</body>

@@ -69,9 +69,7 @@ router.get("/productDetails",userAuth,productController.productDetails);
 
 router.get("/cart",userAuth,cartController.cart);
 router.post("/addToCart",userAuth,cartController.addToCart);
-router.post("/updateCartQuantity", userAuth, cartController.updateCartQuantity);
-router.post("/removeFromCart", userAuth, cartController.removeFromCart);
+router.put("/updateQuantity", userAuth, cartController.updateCartQuantity);
 
-// router.post("/applyCoupon",userAuth,userController.applyCoupon);
 
 module.exports = router;
