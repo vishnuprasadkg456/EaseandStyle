@@ -42,6 +42,10 @@ const productSchema = new Schema ({
         type : Number,
         default : true
     },
+    maxPerPerson: {
+        type: Number,
+        default: 10 // Default maximum quantity
+    },
     variants : {
         sizes : [String],
         colors : [String],

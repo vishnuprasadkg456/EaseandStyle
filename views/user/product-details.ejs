@@ -10,6 +10,16 @@
             height: auto;
             object-fit: cover;
             border-radius: 10px;
+            
+        }
+
+        .cstm-wrap{
+            margin: 15px ;
+        }
+       
+
+        .product-image-slider{
+            margin :  30px!important;
         }
 
         .slider-nav-thumbnails div img {
@@ -27,6 +37,11 @@
             pointer-events: none;
             border: 1px solid #ddd;
         }
+
+       .detail-gallery .zoom-icon {
+        top: 15px!important;
+        right: 45px!important;
+       }
 
        
         
@@ -249,10 +264,10 @@
                 </div>
                 <div class="row product__filter">
                     <% for (let i = 0; i < relatedProducts.length; i++) { %>
-                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                            <div class="product-cart-wrap">
+                        <div class="col-lg-3 col-md-4 col-12 col-sm-6 cstm-product">
+                            <div class="product-cart-wrap ">
                                 <div class="product-container">
-                                    <div class="product-img-action-wrap">
+                                    <div class="product-img-action-wrap cstm-wrap">
                                         <div class="product-img product-img-zoom">
                                             <a href="/productDetails?id=<%= relatedProducts[i]._id %>">
                                                 <img class="default-img"

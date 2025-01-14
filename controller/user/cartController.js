@@ -85,6 +85,14 @@ const addToCart = async (req, res) => {
             });
         }
 
+         // Check maxPerPerson limit
+         if (quantity > product.maxPerPerson) {
+            return res.status(400).json({
+                success: false,
+                message: `You can only purchase up to ${product.maxPerPerson} units of this product.`,
+            });
+        }
+
         // Find or create cart
         let cart = await Cart.findOne({ userId });
 

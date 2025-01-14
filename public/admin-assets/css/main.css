@@ -487,7 +487,7 @@ table .form-check {
 }
 
 a {
-    color: #088178
+    color: #414141
 }
 
 body {
@@ -774,7 +774,7 @@ b {
     padding: 10px 40px;
     color: #ffffff;
     border: none;
-    background-color: #088178;
+    background-color: #db6d6d;
     border-radius: 4px
 }
 
@@ -785,7 +785,7 @@ b {
 }
 
 .btn.btn-primary:hover {
-    background-color: #046963
+    background-color:#ff232388
 }
 
 .btn.btn-secondary {
@@ -806,12 +806,12 @@ b {
 .btn.btn-md {
     padding: 0.5rem 0.95rem;
     font-weight: 500;
-    background-color: #088178;
+    background-color: #ac2222;
     color: #ffffff
 }
 
 .btn.btn-md:hover {
-    background-color: #046963
+    background-color: #d93030c6
 }
 
 .btn.btn-xs {

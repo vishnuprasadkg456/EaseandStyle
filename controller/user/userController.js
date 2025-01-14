@@ -2,6 +2,7 @@ const User = require("../../model/userSchema");
 const Category =  require("../../model/categorySchema");
 const Product = require("../../model/productSchema"); 
 const Brand = require("../../model/brandSchema");
+const Banner = require("../../model/bannerSchema");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
 const bcrypt = require("bcrypt");
@@ -20,6 +21,11 @@ const loadHomePage = async (req, res) => {
         // const user = req.session.user || req.user;
         const user =  req.session.user || req.user
         const categories = await Category.find({isListed:true});
+        const currentDate = new Date();
+        const banners = await Banner.find({
+            startDate : {$lte:currentDate},
+            endDate :{$gte:currentDate}
+        });
         let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}});
         productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));//latest arrival to be shown
         productData = productData.slice(0,4);
@@ -28,10 +34,10 @@ const loadHomePage = async (req, res) => {
 
         if (user) {
             const userData = await User.findOne({_id: user._id})||user;
-            res.render("home",{user : userData ,  products: productData });
+            res.render("home",{user : userData ,  products: productData,banners });
            // res.render("home", { user });
         } else {
-            res.render("home" , {products:productData});
+            res.render("home" , {products:productData,banners});
         }
     } catch (error) {
         console.error("Error in loadHomePage:", error);
@@ -49,31 +55,7 @@ const loadSignup = async (req, res) => {
     }
 }
 
-// //loadShopping
-// const loadShopping = async (req, res) => {
-//     try {
-//         return res.render('shop');
-//     } catch (error) {
-//         console.log('shoping page is not loading : ', error);
-//         res.status(500).send('Server Error');
-//     }
-// }
 
-// signup body checking
-// const signup = async (req,res)=>{
-//     const {name,email,phoneNumber,password} = req.body;
-//     try {
-//         const newUser=new User ({name,email,phoneNumber,password});
-//         console.log(newUser);
-//         await newUser.save();
-
-//         return res.redirect("/signup");
-
-//     } catch (error) {
-//         console.error("Error for save user credentials ",error);
-//         res.status(500).send('Internal server error');
-//     }
-// }
 
 //generate otp for otp verification 
 function generateOtp() {

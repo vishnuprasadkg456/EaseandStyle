@@ -399,7 +399,7 @@
             async function deleteSingleImage(imageId, productId) {
                 try {
                     const response = await $.ajax({
-                        url: "/admin/deleteImage",
+                        url: "/admin/deleteBanner",
                         method: "POST",
                         data: {
                             imageNameToServer: imageId,
