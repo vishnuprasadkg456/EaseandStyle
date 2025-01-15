@@ -61,6 +61,7 @@ router.post("/addAddress",userAuth,profileController.postAddAddress)
 router.get("/editAddress",userAuth,profileController.editAddress);
 router.post("/editAddress",userAuth,profileController.postEditAddress);
 router.get("/deleteAddress",userAuth,profileController.deleteAddress);
+router.post("/setDefaultAddress",userAuth,profileController.setDefaultAddress);
 
 //product Management
 router.get("/productDetails",userAuth,productController.productDetails);

@@ -82,9 +82,10 @@
         body.home .header__menu ul li a[href="/"]:after,
         body.shop .header__menu ul li a[href="/shop"]:after,
         body.contacts .header__menu ul li a[href="/contacts"]:after {
-            transform: scale(1); /* Show underline */
+            transform: scale(1);
+            /* Show underline */
         }
-        
+
         .header__menu ul li a:after {
             position: absolute;
             left: 0;
@@ -94,27 +95,28 @@
             background: #e53637;
             content: "";
             transition: transform 0.5s;
-            transform: scale(0); /* Default no underline */
-        }
-        
-       
-
-        .header__logo{
-            padding-top: 30px!important;
+            transform: scale(0);
+            /* Default no underline */
         }
 
-        .cstm-product{
-           
-            
-                margin-bottom: 30px;
-                padding: 0 10px;
-            
-           }
-
-           .product-cart-wrap {
 
 
-            
+        .header__logo {
+            padding-top: 30px !important;
+        }
+
+        .cstm-product {
+
+
+            margin-bottom: 30px;
+            padding: 0 10px;
+
+        }
+
+        .product-cart-wrap {
+
+
+
             display: flex;
             flex-direction: column;
             /* Stack the image and text vertically */
@@ -129,7 +131,37 @@
             width: 100%;
         }
 
-        
+
+        .off-canvas-menu {
+            position: fixed;
+            top: 0;
+            right: -200px;
+            /* Hidden off-screen */
+            width: 200px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s ease-in-out;
+            z-index: 1050;
+            padding: 10px;
+        }
+
+        .off-canvas-menu.open {
+            right: 0;
+            /* Slide in */
+        }
+
+        .canvas__open,
+        .canvas__close {
+            cursor: pointer;
+        }
+
+        .canvas__close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            margin: 10px;
+        }
     </style>
 </head>
 
@@ -161,7 +193,8 @@
                                 </ul> -->
                             </li>
 
-                            <li class="<%= currentRoute === '/contacts' ? 'active' : '' %> "><a href="/contacts">Contacts</a></li>
+                            <li class="<%= currentRoute === '/contacts' ? 'active' : '' %> "><a
+                                    href="/contacts">Contacts</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -191,6 +224,44 @@
                 </div>
             </div>
             <div class="canvas__open"><i class="fa fa-bars"></i></div>
+
+            <div class="off-canvas-menu">
+                <div class="off-canvas-header">
+                    <button class="canvas__close"><i class="fa fa-times"></i></button>
+                </div>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/shop">Shop</a></li>
+                    <li><a href="/contacts">Contacts</a></li>
+                </ul>
+            </div>
+
         </div>
     </header>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openButton = document.querySelector('.canvas__open');
+            const closeButton = document.querySelector('.canvas__close');
+            const offCanvasMenu = document.querySelector('.off-canvas-menu');
+
+            // Open the menu
+            openButton.addEventListener('click', () => {
+                offCanvasMenu.classList.add('open');
+            });
+
+            // Close the menu
+            closeButton.addEventListener('click', () => {
+                offCanvasMenu.classList.remove('open');
+            });
+
+            // Optional: Close menu when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!offCanvasMenu.contains(event.target) && !openButton.contains(event.target)) {
+                    offCanvasMenu.classList.remove('open');
+                }
+            });
+        });
+    </script>
+
     <!-- Header Section End -->
