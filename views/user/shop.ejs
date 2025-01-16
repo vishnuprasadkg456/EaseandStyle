@@ -393,5 +393,58 @@
 
     </script>
 
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all Add to Cart buttons
+            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+            
+            addToCartBtns.forEach(button => {
+                button.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    const productId = this.getAttribute('data-product-id'); // Get product ID from data attribute
+                    const quantity = 1; // Default quantity (you can adjust this logic if needed)
+                    
+                    try {
+                        const response = await fetch('/addToCart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                productId: productId,
+                                quantity: quantity
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Product added to cart successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        } else {
+                            throw new Error(data.message || 'Failed to add product to cart');
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: error.message
+                        });
+                    }
+                });
+            });
+        });
+        
+    </script>
+
+
 
     <%- include("../../views/partials/user/userFooter") %>

@@ -45,10 +45,17 @@ const cartSchema = new Schema(
                 },
             },
         ],
+        discount: {
+            type: Number,
+            default: 0,
+        },
+        finalPrice: {
+            type: Number,
+            default: 0,
+        },
     },
     { timestamps: true }
 );
-
 cartSchema.virtual("cartTotal").get(function () {
     return this.items.reduce((total, item) => total + item.price * item.quantity, 0);
 });

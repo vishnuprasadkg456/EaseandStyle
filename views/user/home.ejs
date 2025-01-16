@@ -166,7 +166,7 @@
                         <div class="row">
                             <div class="col-xl-5 col-lg-7 col-md-8">
                                 <div class="hero__text">
-                                    <h6>Summer Collection</h6>
+                                    <h6> </h6>
                                     <h2>
                                         <%= banner.title %>
                                     </h2>
@@ -226,7 +226,8 @@
                                     <h5>
                                         <%=products[i].salePrice%>
                                     </h5>
-                                    <a href="/addToCart?id=<%=products[i]._id%>">Add to cart</a>
+                                    <a href="#" class="button-add-to-cart" data-id="<%=products[i]._id%>">Add to cart</a>
+
                                 </div>
 
                             </div>
@@ -240,7 +241,56 @@
 
 
 
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all Add to Cart buttons
+            const addToCartBtns = document.querySelectorAll('.button-add-to-cart');
+            
+            addToCartBtns.forEach(button => {
+                button.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    const productId = this.getAttribute('data-id'); // Get product ID from data attribute
+                    const quantity = 1; // Default quantity (you can adjust this logic if needed)
+                    
+                    try {
+                        const response = await fetch('/addToCart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                productId: productId,
+                                quantity: quantity
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Product added to cart successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        } else {
+                            throw new Error(data.message || 'Failed to add product to cart');
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: error.message
+                        });
+                    }
+                });
+            });
+        });
+        
+    </script>
 
 
 
