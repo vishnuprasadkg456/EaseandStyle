@@ -4,7 +4,7 @@
       background-color: #e2e2e284;
     }
 
-    
+
 
     .dashboard-menu {
       background-color: #e2e2e284;
@@ -146,6 +146,62 @@
       background-color: #ccc;
       /* Gray for inactive */
     }
+
+    .custom-alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 50px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateX(150%);
+      transition: transform 0.3s ease-in-out;
+      max-width: 350px;
+
+    }
+
+    .custom-alert.show {
+      transform: translateX(0);
+    }
+
+
+    .alert-icon {
+      font-size: 20px;
+    }
+
+    .alert-icon.success {
+      color: #4CAF50;
+    }
+
+    .alert-icon.error {
+      color: #27c200;
+    }
+
+    .alert-message {
+      color: #333;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .alert-close {
+      background: transparent;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 0;
+      margin-left: auto;
+
+    }
+
+    .alert-close:hover {
+      color: #666;
+    }
   </style>
 
   <main class="main">
@@ -257,7 +313,7 @@
                                    width: 12px;
                                    border-radius: 50%;
                                    display: inline-block;
-                                   background-color: <%= address.isDefault ? '#28a745' : '#ccc' %>;
+                                   
                                  "></span>
                                   </label>
                                 </div>
@@ -421,26 +477,67 @@
     </div>
   </div>
   <!-- alert -->
-  <div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+  <div id="alertContainer"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const deleteButtons = document.querySelectorAll('.delete-address-btn');
       const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-  
+
       deleteButtons.forEach(button => {
         button.addEventListener('click', (event) => {
           const addressId = button.getAttribute('data-id');
           confirmDeleteButton.href = `/deleteAddress?id=${addressId}`;
         });
       });
-  
+
+
+      // Function to show custom alerts
+      function showCustomAlert(message, type = 'success') {
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Create alert element
+        const alertEl = document.createElement('div');
+        alertEl.className = `custom-alert ${type}`;
+
+        // Create alert content
+        alertEl.innerHTML = `
+          <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} alert-icon ${type}"></i>
+          <p class="alert-message">${message}</p>
+          <button class="alert-close">×</button>
+      `;
+
+        // Add to container
+        alertContainer.appendChild(alertEl);
+
+        // Trigger animation
+        setTimeout(() => alertEl.classList.add('show'), 10);
+
+        // Add close button functionality
+        const closeBtn = alertEl.querySelector('.alert-close');
+        closeBtn.addEventListener('click', () => {
+          alertEl.classList.remove('show');
+          setTimeout(() => alertEl.remove(), 300);
+        });
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          if (alertEl.parentNode) {
+            alertEl.classList.remove('show');
+            setTimeout(() => alertEl.remove(), 300);
+          }
+        }, 3000);
+      }
+
+
+
+
       const defaultAddressRadios = document.querySelectorAll(".default-address-radio");
-  
+
       defaultAddressRadios.forEach((radio) => {
         radio.addEventListener("change", async (event) => {
           const addressId = event.target.value;
-  
+
           try {
             const response = await fetch("/setDefaultAddress", {
               method: "POST",
@@ -449,26 +546,41 @@
               },
               body: JSON.stringify({ addressId }),
             });
-  
+
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
-  
+
             const result = await response.json();
-  
+
             if (result.success) {
-              alert("Default address updated successfully.");
+              showCustomAlert("Default address updated successfully.", "success");
+
+              // Dynamically update the checked state and dot colors
+              defaultAddressRadios.forEach((radioButton) => {
+                const label = document.querySelector(`label[for="${radioButton.id}"]`);
+                const dot = label.querySelector(".dot");
+
+                if (radioButton.value === addressId) {
+                  radioButton.checked = true; // Set the selected radio as checked
+                  dot.style.backgroundColor = "#28a745"; // Green for the new default address
+                } else {
+                  radioButton.checked = false; // Uncheck others
+                  dot.style.backgroundColor = "#ccc"; // Gray for non-default addresses
+                }
+              });
+
             } else {
-              alert(result.message || "Failed to update default address.");
+              showCustomAlert("Failed to update default address.", "error");
             }
           } catch (error) {
             console.error("Error updating default address:", error);
-            alert("An error occurred while updating the default address. Please try again.");
+            showCustomAlert("An error occurred while updating the default address. Please try again.", "error");
           }
         });
       });
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  
+
   <%- include("../../views/partials/user/userFooter") %>
