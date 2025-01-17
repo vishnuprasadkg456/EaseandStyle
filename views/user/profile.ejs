@@ -395,7 +395,7 @@
                                                 <% orders.forEach(order => { %>
                                                     <tr>
                                                         <td>#<%= order._id.toString().slice(-6) %></td>
-                                                        <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                                                        <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
                                                         <td>
                                                             <%= order.orderedItems.map(item => 
                                                                 item.product?.productName || 'Product Unavailable').join(', ') %>
@@ -409,7 +409,7 @@
                                                         </td>
                                                         <td>₹<%= order.finalAmount %></td>
                                                         <td>
-                                                            <a href="/order-details/<%= order._id %>" 
+                                                            <a href="/orderDetails?orderId=<%= order._id %>" 
                                                                class="btn btn-sm btn-outline-primary">View Details</a>
                                                         </td>
                                                     </tr>

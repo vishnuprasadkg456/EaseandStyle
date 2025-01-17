@@ -483,7 +483,7 @@
                             setTimeout(()=>{
 
                                 //window.location.href = `/userProfile`;
-                                 window.location.href = `/orderDetails/${response.orderId}`;
+                                 window.location.href = `/orderDetails?orderId=${response.orderId}`;
                                 // Redirect to order details page after 1 second delay
                             },3000);
                         } else {

@@ -81,7 +81,8 @@ router.post("/add-address",userAuth,checkOutController.postAddAddress);
 router.post("/place-order", userAuth, checkOutController.placeOrder);
 
 
-//orderController
-router.get("/orderDetails/:orderId", userAuth, orderController.getOrderDetails);
+
+router.get("/orderDetails", userAuth, orderController.getOrderDetails);
+
 
 module.exports = router;
