@@ -150,6 +150,7 @@ const placeOrder = async (req, res) => {
 
         // Create the order
         const newOrder = new Order({
+            userId,
             orderedItems: cart.items.map((item) => ({
                 product: item.productId._id,
                 quantity: item.quantity,

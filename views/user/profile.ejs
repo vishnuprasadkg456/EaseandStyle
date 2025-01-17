@@ -370,37 +370,67 @@
                     </div>
                   </div>
 
+                  <!-- user order section -->
                   <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                     <div class="card">
-                      <div class="card-header">
-                        <h5 class="mb-0">Your Orders</h5>
-                      </div>
-                      <div class="card-body">
-                        <div class="table-responsive">
-                          <table class="table">
-                            <thead>
-                              <tr>
-                                <th>Order</th>
-                                <th>Status</th>
-                                <th>Total</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                  <a href="" class="btn-small d-block">View</a>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                        <div class="card-header">
+                            <h5 class="mb-0">Your Orders</h5>
                         </div>
-                      </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Items</th>
+                                            <th>Status</th>
+                                            <th>Total</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% try { %>
+                                            <% if (typeof orders !== 'undefined' && orders && orders.length > 0) { %>
+                                                <% orders.forEach(order => { %>
+                                                    <tr>
+                                                        <td>#<%= order._id.toString().slice(-6) %></td>
+                                                        <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                                                        <td>
+                                                            <%= order.orderedItems.map(item => 
+                                                                item.product?.productName || 'Product Unavailable').join(', ') %>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge <%= order.status.toLowerCase() === 'delivered' ? 'bg-success' : 
+                                                                order.status.toLowerCase() === 'pending' ? 'bg-warning' : 
+                                                                order.status.toLowerCase() === 'cancelled' ? 'bg-danger' : 'bg-info' %>">
+                                                                <%= order.status %>
+                                                            </span>
+                                                        </td>
+                                                        <td>₹<%= order.finalAmount %></td>
+                                                        <td>
+                                                            <a href="/order-details/<%= order._id %>" 
+                                                               class="btn btn-sm btn-outline-primary">View Details</a>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No orders found</td>
+                                                </tr>
+                                            <% } %>
+                                        <% } catch (error) { %>
+                                            <tr>
+                                                <td colspan="6" class="text-center">Error loading orders</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                  </div>
+                </div>
+                  
 
                   <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
                     <div class="card">

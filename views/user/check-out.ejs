@@ -479,7 +479,13 @@
                     success: function (response) {
                         if (response.orderId) {
                             showAlert('Order placed successfully!', 'success');
-                            window.location.href = `/order-confirmation/${response.orderId}`;
+                           
+                            setTimeout(()=>{
+
+                                //window.location.href = `/userProfile`;
+                                 window.location.href = `/orderDetails/${response.orderId}`;
+                                // Redirect to order details page after 1 second delay
+                            },3000);
                         } else {
                             showAlert(response.message || 'Failed to place order!', 'danger');
                         }

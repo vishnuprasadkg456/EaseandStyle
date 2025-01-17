@@ -6,6 +6,7 @@ const profileController = require("../../controller/user/profileController");
 const productController = require("../../controller/user/productController");
 const cartController = require("../../controller/user/cartController");
 const checkOutController = require("../../controller/user/checkOutController");
+const orderController = require("../../controller/user/orderController");
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 
 router.get("/pageNotFound",userController.pageNotFound);
@@ -78,5 +79,9 @@ router.get("/checkOut",userAuth,checkOutController.getCheckOut);
 router.get("/get-address/:id",userAuth,checkOutController.getAddress)
 router.post("/add-address",userAuth,checkOutController.postAddAddress);
 router.post("/place-order", userAuth, checkOutController.placeOrder);
+
+
+//orderController
+router.get("/orderDetails/:orderId", userAuth, orderController.getOrderDetails);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const User = require("../../model/userSchema");
 const Address = require("../../model/addressSchema");
+const Order = require("../../model/orderSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
@@ -200,14 +201,9 @@ const postNewPassword = async (req, res) => {
 
 const userProfile = async (req, res) => {
     try {
-        const userId = req.session.user.id || req.session.user._id;
+        const userId = req.session.user?._id || req.session.user?.id;
 
-        // Validate the ID
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            console.error("Invalid ObjectId:", userId);
-            return res.redirect("/pageNotFound");
-        }
-
+       
 
         const userdata = await User.findById(userId);
 
@@ -218,10 +214,20 @@ const userProfile = async (req, res) => {
 
         const addressData = await Address.findOne({ userId: userId })
 
+       // Updated query to match your schema
+       const orders = await Order.find({ userId: userId })  // or use { user: userId } based on your schema
+       .populate({
+           path: 'orderedItems.product',
+           select: 'productName productImage price'  // add any other fields you need
+       })
+       .sort({ createdAt: -1 });
+      
+       
 
-        res.render("profile", { user: userdata, userAddress: addressData });
+        res.render("profile", { user: userdata, userAddress: addressData ,orders});
     } catch (error) {
         console.error("Error retrieving user profile", error);
+        console.error(error.stack); // Log the full error stack
         res.redirect("/pageNotFound");
     }
 }
