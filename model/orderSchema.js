@@ -2,70 +2,93 @@ const mongoose = require ("mongoose");
 const {Schema} = mongoose;
 const {v4 : uuidv4} = require('uuid');
 
-const orderSchema = new Schema ({
-    orderId :{
-        type : String,
-        default : ()=>uuidv4(),
-        unique : true
+const orderSchema = new Schema({
+    orderId: {
+        type: String,
+        default: () => uuidv4(),
+        unique: true,
     },
-    orderedItems :[{
-        product : {
-            type :Schema.Types.ObjectId,
-            ref :'product',
-            required :true
+    orderedItems: [
+        {
+            product: {
+                type: Schema.Types.ObjectId,
+                ref: "Product",
+                required: true,
+            },
+            quantity: {
+                type: Number,
+                required: true,
+                min: 1,
+            },
+            price: {
+                type: Number,
+                required: true,
+                min: 0,
+            },
         },
-        quantity : {
-            type : Number,
-            required : true
-        },
-        price : {
-            type : Number,
-            required : true
-        }
-    }],
-    totalPrice : {
-        type : Number,
-        required : true
-
+    ],
+    totalPrice: {
+        type: Number,
+        required: true,
+        min: 0,
     },
-    discount : {
-        type :Number,
-        default : 0
+    discount: {
+        type: Number,
+        default: 0,
+        min: 0,
     },
-    finalAmount : {
-        type : Number,
-        required : true
+    finalAmount: {
+        type: Number,
     },
-    address : {
-         type : Schema.Types.ObjectId,
-         ref : "User",
-         required : true
+    address: {
+        type: Schema.Types.ObjectId,
+        ref: "Address",
+        required: true,
     },
-    invoiceDate :{
-        type : Date,
-
+    payment: {
+        type: Schema.Types.ObjectId,
+        ref: "Payment", // Reference to the Payment schema
     },
-    status : {
-        type : String,
-        required : true,
-        enum : ['Pending','Processing','Shipped','Delivered','cancelled','Return Request','Returned']
+    invoiceDate: {
+        type: Date,
+        default: Date.now,
     },
-    createdOn : {
-        type : Date,
-        default : Date.now,
-        required : true
+    status: {
+        type: String,
+        required: true,
+        enum: [
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+            "Return Request",
+            "Returned",
+        ],
+        default: "Pending",
     },
-    couponApplied : {
-        type : Boolean,
-        default : false
+    createdOn: {
+        type: Date,
+        default: Date.now,
+        required: true,
+    },
+    updatedOn: {
+        type: Date,
+        default: Date.now,
     },
     deliveryDate: {
         type: Date,
-      }
-
-
+        default: function () {
+            return new Date(this.createdOn.getTime() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
+        },
+        validate: {
+            validator: function (value) {
+                return value > this.createdOn;
+            },
+            message: "Delivery date must be after the order creation date.",
+        },
+    },
 });
 
-const Order = mongoose.model("Order",orderSchema);
-
+const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;

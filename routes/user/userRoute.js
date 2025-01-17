@@ -75,8 +75,8 @@ router.delete("/removeItemFromCart",userAuth, cartController.removeItemFromCart)
 
 //checkout
 router.get("/checkOut",userAuth,checkOutController.getCheckOut);
-router.get("/add-address",userAuth,checkOutController.addAddress)
+router.get("/get-address/:id",userAuth,checkOutController.getAddress)
 router.post("/add-address",userAuth,checkOutController.postAddAddress);
-
+router.post("/place-order", userAuth, checkOutController.placeOrder);
 
 module.exports = router;

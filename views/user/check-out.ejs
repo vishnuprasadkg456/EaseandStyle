@@ -1,333 +1,518 @@
 <%- include("../../views/partials/user/userHeader")%>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .default-address-card .card {
+            border: 1px solid #000000;
+            border-radius: 1px;
+        }
 
-<style>
-    .default-address-card .card {
-        border: 1px solid #000000;
-        border-radius: 1px;
-    }
-    
-    .default-address-card .card-body {
-        padding: 20px;
-    }
-    
-    .address-actions .btn-link {
-       
-        color: #000000;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-       
-       
-    }
+        .default-address-card .card-body {
+            padding: 20px;
+        }
 
-   
-    
-    .address-actions .btn-link:hover {
-        background-color: #000000;
-        color: #ffffff;
-    }
-    
-    #savedAddresses {
-        border: 1px solid #ebebeb;
-        height: 46px;
-        padding: 0 15px;
-        color: #666666;
-    }
-    
-    .btn-outline-dark {
-        border-color: #111111;
-        color: #111111;
-    }
-    
-    .btn-outline-dark:hover {
-        background-color: #111111;
-        color: #ffffff;
-    }
-    
-    .modal-content {
-        border-radius: 4px;
-    }
-    
-    .modal-header {
-        border-bottom: 1px solid #ebebeb;
-        background-color: #f8f9fa;
-    }
-    
-    .modal-footer {
-        border-top: 1px solid #ebebeb;
-    }
-    
-    .form-control {
-        height: 46px;
-        border: 1px solid #ebebeb;
-        border-radius: 4px;
-        padding: 0 15px;
-    }
-    
-    .form-control:focus {
-        border-color: #111111;
-        box-shadow: none;
-    }
-    
-    .custom-control-input:checked ~ .custom-control-label::before {
-        background-color: #111111;
-        border-color: #111111;
-    }
-</style>
+        .address-actions .btn-link {
 
-<!-- Breadcrumb Section Begin -->
-<section class="breadcrumb-option">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="breadcrumb__text">
-                    <h4>Checkout</h4>
-                    <div class="breadcrumb__links">
-                        <a href="/">Home</a>
-                        <a href="/shop">Shop</a>
-                        <a href="/cart">Shopping Cart</a>
-                        <span>Checkout</span>
+            color: #000000;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+
+
+        }
+
+
+
+        .address-actions .btn-link:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        #savedAddresses {
+            border: 1px solid #ebebeb;
+            height: 46px;
+            padding: 0 15px;
+            color: #666666;
+        }
+
+        .btn-outline-dark {
+            border-color: #111111;
+            color: #111111;
+        }
+
+        .btn-outline-dark:hover {
+            background-color: #111111;
+            color: #ffffff;
+        }
+
+        .modal-content {
+            border-radius: 4px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #ebebeb;
+            background-color: #f8f9fa;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #ebebeb;
+        }
+
+        .form-control {
+            height: 46px;
+            border: 1px solid #ebebeb;
+            border-radius: 4px;
+            padding: 0 15px;
+        }
+
+        .form-control:focus {
+            border-color: #111111;
+            box-shadow: none;
+        }
+
+        .custom-control-input:checked~.custom-control-label::before {
+            background-color: #111111;
+            border-color: #111111;
+        }
+    </style>
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Checkout</h4>
+                        <div class="breadcrumb__links">
+                            <a href="/">Home</a>
+                            <a href="/shop">Shop</a>
+                            <a href="/cart">Shopping Cart</a>
+                            <span>Checkout</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<!-- Breadcrumb Section End -->
+    </section>
+    <!-- Breadcrumb Section End -->
 
-<!-- Checkout Section Begin -->
-<section class="checkout spad">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="checkout__form">
-                    <h6 class="checkout__title">Shipping Address</h6>
-                    
-                    <!-- Default Address Card -->
-                    <div class="default-address-card mb-4">
-                        <div class="card">
+    <!-- Checkout Section Begin -->
+    <section class="checkout spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="checkout__form">
+                        <h6 class="checkout__title">Shipping Address</h6>
+
+
+
+                        <div class="default-address-card card">
                             <div class="card-body">
+                                <!-- Default Address Display -->
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h6 class="card-subtitle text-muted">Default Address</h6>
-                                    <div class="address-actions">
-                                        <button class="btn btn-link p-1" type="button" data-toggle="collapse" data-target="#addressSelect">
-                                            Change
-                                        </button>
-                                    </div>
+                                    <button class="btn  p-1" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#changeAddressModal">
+                                        Change
+                                    </button>
                                 </div>
-                                <h5 class="card-title"><%= defaultAddress.name %></h5>
+                                <h5 class="card-title">
+                                    <%= defaultAddress.name %>
+                                </h5>
                                 <p class="card-text">
-                                    <%= defaultAddress.street %><br>
-                                    <%= defaultAddress.city %>, <%= defaultAddress.state %><br>
-                                    <%= defaultAddress.zipCode %><br>
-                                    Phone: <%= defaultAddress.phone %>
+                                    <%= defaultAddress.landMark %><br>
+                                        <%= defaultAddress.city %>, <%= defaultAddress.state %><br>
+                                                <%= defaultAddress.pincode %><br>
+                                                    Phone: <%= defaultAddress.phone %>, <%= defaultAddress.altPhone %>
                                 </p>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Address Selection Dropdown -->
-                    <div class="collapse" id="addressSelect">
-                        <div class="card card-body mb-4">
-                            <h6 class="mb-3">Select Different Address</h6>
-                            <select class="form-control" id="savedAddresses">
-                                <option value="">Choose from saved addresses</option>
-                                <% savedAddresses.forEach(address => { %>
-                                    <option value="<%= address._id %>">
-                                        <%= address.name %> - <%= address.street %>, <%= address.city %>
-                                    </option>
+                        <!-- Modal for Changing Address -->
+                        <div class="modal fade" id="changeAddressModal" tabindex="-1"
+                            aria-labelledby="changeAddressModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="changeAddressModalLabel">Select Address</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul class="list-group">
+                                            <% savedAddresses.forEach(address=> { %>
+                                                <li
+                                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>
+                                                            <%= address.addressType %>
+                                                        </strong><br>
+                                                        <%= address.name %>, <%= address.landMark %>, <%= address.city
+                                                                    %>, <%= address.state %><br>
+                                                                        <%= address.pincode %><br>
+                                                                            Phone: <%= address.phone %>, <%=
+                                                                                    address.altPhone %>
+                                                    </div>
+                                                    <button class="btn btn-sm btn-primary select-address-btn"
+                                                        data-id="<%= address._id %>">
+                                                        Select
+                                                    </button>
+                                                </li>
+                                                <% }); %>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Add New Address Button -->
+                        <div class="text-right mb-4">
+                            <button type="button" class="btn btn-outline-dark" data-toggle="modal"
+                                data-target="#addAddressModal">
+                                + Add New Address
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary Column -->
+                <div class="col-lg-5">
+                    <div class="checkout__order">
+                        <h6 class="order__title">Your order</h6>
+                        <div class="checkout__order__products">Products <span>Total</span></div>
+                        <ul class="checkout__total__products">
+                            <% cart.items.forEach(item=> { %>
+                                <li>
+                                    <%= item.productId.productName %> × <%= item.quantity %> <span>₹<%= item.totalPrice
+                                                    %></span>
+                                </li>
                                 <% }); %>
-                            </select>
+                        </ul>
+                        <ul class="checkout__total__all">
+                            <li>Subtotal <span>₹<%= subtotal %></span></li>
+                            <% if (cart.discount) { %>
+                                <li>Discount <span>-₹<%= discount %></span></li>
+                                <% } %>
+                                    <li>Total <span>₹<%=total%></span></li>
+                        </ul>
+                        <div class="checkout__input__checkbox">
+                            <label for="payment">
+                                Cash on Delivery
+                                <input type="checkbox" id="payment" name="paymentMethod" value="cod">
+                                <span class="checkmark"></span>
+                            </label>
                         </div>
-                    </div>
-
-                    <!-- Add New Address Button -->
-                    <div class="text-right mb-4">
-                        <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#addAddressModal">
-                            + Add New Address
-                        </button>
+                        <div class="checkout__input__checkbox">
+                            <label for="online">
+                                Online Payment
+                                <input type="checkbox" id="online" name="paymentMethod" value="online">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <input type="hidden" id="selectedAddressId" name="selectedAddressId">
+                        <button type="submit" id="placeOrderBtn" class="site-btn">PLACE ORDER</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Order Summary Column -->
-            <div class="col-lg-4">
-                <div class="checkout__order">
-                    <h6 class="order__title">Your order</h6>
-                    <div class="checkout__order__products">Products <span>Total</span></div>
-                    <ul class="checkout__total__products">
-                        <% cart.items.forEach(item => { %>
-                        <li><%= item.productId.productName %> × <%= item.quantity %> <span>₹<%= item.totalPrice %></span></li>
-                        <% }); %>
-                    </ul>
-                    <ul class="checkout__total__all">
-                        <li>Subtotal <span>₹<%= cart.totalPrice %></span></li>
-                        <% if (cart.discount) { %>
-                        <li>Discount <span>-₹<%= cart.discount %></span></li>
-                        <% } %>
-                        <li>Total <span>₹<%= cart.totalPrice - (cart.discount || 0) %></span></li>
-                    </ul>
-                    <div class="checkout__input__checkbox">
-                        <label for="payment">
-                            Cash on Delivery
-                            <input type="checkbox" id="payment" name="paymentMethod" value="cod">
-                            <span class="checkmark"></span>
-                        </label>
-                    </div>
-                    <div class="checkout__input__checkbox">
-                        <label for="online">
-                            Online Payment
-                            <input type="checkbox" id="online" name="paymentMethod" value="online">
-                            <span class="checkmark"></span>
-                        </label>
-                    </div>
-                    <button type="submit" class="site-btn">PLACE ORDER</button>
-                </div>
-            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Add Address Modal -->
-<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="newAddressForm">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Full Name<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="name" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Phone Number<span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" name="phone" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Street Address<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="street" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>City<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="city" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>State<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="state" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>ZIP Code<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="zipCode" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="makeDefault" name="makeDefault">
-                            <label class="custom-control-label" for="makeDefault">Make this my default address</label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveAddress">Save Address</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div id="alertContainer"></div>
-
-<script>
-    $(document).ready(function() {
-        // Handle address selection change
-        $('#savedAddresses').change(function() {
-            const selectedAddressId = $(this).val();
-            if (selectedAddressId) {
-                // Make AJAX call to get address details and update the display
-                $.ajax({
-                    url: `/api/addresses/${selectedAddressId}`,
-                    method: 'GET',
-                    success: function(response) {
-                        updateDisplayedAddress(response.address);
-                    },
-                    error: function(error) {
-                        showAlert('Error loading address details', 'danger');
-                    }
-                });
-            }
-        });
-    
-        // Handle new address submission
-        $('#saveAddress').click(function() {
-            const formData = $('#newAddressForm').serialize();
-            
-            $.ajax({
-                url: '/api/addresses',
-                method: 'POST',
-                data: formData,
-                success: function(response) {
-                    $('#addAddressModal').modal('hide');
-                    showAlert('Address added successfully', 'success');
-                    // Refresh the page or update the address list
-                    location.reload();
-                },
-                error: function(error) {
-                    showAlert('Error saving address', 'danger');
-                }
-            });
-        });
-    
-        // Function to update displayed address
-        function updateDisplayedAddress(address) {
-            const addressHtml = `
-                <h5 class="card-title">${address.name}</h5>
-                <p class="card-text">
-                    ${address.street}<br>
-                    ${address.city}, ${address.state}<br>
-                    ${address.zipCode}<br>
-                    Phone: ${address.phone}
-                </p>
-            `;
-            $('.default-address-card .card-body').html(addressHtml);
-            $('#addressSelect').collapse('hide');
-        }
-    
-        // Function to show alerts
-        function showAlert(message, type) {
-            const alert = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <!-- Add Address Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-            `;
-            $('#alertContainer').html(alert);
-        }
-    });
-</script>
+                <div class="modal-body">
+                    <form id="newAddressForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Full Name<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="name" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Phone Number<span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" name="phone" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Street Address<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="street" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>City<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="city" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>State<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="state" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>ZIP Code<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="pinCode" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="makeDefault" name="makeDefault">
+                                <label class="custom-control-label" for="makeDefault">Make this my default
+                                    address</label>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveAddress">Save Address</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
-<%- include("../../views/partials/user/userFooter")%>
+    <div id="alertContainer"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("newAddressForm");
+            const saveAddressButton = document.getElementById("saveAddress");
+
+            // Add validation on save button click
+            saveAddressButton.addEventListener("click", function () {
+                if (validateForm(form)) {
+                    // Proceed with form submission (e.g., via AJAX or a POST request)
+                    console.log("Form is valid. Submitting...");
+                    alert("Address saved successfully!");
+                } else {
+                    console.log("Form validation failed.");
+                }
+            });
+
+            function validateForm(form) {
+                let isValid = true;
+                const inputs = form.querySelectorAll("input[required]");
+
+                inputs.forEach((input) => {
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        input.classList.add("is-invalid");
+                        displayError(input, `${input.previousElementSibling.innerText} is required.`);
+                    } else {
+                        input.classList.remove("is-invalid");
+                        removeError(input);
+                    }
+                });
+
+                // Validate phone number format (optional)
+                const phoneInput = form.querySelector('input[name="phone"]');
+                if (!/^\d{10}$/.test(phoneInput.value)) {
+                    isValid = false;
+                    phoneInput.classList.add("is-invalid");
+                    displayError(phoneInput, "Phone number must be 10 digits.");
+                }
+
+                // Validate ZIP Code format (optional)
+                const zipInput = form.querySelector('input[name="pinCode"]');
+                if (!/^\d{5,6}$/.test(zipInput.value)) {
+                    isValid = false;
+                    zipInput.classList.add("is-invalid");
+                    displayError(zipInput, "ZIP Code must be 5 or 6 digits.");
+                }
+
+                return isValid;
+            }
+
+            function displayError(input, message) {
+                let error = input.nextElementSibling;
+                if (!error || !error.classList.contains("invalid-feedback")) {
+                    error = document.createElement("div");
+                    error.className = "invalid-feedback";
+                    input.parentElement.appendChild(error);
+                }
+                error.innerText = message;
+            }
+
+            function removeError(input) {
+                const error = input.nextElementSibling;
+                if (error && error.classList.contains("invalid-feedback")) {
+                    error.remove();
+                }
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
 
 
+
+            const defaultAddress = JSON.parse('<%- JSON.stringify(defaultAddress) %>');
+
+            if (defaultAddress) {
+                updateDefaultAddress(defaultAddress);
+            }
+
+            // Function to update the default address dynamically
+            function updateDefaultAddress(address) {
+                const addressHtml = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="card-subtitle text-muted">Default Address</h6>
+                        <button class="btn btn-link p-1" type="button" data-bs-toggle="modal" data-bs-target="#changeAddressModal">
+                            Change
+                        </button>
+                    </div>
+                    <h5 class="card-title">${address.name}</h5>
+                    <p class="card-text">
+                        ${address.landMark}<br>
+                        ${address.city}, ${address.state}<br>
+                        ${address.pinCode}<br>
+                        Phone: ${address.phone}, ${address.altPhone}
+                    </p>
+                `;
+                $('.default-address-card .card-body').html(addressHtml);
+
+                // Set the hidden input field for the selected address ID
+                $('#selectedAddressId').val(address._id);  // Set the address ID to hidden field
+            }
+
+
+            // Handle address selection from modal
+            $(document).on('click', '.select-address-btn', function () {
+                const selectedAddressId = $(this).data('id');
+
+                if (selectedAddressId) {
+                    // Fetch the selected address details
+                    $.ajax({
+                        url: `/get-address/${selectedAddressId}`,
+                        method: 'GET',
+                        success: function (response) {
+                            if (response.address) {
+                                updateDefaultAddress(response.address);
+                                $('#changeAddressModal').modal('hide'); // Close the modal
+                                $('#selectedAddressId').val(selectedAddressId); // Set hidden input value
+                            } else {
+                                showAlert('Selected address not found!', 'danger');
+                            }
+                        },
+                        error: function () {
+                            showAlert('Error fetching the selected address!', 'danger');
+                        }
+                    });
+                }
+            });
+            // Add event listeners for payment method checkboxes
+            const codCheckbox = $('#payment');
+            const onlineCheckbox = $('#online');
+            const placeOrderBtn = $('#placeOrderBtn');
+
+            // Initially disable the place order button
+            placeOrderBtn.prop('disabled', false); // Changed to false to allow clicking without selection
+
+            // Ensure only one payment method can be selected
+            codCheckbox.change(function () {
+                if (this.checked) {
+                    onlineCheckbox.prop('checked', false);
+                }
+            });
+
+            onlineCheckbox.change(function () {
+                if (this.checked) {
+                    codCheckbox.prop('checked', false);
+                    showAlert('Only Cash on Delivery is available at the moment.', 'warning');
+                }
+            });
+
+            $('#placeOrderBtn').click(function (e) {
+                e.preventDefault();
+                const selectedAddressId = $('#selectedAddressId').val();
+
+                if (!selectedAddressId) {
+                    showAlert('Please select an address to place your order!', 'warning');
+                    return false;
+                }
+
+                if (!codCheckbox.is(':checked') && !onlineCheckbox.is(':checked')) {
+                    showAlert('Please select a payment method!', 'warning');
+                    return false;
+                }
+
+
+
+                if (!codCheckbox.is(':checked')) {
+                    showAlert('Please select Cash on Delivery payment method!', 'warning');
+                    return false;
+                }
+
+                // Place order
+                $.ajax({
+                    url: '/place-order',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        addressId: selectedAddressId,
+                        paymentMethod: 'COD'
+                    }),
+                    success: function (response) {
+                        if (response.orderId) {
+                            showAlert('Order placed successfully!', 'success');
+                            window.location.href = `/order-confirmation/${response.orderId}`;
+                        } else {
+                            showAlert(response.message || 'Failed to place order!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showAlert('Error placing order. Please try again!', 'danger');
+                    }
+                });
+            });
+
+            // Function to show alert messages
+            // Modified showAlert function to ensure alerts are visible
+            function showAlert(message, type = 'success') {
+                const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+                $('#alertContainer').html(alertHtml);
+
+                // Scroll to alert
+                $('#alertContainer')[0].scrollIntoView({ behavior: 'smooth' });
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    $('.alert').fadeOut('slow', function () {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+
+        });
+    </script>
+
+    <%- include("../../views/partials/user/userFooter")%>

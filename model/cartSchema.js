@@ -27,12 +27,15 @@ const cartSchema = new Schema(
                 price: {
                     type: Number,
                     required: true,
+                    default: function() {
+                        return this.productId.salePrice;
+                    }
                 },
                 totalPrice: {
                     type: Number,
                     required: true,
                     default: function () {
-                        return this.price * this.quantity;
+                        return this.salePrice * this.quantity;
                     },
                 },
                 status: {

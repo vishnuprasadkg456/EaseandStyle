@@ -600,7 +600,7 @@ ol {
 	font-size: 48px;
 	font-weight: 700;
 	line-height: 58px;
-	margin-bottom: 30px;
+	margin-bottom: 20px;
 	position: relative;
 	top: 100px;
 	opacity: 0;
@@ -613,6 +613,7 @@ ol {
 	font-size: 16px;
 	line-height: 28px;
 	margin-bottom: 35px;
+	margin-left: 5px;
 	position: relative;
 	top: 100px;
 	opacity: 0;
