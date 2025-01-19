@@ -77,7 +77,7 @@ router.delete("/removeItemFromCart",userAuth, cartController.removeItemFromCart)
 //checkout
 router.get("/checkOut",userAuth,checkOutController.getCheckOut);
 router.get("/get-address/:id",userAuth,checkOutController.getAddress)
-router.post("/add-address",userAuth,checkOutController.postAddAddress);
+router.post("/add-address",userAuth,checkOutController.checkOutAddAddress);
 router.post("/place-order", userAuth, checkOutController.placeOrder);
 
 
@@ -85,4 +85,4 @@ router.post("/place-order", userAuth, checkOutController.placeOrder);
 router.get("/orderDetails", userAuth, orderController.getOrderDetails);
 
 
-module.exports = router;
+module.exports = router;``

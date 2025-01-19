@@ -44,6 +44,7 @@ const getCheckOut = async(req,res)=>{
             defaultAddress = addressData.address.find(addr=>addr.isDefault) || addressData.address[0];
         }
 
+        console.log("default address",defaultAddress);
         //cart Total
 
         let subtotal = 0;
@@ -80,6 +81,9 @@ const getCheckOut = async(req,res)=>{
 
     }
 };
+
+
+//fetching address to show on the checkout page
 const getAddress = async (req, res) => {
     try {
         const userId = req.session.user.id;
@@ -104,7 +108,63 @@ const getAddress = async (req, res) => {
     }
 };
 
-const {  postAddAddress } = require('./profileController');
+
+const checkOutAddAddress = async (req, res) => {
+    try {
+        const userId = req.session.user.id; // Assuming the user is logged in and user ID is in the session
+        const userData = await User.findOne({ _id: userId });
+        const { addressType, name, city, landMark, state, pincode, phone, altPhone, isDefault } = req.body;
+
+        console.log("Request body details:", req.body);
+
+        // If the new address is marked as default, unset previous default addresses
+        if (isDefault) {
+            await Address.updateMany(
+                { userId: userData._id, "address.isDefault": true },
+                { $set: { "address.$.isDefault": false } }
+            );
+        }
+
+        // Find if the user already has an address document
+        const userAddress = await Address.findOne({ userId: userData._id });
+
+        if (!userAddress) {
+            // If no address document exists, create a new one
+            const newAddress = new Address({
+                userId: userData._id,
+                address: [{ addressType, name, city, landMark, state, pincode, phone, altPhone, isDefault }]
+            });
+            await newAddress.save();
+
+            return res.status(200).json({
+                status: true,
+                message: "Address added successfully",
+                addressId: newAddress.address[0]._id, // Sending the ID of the new address
+            });
+        } else {
+            // Add the new address to the existing document
+            const newAddress = { addressType, name, city, landMark, state, pincode, phone, altPhone, isDefault };
+            userAddress.address.push(newAddress);
+            await userAddress.save();
+
+            // Get the ID of the added address (last in the array)
+            const addedAddressId = userAddress.address[userAddress.address.length - 1]._id;
+
+            return res.status(200).json({
+                status: true,
+                message: "Address added successfully",
+                addressId: addedAddressId,
+            });
+        }
+    } catch (error) {
+        console.error("Error adding address:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Failed to add address",
+        });
+    }
+};
+
 
 
 
@@ -159,7 +219,17 @@ const placeOrder = async (req, res) => {
             totalPrice: subtotal,
             discount,
             finalAmount,
-            address: selectedAddress._id,
+            addressRef: selectedAddress._id,
+            address: { 
+                addressType: selectedAddress.addressType,
+                name: selectedAddress.name,
+                landMark : selectedAddress.landMark,
+                city: selectedAddress.city,
+                state: selectedAddress.state,
+                pincode: selectedAddress.pincode,
+                phone: selectedAddress.phone,
+                altPhone: selectedAddress.altPhone,
+            },
             status: "Pending",
         });
 
@@ -178,6 +248,19 @@ const placeOrder = async (req, res) => {
 
         const savedPayment = await newPayment.save();
 
+        savedOrder.payment = savedPayment._id;
+        await savedOrder.save();
+
+
+        for (const item of cart.items) {
+            const product = await Product.findById(item.productId._id);
+            if (product.stock < item.quantity) {
+                return res.status(400).json({
+                    message: `Insufficient stock for product: ${product.productName}`,
+                });
+            }
+        }
+
         // Update product stock
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
@@ -188,9 +271,10 @@ const placeOrder = async (req, res) => {
        
 
         // Clear cart
-        cart.items = [];
-        cart.discount = 0;
-        await cart.save();
+        await Cart.updateOne(
+            { userId },
+            { $set: { items: [], discount: 0 } }
+        );
 
         res.status(200).json({
             message: "Order placed successfully!",
@@ -211,7 +295,7 @@ const placeOrder = async (req, res) => {
 module.exports ={
  getCheckOut, 
  getAddress,
- postAddAddress,
+ checkOutAddAddress,
  placeOrder
 
 }

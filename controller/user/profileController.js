@@ -418,19 +418,30 @@ const postAddAddress = async (req, res) => {
     try {
         const userId = req.session.user.id;
         const userData = await User.findOne({ _id: userId });
-        const { addressType, name, city, landMark, state, pincode, phone, altPhone } = req.body;
+        const { addressType, name, city, landMark, state, pincode, phone, altPhone,isDefault } = req.body;
+        
+        console.log("reqbody details  ",req.body);
+
+        if(isDefault){
+            await Address.updateMany(
+                {userId : userData._id,"address.isDefault" : true},
+                { $set: { "address.$.isDefault" : false } }
+
+            );
+        }
+
         const userAddress = await Address.findOne({ userId: userData._id });
 
         if (!userAddress) {
             const newAddress = new Address({
                 userId: userData._id,
-                address: [{ addressType, name, city, landMark, state, pincode, phone, altPhone }],
+                address: [{ addressType, name, city, landMark, state, pincode, phone, altPhone,isDefault }],
 
             });
 
             await newAddress.save();
         } else {
-            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altPhone });
+            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altPhone,isDefault});
             await userAddress.save();
         }
 
@@ -486,6 +497,14 @@ const postEditAddress = async (req, res) => {
         const user = req.session.user;
         const findAddress = await Address.findOne({ "address._id": addressId });
 
+        if(data.isDefault){
+            await Address.updateMany(
+                {userId : userData._id,"address.$.isDefault" : true},
+                { $set: { "address.$.isDefault" : false } }
+
+            );
+        }
+
         if (!findAddress) {
             console.log("Address not found");
             return res.redirect("/pageNotFound");
@@ -502,7 +521,8 @@ const postEditAddress = async (req, res) => {
                     state: data.state,
                     pincode: data.pincode,
                     phone: data.phone,
-                    altPhone: data.altPhone
+                    altPhone: data.altPhone,
+                    isDefault: data.isDefault,
                 }
             }
         }

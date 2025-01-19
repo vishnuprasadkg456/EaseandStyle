@@ -279,13 +279,16 @@
             <div class="col-lg-4">
                 <div class="cart__total">
                     <h6>Shipping Address</h6>
+                    <br>
                     <div class="shipping-address">
-                        <% if (order.address) { %>
-                            <p><%= order.address.name %></p>
-                            <p><%= order.address.address %></p>
-                            <p><%= order.address.city %>, <%= order.address.state %></p>
-                            <p><%= order.address.pincode %></p>
-                            <p>Phone: <%= order.address.phone %></p>
+                        <% if (address) { %>
+                            <p><strong><%= address.addressType %></strong></p><br>
+                            <p><%= address.name %></p>
+                            <p><%= address.address %></p>
+                            <p><%= address.city %>, <%= address.state %></p>
+                            <p>Pincode :<%= address.pincode %></p>
+                            <p>Phone: <%= address.phone %></p>
+                            <p>Phone: <%= address.altPhone %></p>
                         <% } else { %>
                             <p>Shipping address not available</p>
                         <% } %>

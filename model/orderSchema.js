@@ -14,6 +14,26 @@ const orderSchema = new Schema({
         default: () => uuidv4(),
         unique: true,
     },
+
+    addressRef : {
+        type : Schema.Types.ObjectId,
+        ref : "Address",
+    },
+
+    address : {
+
+        addressType : String,
+        name : String,
+        landMark : String,
+        city : String,
+        state : String,
+        pincode : String,
+        phone : String,
+        altPhone : String,
+
+
+    },
+
     orderedItems: [
         {
             product: {
@@ -46,11 +66,7 @@ const orderSchema = new Schema({
     finalAmount: {
         type: Number,
     },
-    address: {
-        type: Schema.Types.ObjectId,
-        ref: "Address",
-        required: true,
-    },
+    
     payment: {
         type: Schema.Types.ObjectId,
         ref: "Payment", // Reference to the Payment schema

@@ -18,21 +18,28 @@ const getOrderDetails = async (req, res) => {
         }
 
         const order = await Order.findOne({ _id: orderId, userId })
-            .populate({
-                path: 'orderedItems.product',
-                select: 'productName productImage salePrice'
-            })
-            .populate('address');
+    .populate({
+        path: 'orderedItems.product',
+        select: 'productName productImage salePrice',
+    })
+    
+
+            console.log("order details : ",order);
 
         if (!order) {
             console.error("Order not found");
             return res.redirect('/profile');
         }
 
+        const addressData = await Address.findOne({ userId});
+        const orderAddress = order.address 
+
+        console.log("order adddress : ",orderAddress);
+
         res.render('order-details', {
             order,
             user,
-            address: order.address,
+            address:orderAddress,
             page: 'Order Details'
         });
     } catch (error) {

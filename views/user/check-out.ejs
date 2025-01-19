@@ -73,6 +73,16 @@
             background-color: #111111;
             border-color: #111111;
         }
+
+
+        #alertContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1050; /* Above other elements */
+            max-width: 400px;
+        }
+        
     </style>
 
     <!-- Breadcrumb Section Begin -->
@@ -234,28 +244,30 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Full Name<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="name" required>
+                                    <label>Addresss Type<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="addressType" required>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Phone Number<span class="text-danger">*</span></label>
-                                    <input type="tel" class="form-control" name="phone" required>
+                                    <label>Full Name<span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" name="name" required>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Street Address<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="street" required>
-                            <div class="invalid-feedback"></div>
-                        </div>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>City<span class="text-danger">*</span></label>
+                                    <label>Land Mark<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="landMark" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>city<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="city" required>
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -267,18 +279,36 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
+
+                        </div>
+                        
+                        <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>ZIP Code<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="pinCode" required>
+                                    <label>Pincode<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="pincode" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Phone<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="phone" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Alternate  Phone<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="altPhone" required>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="makeDefault" name="makeDefault">
-                                <label class="custom-control-label" for="makeDefault">Make this my default
+                                <input type="checkbox" class="custom-control-input" id="isDefault" name="isDefault">
+                                <label class="custom-control-label" for="isDefault">Make this my default
                                     address</label>
                             </div>
                         </div>
@@ -306,7 +336,7 @@
                 if (validateForm(form)) {
                     // Proceed with form submission (e.g., via AJAX or a POST request)
                     console.log("Form is valid. Submitting...");
-                    alert("Address saved successfully!");
+                    showAlert("Address saved successfully!");
                 } else {
                     console.log("Form validation failed.");
                 }
@@ -336,11 +366,11 @@
                 }
 
                 // Validate ZIP Code format (optional)
-                const zipInput = form.querySelector('input[name="pinCode"]');
+                const zipInput = form.querySelector('input[name="pincode"]');
                 if (!/^\d{5,6}$/.test(zipInput.value)) {
                     isValid = false;
                     zipInput.classList.add("is-invalid");
-                    displayError(zipInput, "ZIP Code must be 5 or 6 digits.");
+                    displayError(zipInput, "Pincode must be 5 or 6 digits.");
                 }
 
                 return isValid;
@@ -389,7 +419,7 @@
                     <p class="card-text">
                         ${address.landMark}<br>
                         ${address.city}, ${address.state}<br>
-                        ${address.pinCode}<br>
+                        ${address.pincode}<br>
                         Phone: ${address.phone}, ${address.altPhone}
                     </p>
                 `;
@@ -485,7 +515,7 @@
                                 //window.location.href = `/userProfile`;
                                  window.location.href = `/orderDetails?orderId=${response.orderId}`;
                                 // Redirect to order details page after 1 second delay
-                            },3000);
+                            },1500);
                         } else {
                             showAlert(response.message || 'Failed to place order!', 'danger');
                         }
@@ -495,6 +525,71 @@
                     }
                 });
             });
+
+
+            $('#saveAddress').click(function () {
+                const form = $('#newAddressForm');
+                const formData = {
+                    addressType: form.find('input[name="addressType"]').val(),
+                    name: form.find('input[name="name"]').val(),
+                    landMark: form.find('input[name="landMark"]').val(),
+                    city: form.find('input[name="city"]').val(),
+                    state: form.find('input[name="state"]').val(),
+                    pincode: form.find('input[name="pincode"]').val(),
+                    phone: form.find('input[name="phone"]').val(),
+                    altPhone: form.find('input[name="altPhone"]').val(),
+                    isDefault: form.find('input[name="isDefault"]').is(':checked')
+                };
+        
+                // Validate the form
+                if (validateForm(form)) {
+                    // Send AJAX request to add the new address
+                    $.ajax({
+                        url: '/add-address', // Adjust the URL to your route
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            if (response.status) {
+                                // Address added successfully
+                                showAlert('Address added successfully!', 'success');
+                                // Optionally, you can close the modal and refresh the address list
+                                $('#addAddressModal').modal('hide');
+                                // Reload the page or update the address list
+                               
+                                setTimeout(()=>{
+                                    location.reload();
+                                },1500)
+
+                            } else {
+                                showAlert(response.message || 'Failed to add address!', 'danger');
+                            }
+                        },
+                        error: function () {
+                            showAlert('Error adding address. Please try again!', 'danger');
+                        }
+                    });
+                }
+            });
+        
+            // Function to validate the form
+            function validateForm(form) {
+                let isValid = true;
+                const inputs = form.find('input[required]');
+        
+                inputs.each(function () {
+                    if (!$(this).val().trim()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+        
+                return isValid;
+            }
+        
+
 
             // Function to show alert messages
             // Modified showAlert function to ensure alerts are visible
