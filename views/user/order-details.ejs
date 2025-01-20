@@ -224,6 +224,26 @@
                     </div>
                 </div>
 
+
+                <div class="payment-info mt-4">
+                    <h6>Payment Details</h6>
+                    <div class="payment-info__item">
+                        <span>Payment Method</span>
+                        <span><%= order.paymentMethod || 'Not specified' %></span>
+                    </div>
+                    <div class="payment-info__item">
+                        <span>Transaction ID</span>
+                        <span><%= order.transactionId || 'Not available' %></span>
+                    </div>
+                    <div class="payment-info__item">
+                        <span>Payment Status</span>
+                        <span class="payment-status status-<%= order.paymentStatus.toLowerCase() %>">
+                            <%= order.paymentStatus %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
                 <!-- Product Details -->
                 <% if (order.orderedItems && order.orderedItems.length > 0) { %>
                     <% order.orderedItems.forEach(item => { %>

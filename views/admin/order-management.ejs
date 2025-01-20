@@ -1,89 +1,103 @@
 <%- include("../../views/partials/admin/header") %>
+
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 0 solid transparent;
+            border-radius: .25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+        }
+
         .btn-small {
-            padding: 2px 10px;
+            padding: 5px 15px;
             font-size: 12px;
+        }
+
+        .order-thumbnail {
+            width: 60px;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .status-btn{
+            background-color: rgba(209, 209, 209, 0.239);
+            padding: 5px 15px 1px 15px;
+            border-radius: 20px;
+        }
+        .cancel-order{
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 40px;
+            color: #ffffff;
+            border: none;
+            background-color: #9a1717;
+            border-radius: 25px;
+        }
+
+        .btn btn-danger:hover{
+            background-color: #9a1717!important;
         }
     </style>
 </head>
 
-<div class="content-header">
-    <div>
-        <h2 class="content-title card-title">Order Management</h2>
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Order Management</h2>
     </div>
-</div>
 
-<div class="right mt-5">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col"><b>Order ID</b></th>
-                <th scope="col"><b>User</b></th>
-                <th scope="col"><b>Total Price</b></th>
-                <th scope="col"><b>Status</b></th>
-                <th scope="col"><b>Action</b></th>
-            </tr>
-        </thead>
-        <tbody>
-            <% orders.forEach(order => { %>
-                <tr>
-                    <td><%= order._id %></td>
-                    <td><%= order.userId.name %></td>
-                    <td>₹<%= order.finalAmount %></td>
-                    <td>
-                        <select class="form-control order-status" data-id="<%= order._id %>">
-                            <option value="Pending" <% if(order.status === 'Pending') { %>selected<% } %>>Pending</option>
-                            <option value="Processing" <% if(order.status === 'Processing') { %>selected<% } %>>Processing</option>
-                            <option value="Shipped" <% if(order.status === 'Shipped') { %>selected<% } %>>Shipped</option>
-                            <option value="Delivered" <% if(order.status === 'Delivered') { %>selected<% } %>>Delivered</option>
-                            <option value="Return Request" <% if(order.status === 'Return Request') { %>selected<% } %>>Return Request</option>
-                            <% if(order.status !== 'Cancelled') { %>
-                                <option value="Cancelled" <% if(order.status === 'Cancelled') { %>selected<% } %>>Cancelled</option>
-                            <% } %>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-danger btn-small cancel-order" data-id="<%= order._id %>">Cancel Order</button>
-                    </td>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
-</div>
+    <% orders.forEach(order => { %>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <% order.orderedItems.forEach(item => { %>
+                            <img 
+                                src="/uploads/re-image/<%= item.product.productImage && item.product.productImage[0] %>" 
+                                alt="Order Thumbnail" 
+                                class="order-thumbnail me-3">
+                        <% }) %>
+                        <div>
+                            <h6 class="mb-1">Order ID: <%= order.orderId %></h6>
+                            <p class="mb-1">User: <%= order.userId.name %></p>
+                            <p class="mb-1">Total: ₹<%= order.finalAmount %></p>
+                        </div>
+                    </div>
+                    <div class="status-btn">
+                        <p class="mb-1"><strong>Status:</strong> <%= order.status %></p>
+                    </div>
+                </div>
+    
+                <div class="action-buttons mt-3">
+                    <button class="btn btn-danger btn-small cancel-order" data-id="<%= order._id %>">Cancel</button>
+                    <a href="/admin/getOrder/<%= order._id %>" class="btn btn-primary btn-small">View Details</a>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+    
+    
+</section>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <script>
     $(document).ready(function () {
-        // Change order status
-        $('.order-status').change(function () {
-            const orderId = $(this).data('id');
-            const newStatus = $(this).val();
-
-            $.ajax({
-                url: '/admin/updateOrderStatus',
-                method: 'POST',
-                data: {
-                    orderId: orderId,
-                    status: newStatus
-                },
-                success: function (response) {
-                    if (response.status) {
-                        Swal.fire('Success', 'Order status updated successfully!', 'success');
-                    } else {
-                        Swal.fire('Error', 'Failed to update order status.', 'error');
-                    }
-                },
-                error: function () {
-                    Swal.fire('Error', 'An error occurred while updating the order status.', 'error');
-                }
-            });
-        });
-
+       
         // Cancel order
         $('.cancel-order').click(function () {
             const orderId = $(this).data('id');

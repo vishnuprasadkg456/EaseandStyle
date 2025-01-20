@@ -68,6 +68,6 @@ router.get("/deleteBanner",adminAuth,bannerController.deleteBanner);
 router.get("/orderManagment", adminAuth,orderManagmentController.getOrders);
 router.post("/updateOrderStatus", adminAuth,orderManagmentController.updateOrderStatus);
 router.post("/cancelOrder", adminAuth,orderManagmentController.cancelOrder);
-
+router.get("/getOrder/:orderId",adminAuth,orderManagmentController.getOrderDetails)
 
 module.exports = router;
