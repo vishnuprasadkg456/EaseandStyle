@@ -170,30 +170,40 @@
                 padding: 35px 40px 40px;
                 margin: 10px;
             }
-            .order-info{
-                background :#f3f2ee ;
+
+            .order-info {
+                background: #f3f2ee;
                 padding: 20px;
                 border-radius: 8px;
                 margin-bottom: 30px;
             }
 
-            .order-details{
-                margin: 10px 30px !important ;
-            } 
-            .save-btn{
+            .order-details {
+                margin: 10px 30px !important;
+            }
+
+            .save-btn {
                 border-radius: 16px;
                 font-size: 10px;
                 padding: 5px;
                 margin: 5px;
             }
+
+            .payment-info__item {
+                padding-bottom: 15px;
+                font-size: 12px;
+            }
+            .payment-status{
+                background-color: #00000000;
+            }
         </style>
     </head>
-   
+
     <section class="order-details spad">
-        
+
         <div class="container">
 
-           
+
             <h6 class="content-title card-title">Order Details</h6>
             <div class="row">
                 <div class="col-lg-8">
@@ -350,24 +360,61 @@
                                     <p>Shipping address not available</p>
                                     <% } %>
                         </div>
+
+                        <br>
+                        <!-- Payment Details -->
+                        <div class="payment-info mt-4">
+                            <h6>Payment Details</h6>
+
+                            <div class="payment-info__item">
+                                <span>Payment Method:</span>
+                                <span>
+                                    <%= order.payment.paymentMethod || 'Not specified' %>
+                                </span>
+                            </div>
+                            <div class="payment-info__item">
+                                <span>Transaction ID:</span>
+                                <span>
+                                    <%= order.payment.transactionId || 'Not available' %>
+                                </span>
+                            </div>
+                            <div class="payment-info__item">
+                                <span>Payment Status:</span>
+                                <span class="payment-status status-<%= order.payment.paymentStatus.toLowerCase() %>">
+                                    <%= order.payment.paymentStatus %>
+                               </span>
+                                <select id="paymentStatus" class="payment-status">
+                                    
+                                    <% ['Pending', 'Completed' , 'Failed' , 'Refunded' ].forEach(status=> { %>
+                                        <option value="<%= status %>" <%=status===order.payment.paymentStatus
+                                            ? 'selected' : '' %>><%= status %>
+                                        </option>
+                                        <% }); %>
+                                </select>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 
     <script>
         document.getElementById('updateOrderStatus').addEventListener('click', async () => {
             const status = document.getElementById('orderStatus').value;
+            const paymentStatus = document.getElementById('paymentStatus').value;
             const orderId = '<%= order._id %>';
 
+            
             try {
                 const response = await fetch('/admin/updateOrderStatus', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ orderId, status })
+                    body: JSON.stringify({ orderId, status , paymentStatus })
                 });
 
                 const data = await response.json();
