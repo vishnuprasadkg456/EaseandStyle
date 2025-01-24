@@ -191,6 +191,212 @@
         .alert-close:hover {
             color: #666;
         }
+
+        .cstm-form {
+            display: block;
+            width: 100%;
+            padding: .355rem 2.25rem .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            list-style: disc;
+            color: #212529;
+            background-color: #ffffff00;
+            background-image: none !important;
+            height: 2.1rem !important;
+
+
+
+        }
+
+        .cstm-coupon {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        /* Modern Coupon Modal Styles */
+        .couponModal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .couponModal.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #fff;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0;
+        }
+
+        .couponModal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-button:hover {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        #couponList {
+            padding: 20px 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .coupon-item {
+            background: #fff;
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .coupon-item:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .coupon-info {
+            flex: 1;
+        }
+
+        .coupon-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .coupon-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin: 5px 0;
+        }
+
+        .apply-coupon-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        .apply-coupon-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Customize scrollbar */
+        #couponList::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #couponList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #couponList::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        #couponList::-webkit-scrollbar-thumb:hover {
+            background: #707070;
+        }
+
+        /* Animation keyframes */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .coupon-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .apply-coupon-btn {
+                width: 100%;
+            }
+        }
     </style>
 
     <!-- Breadcrumb Section Begin -->
@@ -239,7 +445,7 @@
                                                 <div class="product__cart__item__text">
                                                     <h6>
                                                         <%= item.product.productName %>
-                                                    </h6>
+                                                  </h6>
                                                     <h5>₹<%= item.price %>
                                                     </h5>
                                                 </div>
@@ -296,14 +502,20 @@
                             <ul>
                                 <li>Subtotal <span>₹<%= cart.totalPrice %></span></li>
                                 <% if (cart.discount) { %>
-                                    <li>Discount <span>-₹<%= cart.discount %></span></li>
+                                    <li>Offer <span>-₹<%= cart.discount %></span></li>
                                     <% } %>
-                                        <li>Total <span>₹<%= cart.totalPrice - (cart.discount || 0) %></span></li>
+                                        <li>Total <span id="finalTotal">₹<%= cart.totalPrice - (cart.discount || 0) %>
+                                            </span></li>
                             </ul>
+
+                           
+
+
                             <a href="/checkOut" class="primary-btn">Proceed to checkout</a>
                         </div>
                     </div>
                     <% } %>
+
             </div>
         </div>
     </section>

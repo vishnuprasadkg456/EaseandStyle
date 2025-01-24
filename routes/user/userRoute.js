@@ -7,6 +7,7 @@ const productController = require("../../controller/user/productController");
 const cartController = require("../../controller/user/cartController");
 const checkOutController = require("../../controller/user/checkOutController");
 const orderController = require("../../controller/user/orderController");
+const userCouponController = require("../../controller/user/userCouponController");
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 
 router.get("/pageNotFound",userController.pageNotFound);
@@ -81,9 +82,20 @@ router.post("/add-address",userAuth,checkOutController.checkOutAddAddress);
 router.post("/place-order", userAuth, checkOutController.placeOrder);
 
 
-
+//order management
 router.get("/orderDetails", userAuth, orderController.getOrderDetails);
 router.post("/cancelOrder", userAuth,orderController.cancelOrder);
+
+// coupon management
+
+router.get("/getAvailableCoupons", userAuth, userCouponController.getAvailableCoupons);
+router.post("/applyCoupon", userAuth, userCouponController.applyCoupon);
+router.post("/removeCoupon", userAuth, userCouponController.removeCoupon);
+router.get("/getAppliedCoupon", userAuth, userCouponController.getAppliedCoupon);
+
+
+
+
 
 
 module.exports = router;``

@@ -2,6 +2,7 @@ const Product = require("../../model/productSchema");
 const Category = require("../../model/categorySchema");
 const Cart = require("../../model/cartSchema");
 const User = require("../../model/userSchema");
+const Coupon = require("../../model/couponSchema");
 
 
 
@@ -59,6 +60,11 @@ const cart = async (req, res) => {
             select: 'productName productImage salePrice quantity',
         });
 
+
+        // Fetch available coupons
+        const coupons = await Coupon.find({ expireOn: { $gte: new Date() },isListed:true });
+       
+
         if (cart && cart.items.length > 0) {
             await calculateCartTotals(cart);
 
@@ -76,14 +82,20 @@ const cart = async (req, res) => {
                 })),
                 totalPrice: cart.totalPrice,
                 discount: cart.discount,
-                finalPrice: cart.finalPrice,
                 totalQuantity: cart.totalQuantity,
+                appliedCoupon: cart.appliedCoupon
+                    ? {
+                        name: cart.appliedCoupon.name,
+                        discount: cart.couponDiscount,
+                    }
+                    : null,
             };
 
-            return res.render("cart", { cart: transformedCart, user: req.session.user });
+            console.log("transformed cart : ",transformedCart);
+            return res.render("cart", { cart: transformedCart, coupons, user: req.session.user });
         }
 
-        res.render("cart", { cart: null, user: req.session.user });
+        res.render("cart", { cart: cart || { items: [], totalPrice: 0 }, coupons, user: req.session.user });
     } catch (error) {
         console.error("Cart page error:", error);
         res.redirect("/pageNotFound");
@@ -120,6 +132,7 @@ const addToCart = async (req, res) => {
             } else {
                 cart.items.push({
                     productId,
+                    productName:product.productName,
                     quantity,
                     price: product.salePrice,
                     totalPrice: product.salePrice * quantity,

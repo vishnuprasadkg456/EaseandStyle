@@ -38,6 +38,8 @@
             border: 1px solid #ddd;
         }
 
+        
+
        .detail-gallery .zoom-icon {
         top: 15px!important;
         right: 45px!important;
@@ -96,6 +98,7 @@
             .product-image-slider figure img {
                 height: auto;
             }
+
         }
 
         @media (max-width: 400px) {
@@ -166,19 +169,23 @@
                                         <% if (quantity> 0) { %>
                                             <!-- Show price if product is available -->
                                             <div class="clearfix product-price-cover">
-                                                <div class="product-price primary-color float-left">
-                                                    <ins><span class="text-brand">
+                                                <div class="product-price primary-color float-left ">
+                                                   sale price <ins><span class="text-brand">
                                                         ₹ <%= product.salePrice %>
-                                                        </span></ins>
-                                                    <ins><span class="old-price font-md ml-15">
-                                                        ₹ <%= product.regularPrice %>
-                                                        </span></ins>
-                                                    <span class="save-price font-md color3 ml-15">
+                                                    </span></ins>
+                                                    
+                                                  <ins><span class="old-price font-md ml-15 ">  ₹ <%= product.regularPrice %>
+                                                    </span></ins>
+                                            
+                                                    <span class="save-price font-md color3 ml-15  ">
+                                                        <br>
+                                                        <br>
                                                         <% if (!totalOffer) { %>
                                                             NO Offers
-                                                            <% } else { %>
-                                                                <%= totalOffer %> % off
-                                                                    <% } %>
+                                                        <% } else { %>
+                                                            
+                                                            <span style="color: rgb(137, 2, 2);"> <%= totalOffer %> % </span>(additional off on purchase)
+                                                        <% } %>
                                                     </span>
                                                 </div>
                                             </div>

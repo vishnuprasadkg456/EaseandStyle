@@ -306,6 +306,7 @@ const editProduct = async (req, res) => {
         const data = req.body;
         const existingProduct = await Product.findOne({ productName: data.productName, _id: { $ne: id } });
 
+        console.log("req body of edit product",data);
         if (existingProduct) {
             return res.status(400).json({ error: "Product already exist,Please try with another name" });
         }
@@ -328,7 +329,7 @@ const editProduct = async (req, res) => {
 
         const updateFields = {
             productName: data.productName,
-            description: data.description,
+            description: data.descriptionData,
             brand: data.brand,
             category: category._id,
             regularPrice: data.regularPrice,
@@ -338,6 +339,7 @@ const editProduct = async (req, res) => {
             'variants.colors': updatedColors,
 
         }
+        console.log("updated data : ",updateFields);
 
         //    if(req.files.length>0){
         //     updateFields.$push = {productImage:{$each:images}};

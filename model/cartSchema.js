@@ -35,7 +35,7 @@ const cartSchema = new Schema(
                     type: Number,
                     required: true,
                     default: function () {
-                        return this.salePrice * this.quantity;
+                        return this.price * this.quantity;
                     },
                 },
                 status: {
@@ -51,6 +51,17 @@ const cartSchema = new Schema(
         discount: {
             type: Number,
             default: 0,
+        },
+        couponDiscount:{
+            type : Number,
+            default :0
+        },
+        appliedCoupon:{
+
+            type : Schema.Types.ObjectId,
+            ref: 'Coupon',
+            default : null,
+
         },
         finalPrice: {
             type: Number,

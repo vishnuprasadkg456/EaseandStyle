@@ -5,36 +5,35 @@ const User = require("../../model/userSchema");
 const Address = require("../../model/addressSchema");
 const Order = require("../../model/orderSchema");
 const Payment = require("../../model/paymentSchema");
+const Coupon = require("../../model/couponSchema");
 const { v4: uuidv4 } = require("uuid");
 
 
 
 
-
 const getCheckOut = async(req,res)=>{
-    try{
-
+    try {
         const user = req.session.user;
         const userId = req.session.user.id;
-
-        console.log("userId :"+userId);
 
         if(!userId){
             return res.redirect("/login");
         }
 
-
-        const cart =await Cart.findOne({userId : userId}).populate({
+        const cart = await Cart.findOne({userId : userId}).populate({
             path : 'items.productId',
             select : 'productName productImage salePrice'
         });
 
+        // Add coupon fetching
+        const coupons = await Coupon.find({ 
+            expireOn: { $gte: new Date() },
+            isListed: true 
+        });
+
         if(!cart || !cart.items|| cart.items.length === 0){
-            console.log()
             return res.redirect("/cart");
         }
-
-        //fetching default adress and other addresses using existing address schema
 
         const addressData = await Address.findOne({ userId });
         const savedAddresses = addressData ? addressData.address : [];
@@ -44,9 +43,6 @@ const getCheckOut = async(req,res)=>{
             defaultAddress = addressData.address.find(addr=>addr.isDefault) || addressData.address[0];
         }
 
-        console.log("default address",defaultAddress);
-        //cart Total
-
         let subtotal = 0;
         let discount =  cart.discount ;
 
@@ -54,12 +50,9 @@ const getCheckOut = async(req,res)=>{
             subtotal += item.productId.salePrice * item.quantity;
         });
 
-
         const total = subtotal - discount;
-
         
         const productName = cart.items.map(item => item.productId.productName);
-        console.log("productName :" , productName);
 
         res.render('check-out',{
             user,
@@ -70,15 +63,13 @@ const getCheckOut = async(req,res)=>{
             savedAddresses,
             defaultAddress,
             productName,
+            coupons,  // Add this line
             page : 'Checkout'
-           
-
         })
 
     }catch(error){
         console.error("Error getting checkout page",error);
         res.redirect("/pageNotFound");
-
     }
 };
 
@@ -204,7 +195,8 @@ const placeOrder = async (req, res) => {
         });
 
         const discount = cart.discount || 0;
-        const finalAmount = subtotal - discount;
+        const couponDiscount = cart.couponDiscount ;
+        const finalAmount = cart.finalPrice
 
         
 
@@ -218,6 +210,7 @@ const placeOrder = async (req, res) => {
             })),
             totalPrice: subtotal,
             discount,
+            couponDiscount,
             finalAmount,
             addressRef: selectedAddress._id,
             address: { 
@@ -271,9 +264,24 @@ const placeOrder = async (req, res) => {
        
 
         // Clear cart
-        await Cart.updateOne(
+        // await Cart.updateOne(
+        //     { userId },
+        //     { $set: { items: [], discount: 0 } }
+        // );
+
+
+         // Clear cart and reset `finalPrice` and `couponDiscount`
+         await Cart.updateOne(
             { userId },
-            { $set: { items: [], discount: 0 } }
+            { 
+                $set: { 
+                    items: [], 
+                    discount: 0, 
+                    couponDiscount: 0, 
+                    finalPrice: 0, 
+                    appliedCoupon: null 
+                } 
+            }
         );
 
         res.status(200).json({

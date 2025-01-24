@@ -79,10 +79,39 @@
             position: fixed;
             top: 10px;
             right: 10px;
-            z-index: 1050; /* Above other elements */
+            z-index: 1050;
+            /* Above other elements */
             max-width: 400px;
         }
-        
+
+        .coupon-modal .modal-dialog {
+            max-width: 400px;
+        }
+
+        .coupon-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .coupon-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .coupon-details {
+            flex-grow: 1;
+        }
+
+        .coupon-code {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .coupon-discount {
+            color: #28a745;
+        }
     </style>
 
     <!-- Breadcrumb Section Begin -->
@@ -199,13 +228,63 @@
                                 </li>
                                 <% }); %>
                         </ul>
+
                         <ul class="checkout__total__all">
                             <li>Subtotal <span>₹<%= subtotal %></span></li>
                             <% if (cart.discount) { %>
                                 <li>Discount <span>-₹<%= discount %></span></li>
                                 <% } %>
-                                    <li>Total <span>₹<%=total%></span></li>
+                                    <li>Total <span>₹<%=cart.finalPrice%></span></li>
                         </ul>
+
+
+                        <!-- coupons section -->
+
+                        <div class="text-right mb-3">
+                            <button type="button" class="btn btn-outline-dark" data-toggle="modal"
+                                data-target="#couponSelectionModal">
+                                Select Coupon
+                            </button>
+                        </div>
+
+                        <!-- Coupon Selection Modal -->
+                        <div class="modal fade coupon-modal" id="couponSelectionModal" tabindex="-1" role="dialog"
+                            aria-labelledby="couponSelectionModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="couponSelectionModalLabel">Available Coupons</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body" id="availableCouponsList">
+                                        <% coupons.forEach(function(coupon) { %>
+                                            <div class="coupon-list-item">
+                                                <div class="coupon-details">
+                                                    <span class="coupon-code">
+                                                        <%= coupon.name %>
+                                                    </span>
+                                                    <span class="coupon-discount">
+                                                        ₹<%= coupon.offerPrice %>off
+                                                    </span>
+                                                    <br>
+                                                    <small class="text-muted">Min. purchase: ₹<%= coupon.minimumPrice %>
+                                                    </small>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-primary select-coupon"
+                                                    data-coupon-id="<%= coupon._id %>"
+                                                    data-coupon-code="<%= coupon.name %>"
+                                                    data-discount="<%= coupon.offerPrice %>">
+                                                    Apply
+                                                </button>
+                                            </div>
+                                            <% }); %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="checkout__input__checkbox">
                             <label for="payment">
                                 Cash on Delivery
@@ -281,7 +360,7 @@
                             </div>
 
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -299,7 +378,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Alternate  Phone<span class="text-danger">*</span></label>
+                                    <label>Alternate Phone<span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="altPhone" required>
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -325,6 +404,144 @@
 
 
     <div id="alertContainer"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const couponModal = document.getElementById('couponSelectionModal');
+            const selectCouponButtons = document.querySelectorAll('.select-coupon');
+            const couponSection = document.querySelector('.text-right.mb-3'); // Where the "Select Coupon" button is.
+            const checkoutTotals = document.querySelector('.checkout__total__all'); // For cart totals.
+
+            // Fetch the applied coupon when the page loads
+            fetch('/getAppliedCoupon')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Assuming these values are now returned from the server
+                        applyCouponUI(data.appliedCoupon.name, data.appliedCoupon.discount);
+                        updateTotals(
+                            data.subtotal,
+                            data.productDiscount,
+                            data.appliedCoupon.discount,
+                            data.finalPrice
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching applied coupon:', error);
+                });
+
+            function closeModal(modal) {
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.style.display = 'none';
+
+                // Remove modal backdrop
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+
+                // Remove modal-open class from body
+                document.body.classList.remove('modal-open');
+            }
+
+            function updateTotals(subtotal, productDiscount, couponDiscount, finalPrice) {
+                checkoutTotals.innerHTML = `
+                    <li>Subtotal <span>₹${subtotal.toFixed(2)}</span></li>
+                    <li>Product Discount <span>-₹${productDiscount.toFixed(2)}</span></li>
+                    <li>Coupon Discount <span>-₹${couponDiscount.toFixed(2)}</span></li>
+                    <li>Total <span>₹${finalPrice.toFixed(2)}</span></li>
+                `;
+            }
+
+            function applyCouponUI(couponName, discount) {
+                couponSection.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>
+                            <strong>Coupon Applied:</strong> ${couponName} 
+                            <span class="text-success">(-₹${discount})</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-danger remove-coupon">Remove</button>
+                    </div>
+                `;
+
+                // Add event listener for removing the coupon
+                const removeCouponButton = document.querySelector('.remove-coupon');
+                removeCouponButton.addEventListener('click', function () {
+                    removeCoupon();
+                });
+            }
+
+            function removeCoupon() {
+                // Send request to server to remove the coupon
+                fetch('/removeCoupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}) // No need for coupon ID, as it's stored in the cart
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        location.reload();
+                        if (data.success) {
+                            // Restore "Select Coupon" button
+                            couponSection.innerHTML = `
+                            <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#couponSelectionModal">
+                                Select Coupon
+                            </button>
+                        `;
+
+                            // Reset totals
+                            updateTotals(subtotsl, productDiscount, finalPrice); // Example values, update with actual values from server
+                        } else {
+                            alert('Failed to remove coupon');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error removing coupon:', error);
+                    });
+            }
+
+            selectCouponButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const couponId = this.getAttribute('data-coupon-id');
+                    const couponName = this.getAttribute('data-coupon-code');
+                    const discount = parseFloat(this.getAttribute('data-discount'));
+
+                    // Send request to server to apply the coupon
+                    fetch('/applyCoupon', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ couponId }) // Send coupon ID to apply
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            location.reload();
+                            if (data.success) {
+                                // Close the modal
+                                closeModal(couponModal);
+
+                                // Update the UI with coupon details
+                                applyCouponUI(couponName, discount);
+                                updateTotals(subtotal, discount, finalPrice - discount); // Update with actual values from server
+                                
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error applying coupon:', error);
+                        });
+                });
+            });
+
+        });
+
+    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -509,13 +726,13 @@
                     success: function (response) {
                         if (response.orderId) {
                             showAlert('Order placed successfully!', 'success');
-                           
-                            setTimeout(()=>{
+
+                            setTimeout(() => {
 
                                 //window.location.href = `/userProfile`;
-                                 window.location.href = `/orderDetails?orderId=${response.orderId}`;
+                                window.location.href = `/orderDetails?orderId=${response.orderId}`;
                                 // Redirect to order details page after 1 second delay
-                            },1500);
+                            }, 1500);
                         } else {
                             showAlert(response.message || 'Failed to place order!', 'danger');
                         }
@@ -540,7 +757,7 @@
                     altPhone: form.find('input[name="altPhone"]').val(),
                     isDefault: form.find('input[name="isDefault"]').is(':checked')
                 };
-        
+
                 // Validate the form
                 if (validateForm(form)) {
                     // Send AJAX request to add the new address
@@ -556,10 +773,10 @@
                                 // Optionally, you can close the modal and refresh the address list
                                 $('#addAddressModal').modal('hide');
                                 // Reload the page or update the address list
-                               
-                                setTimeout(()=>{
+
+                                setTimeout(() => {
                                     location.reload();
-                                },1500)
+                                }, 1500)
 
                             } else {
                                 showAlert(response.message || 'Failed to add address!', 'danger');
@@ -571,12 +788,12 @@
                     });
                 }
             });
-        
+
             // Function to validate the form
             function validateForm(form) {
                 let isValid = true;
                 const inputs = form.find('input[required]');
-        
+
                 inputs.each(function () {
                     if (!$(this).val().trim()) {
                         isValid = false;
@@ -585,10 +802,10 @@
                         $(this).removeClass('is-invalid');
                     }
                 });
-        
+
                 return isValid;
             }
-        
+
 
 
             // Function to show alert messages

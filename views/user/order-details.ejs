@@ -218,6 +218,12 @@
                             <span>-₹<%= order.discount %></span>
                         </div>
                     <% } %>
+                    <% if (order.couponDiscount) { %>
+                        <div class="order-info__item">
+                            <span>Discount</span>
+                            <span>-₹<%= order.couponDiscount %></span>
+                        </div>
+                    <% } %>
                     <div class="order-info__item">
                         <span>Final Amount</span>
                         <span>₹<%= order.finalAmount %></span>
