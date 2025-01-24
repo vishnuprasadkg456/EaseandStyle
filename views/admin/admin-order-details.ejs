@@ -227,7 +227,7 @@
                         <div class="order-info__item">
                             <span>Status</span>
                             <select id="orderStatus" class="order-status">
-                                <% ['Pending', 'Processing' , 'Shipped' , 'Delivered' , 'Cancelled' ].forEach(status=> {
+                                <% ['Pending', 'Processing' , 'Shipped' ,'Delivered','Cancelled',"Cancelled","Return Requested","Returned" ].forEach(status=> {
                                     %>
                                     <option value="<%= status %>" <%=status===order.status ? 'selected' : '' %>><%=
                                             status %>

@@ -92,6 +92,8 @@ const getOrderDetails = async (req, res) => {
             .populate('userId', 'name email') // Fetch user details
             .populate('orderedItems.product') // Fetch product details
             .populate('payment').exec();
+            
+            
         if (!order) {
             return res.status(404).json({ status: false, message: "Order not found." });
         }
