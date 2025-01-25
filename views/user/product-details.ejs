@@ -10,16 +10,16 @@
             height: auto;
             object-fit: cover;
             border-radius: 10px;
-            
+
         }
 
-        .cstm-wrap{
-            margin: 15px ;
+        .cstm-wrap {
+            margin: 15px;
         }
-       
 
-        .product-image-slider{
-            margin :  30px!important;
+
+        .product-image-slider {
+            margin: 30px !important;
         }
 
         .slider-nav-thumbnails div img {
@@ -38,15 +38,40 @@
             border: 1px solid #ddd;
         }
 
+
+
+        .detail-gallery .zoom-icon {
+            top: 15px !important;
+            right: 45px !important;
+        }
+
+
+        .custom-popup {
+            background-color: #fcfcfc; /* Black background */
+            border: 2px solid #000000; /* Maroon border */
+            color: #d3d3d3; /* Light grey text color */
+            border-radius: 75px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Subtle shadow */
+        }
+        
+        .custom-title {
+            color: #141414; /* Maroonish red for the title */
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .custom-text {
+            color: #1a1a1a; /* Light grey for the message */
+            font-size: 16px;
+        }
+        .custom-icon {
+            color: #800000; /* Maroon icon color */
+        }
         
 
-       .detail-gallery .zoom-icon {
-        top: 15px!important;
-        right: 45px!important;
-       }
 
-       
-        
         /* Responsive Design using Media Queries */
         @media (max-width: 992px) {
 
@@ -156,7 +181,9 @@
                                         </h2>
                                         <div class="product-detail-rating">
                                             <div class="pro-details-brand">
-                                                <span>Brand : <a href="/shop"><%= product.brand %></a></span>
+                                                <span>Brand : <a href="/shop">
+                                                        <%= product.brand %>
+                                                    </a></span>
                                             </div>
                                             <div class="product-rate-cover text-end">
                                                 <div class="product-rate d-inline-block">
@@ -170,22 +197,25 @@
                                             <!-- Show price if product is available -->
                                             <div class="clearfix product-price-cover">
                                                 <div class="product-price primary-color float-left ">
-                                                   sale price <ins><span class="text-brand">
-                                                        ₹ <%= product.salePrice %>
-                                                    </span></ins>
-                                                    
-                                                  <ins><span class="old-price font-md ml-15 ">  ₹ <%= product.regularPrice %>
-                                                    </span></ins>
-                                            
+                                                    sale price <ins><span class="text-brand">
+                                                            ₹ <%= product.salePrice %>
+                                                        </span></ins>
+
+                                                    <ins><span class="old-price font-md ml-15 "> ₹ <%=
+                                                                product.regularPrice %>
+                                                        </span></ins>
+
                                                     <span class="save-price font-md color3 ml-15  ">
                                                         <br>
                                                         <br>
                                                         <% if (!totalOffer) { %>
                                                             NO Offers
-                                                        <% } else { %>
-                                                            
-                                                            <span style="color: rgb(137, 2, 2);"> <%= totalOffer %> % </span>(additional off on purchase)
-                                                        <% } %>
+                                                            <% } else { %>
+
+                                                                <span style="color: rgb(137, 2, 2);">
+                                                                    <%= totalOffer %> %
+                                                                </span>(additional off on purchase)
+                                                                <% } %>
                                                     </span>
                                                 </div>
                                             </div>
@@ -196,70 +226,80 @@
                                                 </p>
                                                 <div class="product_sort_info font-xs mb-30">
                                                     <ul>
-                                                        <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year Brand Warranty</li>
-                                                        <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
-                                                        <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                                        <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year Brand
+                                                            Warranty</li>
+                                                        <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day
+                                                            Return Policy</li>
+                                                        <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery
+                                                            available</li>
                                                     </ul>
                                                 </div>
                                                 <div class="detail-extralink">
                                                     <div class="detail-qty border radius">
-                                                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                                        <a href="#" class="qty-down"><i
+                                                                class="fi-rs-angle-small-down"></i></a>
                                                         <span class="qty-val" id="quantity">1</span>
-                                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                                        <a href="#" class="qty-up"><i
+                                                                class="fi-rs-angle-small-up"></i></a>
                                                     </div>
                                                     <div class="product-extra-link2">
-                                                        <button type="button" class="button button-add-to-cart" data-product-id="<%= product._id %>">
+                                                        <button type="button" class="button button-add-to-cart"
+                                                            data-product-id="<%= product._id %>">
                                                             Add to Cart
                                                         </button>
-                                                        <a aria-label="Add To Wishlist" class="action-btn hover-up cstm" href="#">
+                                                        <a aria-label="Add To Wishlist" class="action-btn hover-up cstm"
+                                                            href="#" data-id="<%= product._id %>"
+                                                            onclick="addToWishlist(this)">
                                                             <i class="fi-rs-heart"></i>
                                                         </a>
                                                     </div>
                                                 </div>
-                                                
-                                                
-                                            <ul class="product-meta font-xs color-grey mt-50">
-                                                <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
-                                                <li class="mb-5">Tags: <a href="#" rel="tag">
-                                                        <%= category.name %>
-                                                    </a></li>
-                                                <li>Availability: <span class="in-stock text-success ml-5">
-                                                        <%= quantity %> Items in Stock
-                                                    </span></li>
-                                            </ul>
-                                            <% } else { %>
-                                                <!-- Show 'Out of Stock' message if product is unavailable -->
-                                                <div class="clearfix product-price-cover">
-                                                    <div class="product-price primary-color float-left">
-                                                        <span class="text-danger font-md">Out of Stock</span>
-                                                    </div>
-                                                </div>
-                                                <div class="bt-1 border-color-1 mt-15 mb-15"></div>
-                                                <div class="short-desc mb-30">
-                                                    <p>We're sorry, but this product is currently unavailable. Please
-                                                        check back later or explore similar items.</p>
-                                                </div>
-                                                <div class="detail-extralink">
-                                                    <button type="submit" class="button button-add-to-cart disabled"
-                                                        disabled>Unavailable</button>
-                                                </div>
+
+
                                                 <ul class="product-meta font-xs color-grey mt-50">
                                                     <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
                                                     <li class="mb-5">Tags: <a href="#" rel="tag">
                                                             <%= category.name %>
                                                         </a></li>
-                                                    <li>Availability: <span class="text-danger ml-5">Out of Stock</span>
-                                                    </li>
+                                                    <li>Availability: <span class="in-stock text-success ml-5">
+                                                            <%= quantity %> Items in Stock
+                                                        </span></li>
                                                 </ul>
-                                                <% } %>
-                                    </div>
+                                                <% } else { %>
+                                                    <!-- Show 'Out of Stock' message if product is unavailable -->
+                                                    <div class="clearfix product-price-cover">
+                                                        <div class="product-price primary-color float-left">
+                                                            <span class="text-danger font-md">Out of Stock</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                                    <div class="short-desc mb-30">
+                                                        <p>We're sorry, but this product is currently unavailable.
+                                                            Please
+                                                            check back later or explore similar items.</p>
+                                                    </div>
+                                                    <div class="detail-extralink">
+                                                        <button type="submit" class="button button-add-to-cart disabled"
+                                                            disabled>Unavailable</button>
+                                                    </div>
+                                                    <ul class="product-meta font-xs color-grey mt-50">
+                                                        <li class="mb-5">Stock Code: <a href="#">FWM15VKT</a></li>
+                                                        <li class="mb-5">Tags: <a href="#" rel="tag">
+                                                                <%= category.name %>
+                                                            </a></li>
+                                                        <li>Availability: <span class="text-danger ml-5">Out of
+                                                                Stock</span>
+                                                        </li>
+                                                    </ul>
+                                                    <% } %>
+                                            </div>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </section>
 
         <section class="related-products spad">
@@ -270,7 +310,7 @@
                     </div>
                 </div>
                 <div class="row product__filter">
-                    <% for (let i = 0; i < relatedProducts.length; i++) { %>
+                    <% for (let i=0; i < relatedProducts.length; i++) { %>
                         <div class="col-lg-3 col-md-4 col-12 col-sm-6 cstm-product">
                             <div class="product-cart-wrap ">
                                 <div class="product-container">
@@ -301,79 +341,169 @@
                                 </div>
                             </div>
                         </div>
-                    <% } %>
+                        <% } %>
                 </div>
             </div>
         </section>
-        
+
 
     </main>
+
+    <script>
+        function addToWishlist(element) {
+            const productId = element.getAttribute('data-id');
+            
+            // Prevent default action if any
+            event.preventDefault();
+            
+            $.ajax({
+                url: '/addToWishlist',
+                method: 'POST',
+                data: { productId: productId },
+                success: function (response) {
+                    if (response.success) {
+                        // Success alert
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500, // Small popup duration
+                            width: '400px', // Custom width for the popup
+                            customClass: {
+                                popup: 'custom-popup',
+                                title: 'custom-title',
+                                htmlContainer: 'custom-text',
+                                icon: 'custom-icon',
+                            },
+                        }).then(() => {
+                            // Optional: Update the UI without reloading
+                            // E.g., update wishlist count or show the newly added item
+                            updateWishlistUI();
+    
+                            // Redirect to wishlist page after successful addition
+                            window.location.href = '/wishlist';
+                        });
+                    } else {
+                        // Error alert styled the same way as success
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500, // Small popup duration
+                            width: '400px', // Custom width for the popup
+                            customClass: {
+                                popup: 'custom-popup',
+                                title: 'custom-title',
+                                htmlContainer: 'custom-text',
+                                icon: 'custom-icon',
+                            },
+                        });
+                    }
+                },
+                error: function (jqXHR) {
+                    const response = jqXHR.responseJSON;
+                    const errorMessage = response?.message || 'An unexpected error occurred';
+                    
+                    // Error alert styled the same way as success
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!',
+                        text: errorMessage,
+                        showConfirmButton: false,
+                        timer: 1500, // Small popup duration
+                        width: '400px', // Custom width for the popup
+                        customClass: {
+                            popup: 'custom-popup',
+                            title: 'custom-title',
+                            htmlContainer: 'custom-text',
+                            icon: 'custom-icon',
+                        },
+                    });
+                }
+            });
+        }
+    </script>
+    
+    
     <script>
         // Frontend JavaScript for handling add to cart functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Get elements
-    const qtyDown = document.querySelector('.qty-down');
-    const qtyUp = document.querySelector('.qty-up');
-    const qtyVal = document.querySelector('.qty-val');
-    const addToCartBtn = document.querySelector('.button-add-to-cart');
-    
-    let quantity = 1;
-    
-    // Handle quantity changes
-    qtyDown.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (quantity > 1) {
-            quantity--;
-            qtyVal.textContent = quantity;
-        }
-    });
-    
-    qtyUp.addEventListener('click', function(e) {
-        e.preventDefault();
-        quantity++;
-        qtyVal.textContent = quantity;
-    });
-    
-    // Handle add to cart
-    addToCartBtn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        const productId = new URLSearchParams(window.location.search).get('id');
-        
-        try {
-            const response = await fetch('/addToCart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    productId: productId,
-                    quantity: quantity
-                })
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get elements
+            const qtyDown = document.querySelector('.qty-down');
+            const qtyUp = document.querySelector('.qty-up');
+            const qtyVal = document.querySelector('.qty-val');
+            const addToCartBtn = document.querySelector('.button-add-to-cart');
+
+            let quantity = 1;
+
+            // Handle quantity changes
+            qtyDown.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (quantity > 1) {
+                    quantity--;
+                    qtyVal.textContent = quantity;
+                }
             });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Product added to cart successfully',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                throw new Error(data.message || 'Failed to add product to cart');
-            }
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: error.message
+
+            qtyUp.addEventListener('click', function (e) {
+                e.preventDefault();
+                quantity++;
+                qtyVal.textContent = quantity;
             });
-        }
-    });
-});
+
+            // Handle add to cart
+            addToCartBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
+
+                const productId = new URLSearchParams(window.location.search).get('id');
+
+                try {
+                    const response = await fetch('/addToCart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            productId: productId,
+                            quantity: quantity
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Product added successfully',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            width: '400px', // Small popup
+                            customClass: {
+                                popup: 'custom-popup',
+                                title: 'custom-title',
+                                htmlContainer: 'custom-text',
+                                icon: 'custom-icon',
+                            },
+                        }).then(() => {
+                            // Redirect after popup closes
+                            window.location.href = '/cart'; // or '/cart' as required
+                        });
+                        
+                    } else {
+                        throw new Error(data.message || 'Failed to add product to cart');
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: error.message
+                    });
+                }
+            });
+        });
     </script>
     <%- include("../../views/partials/user/userFooter") %>

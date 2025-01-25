@@ -8,6 +8,7 @@ const cartController = require("../../controller/user/cartController");
 const checkOutController = require("../../controller/user/checkOutController");
 const orderController = require("../../controller/user/orderController");
 const userCouponController = require("../../controller/user/userCouponController");
+const wishlistController = require("../../controller/user/wishlistController");
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 
 router.get("/pageNotFound",userController.pageNotFound);
@@ -93,6 +94,11 @@ router.post("/applyCoupon", userAuth, userCouponController.applyCoupon);
 router.post("/removeCoupon", userAuth, userCouponController.removeCoupon);
 router.get("/getAppliedCoupon", userAuth, userCouponController.getAppliedCoupon);
 
+//wishlist management
+
+router.get('/wishlist',userAuth,wishlistController.getWishlist);
+router.post('/addToWishlist',userAuth,wishlistController.addToWishlist);
+router.post('/removeFromWishlist',userAuth,wishlistController.removeFromWishlist);
 
 
 

@@ -154,6 +154,33 @@
             
         }
 
+        
+        .custom-popup {
+            background-color: #fcfcfc; /* Black background */
+            border: 2px solid #000000; /* Maroon border */
+            color: #d3d3d3; /* Light grey text color */
+            border-radius: 75px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Subtle shadow */
+        }
+        
+        .custom-title {
+            color: #141414; /* Maroonish red for the title */
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .custom-text {
+            color: #1a1a1a; /* Light grey for the message */
+            font-size: 16px;
+        }
+        
+        .custom-icon {
+            color: #800000; /* Maroon icon color */
+        }
+        
+
        
     </style>
     <section class="hero-1">
@@ -273,10 +300,17 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success!',
-                                text: 'Product added to cart successfully',
+                                text: 'Product added successfully',
                                 showConfirmButton: false,
-                                timer: 1500
-                            });
+                                timer: 1500,
+                                width: '400px', // Small popup
+                                customClass: {
+                                    popup: 'custom-popup',
+                                    title: 'custom-title',
+                                    htmlContainer: 'custom-text',
+                                    icon: 'custom-icon',
+                                },
+                            })
                         } else {
                             throw new Error(data.message || 'Failed to add product to cart');
                         }

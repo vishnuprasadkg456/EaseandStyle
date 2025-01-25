@@ -1,0 +1,296 @@
+<%- include("../../views/partials/user/userHeader") %>
+
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+            .card {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                word-wrap: break-word;
+                background-color: #fff;
+                background-clip: border-box;
+                border: 0 solid transparent;
+                border-radius: .25rem;
+                margin-bottom: 1.5rem;
+                box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+            }
+
+            .btn-small {
+                padding: 5px 15px;
+                font-size: 12px;
+            }
+
+            .wishlist-thumbnail {
+                width: 60px;
+                height: auto;
+                border-radius: 5px;
+            }
+
+            .action-buttons {
+                display: flex;
+                gap: 10px;
+            }
+
+            .status-btn {
+                background-color: rgba(209, 209, 209, 0.239);
+                padding: 5px 15px 1px 15px;
+                border-radius: 20px;
+            }
+
+            .remove-wishlist {
+                font-size: 14px;
+                font-weight: 500;
+                padding: 10px 40px;
+                color: #ffffff;
+                border: none;
+                background-color: #9a1717;
+                border-radius: 25px;
+            }
+
+            .add-to-cart {
+                font-size: 14px;
+                font-weight: 500;
+                padding: 10px 40px;
+                color: #ffffff;
+                border: none;
+                background-color: #000000;
+                border-radius: 25px;
+            }
+
+
+            .add-to-cart:hover {
+                background-color: #392929 !important;
+
+            }
+
+            .empty-wishlist {
+                text-align: center;
+                padding: 50px;
+                background-color: #f8f9fa;
+                border-radius: 10px;
+            }
+
+
+            .custom-alert {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                border-radius: 50px;
+                background-color: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transform: translateX(150%);
+                transition: transform 0.3s ease-in-out;
+                max-width: 350px;
+
+            }
+
+            .custom-alert.show {
+                transform: translateX(0);
+            }
+
+
+            .alert-icon {
+                font-size: 20px;
+            }
+
+            .alert-icon.success {
+                color: #4CAF50;
+            }
+
+            .alert-icon.error {
+                color: #f44336;
+            }
+
+            .alert-message {
+                color: #333;
+                font-size: 14px;
+                margin: 0;
+            }
+
+            .alert-close {
+                background: transparent;
+                border: none;
+                color: #999;
+                cursor: pointer;
+                font-size: 18px;
+                padding: 0;
+                margin-left: auto;
+
+            }
+
+            .alert-close:hover {
+                color: #666;
+            }
+        </style>
+    </head>
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Wishlist Management</h2>
+        </div>
+
+        <% if (wishlistItems.length===0) { %>
+            <div class="empty-wishlist">
+                <h3>Your Wishlist is Empty</h3>
+                <p>Explore our products and add some items to your wishlist!</p>
+                <a href="/shop" class="btn btn-primary mt-3">Shop Now</a>
+            </div>
+            <% } else { %>
+                <% wishlistItems.forEach(item=> { %>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <!-- Render product image -->
+                                    <img src="/uploads/re-image/<%= item.productId.productImage[0] %>"
+                                        alt="<%= item.productId.productName %>" class="wishlist-thumbnail me-3">
+
+                                    <div>
+                                        <!-- Render product details -->
+                                        <h6 class="mb-1">Product: <%= item.productId.productName %>
+                                        </h6>
+                                        <p class="mb-1">Price: ₹<%= item.productId.salePrice %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="status-btn">
+                                    <!-- Render stock status -->
+                                    <p class="mb-1"><strong>In Stock:</strong>
+                                        <%= item.productId.quantity> 0 ? 'Yes' : 'No' %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons mt-3">
+                                <!-- Render buttons for actions -->
+                                <button class="btn btn-danger btn-small remove-wishlist" data-id="<%= item._id %>">
+                                    Remove
+                                </button>
+                                <button class="btn btn-success btn-small add-to-cart"
+                                    data-id="<%= item.productId._id %>">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                        <% } %>
+    </section>
+
+    <div id="alertContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        function showCustomAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+
+            // Create alert element
+            const alertEl = document.createElement('div');
+            alertEl.className = `custom-alert ${type}`;
+
+            // Create alert content
+            alertEl.innerHTML = `
+            <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} alert-icon ${type}"></i>
+            <p class="alert-message">${message}</p>
+            <button class="alert-close">×</button>
+        `;
+
+            // Add to container
+            alertContainer.appendChild(alertEl);
+
+            // Trigger animation
+            setTimeout(() => alertEl.classList.add('show'), 10);
+
+            // Add close button functionality
+            const closeBtn = alertEl.querySelector('.alert-close');
+            closeBtn.addEventListener('click', () => {
+                alertEl.classList.remove('show');
+                setTimeout(() => alertEl.remove(), 300);
+            });
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (alertEl.parentNode) {
+                    alertEl.classList.remove('show');
+                    setTimeout(() => alertEl.remove(), 300);
+                }
+            }, 3000);
+        }
+
+        $(document).ready(function () {
+            // Remove from wishlist
+            $('.remove-wishlist').click(function () {
+                const wishlistItemId = $(this).data('id');
+
+
+                $.ajax({
+                    url: '/removeFromWishlist',
+                    method: 'POST',
+                    data: {
+                        wishlistItemId: wishlistItemId
+                    },
+                    success: function (response) {
+                        // Ensure we correctly check for 'success' from the backend
+                        if (response.success) {
+
+
+                            showCustomAlert(response.message, 'success');
+                            setTimeout(() => {
+                                location.reload(); // Reload the page to see the changes
+                            }, 700);
+                        } else {
+                            showCustomAlert(response.message, 'error');
+                        }
+                    },
+                    error: function (jqXHR) {
+                        // If there's an error, display the error message from the backend
+                        const response = jqXHR.responseJSON;
+                        const errorMessage = response?.message || 'An unexpected error occurred';
+                        showCustomAlert(errorMessage, 'error');
+                    }
+                });
+
+            });
+
+            // Add to cart
+            $('.add-to-cart').click(function () {
+                const productId = $(this).data('id');
+                const quantity = 1; // Default quantity
+
+                $.ajax({
+                    url: '/addToCart',
+                    method: 'POST',
+                    data: {
+                        productId,
+                        quantity
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showCustomAlert('Item has been added to cart.', 'success');
+                             // Redirect to wishlist page if required
+                               setTimeout(()=>window.location.href = '/cart',1000) 
+                        } else {
+                            showCustomAlert('Failed to add item to cart.', 'error');
+                        }
+                    },
+                    error: function (jqXHR) {
+                        const errorMessage = jqXHR.responseJSON?.message || 'An unexpected error occurred';
+                        showCustomAlert(errorMessage, 'error');
+                    }
+                });
+            });
+
+        });
+    </script>
+
+
+    <%- include("../../views/partials/user/userFooter") %>

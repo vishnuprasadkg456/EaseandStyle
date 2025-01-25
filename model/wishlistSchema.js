@@ -1,6 +1,6 @@
-const { model } = require("mongoose");
 
-const mongoose = required("mongoose");
+
+const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const wishlistSchema = new Schema({
@@ -20,7 +20,7 @@ const wishlistSchema = new Schema({
             default : Date.now
         }
     }]
-});
+},{ timestamps: true });
 
-const Wishlist = mmongoose.model ("Wishlist",wishlistSchema);
+const Wishlist = mongoose.model ("Wishlist",wishlistSchema);
 module.exports = Wishlist;
