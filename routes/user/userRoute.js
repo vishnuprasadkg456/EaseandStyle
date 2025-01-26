@@ -9,6 +9,7 @@ const checkOutController = require("../../controller/user/checkOutController");
 const orderController = require("../../controller/user/orderController");
 const userCouponController = require("../../controller/user/userCouponController");
 const wishlistController = require("../../controller/user/wishlistController");
+const walletController = require("../../controller/user/walletController");
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 
 router.get("/pageNotFound",userController.pageNotFound);
@@ -105,4 +106,10 @@ router.post('/removeFromWishlist',userAuth,wishlistController.removeFromWishlist
 router.post("/create-razorpay-order", userAuth, checkOutController.createRazorpayOrder);
 
 
-module.exports = router;``
+//refund for cod wallet management
+router.get('/getWallet',userAuth,walletController.getWallet);
+router.post('/refund-cod-order',userAuth,walletController.refundCodWallet);
+
+
+
+module.exports = router;

@@ -54,8 +54,10 @@ const deleteCoupon = async (req, res) => {
 // Block coupon (deactivate)
 const blockCoupon = async (req, res) => {
     try {
+
+        console.log("block coupon hit");
         const couponId = req.query.id;
-        await Coupon.findByIdAndUpdate(couponId, { islist: false });
+        await Coupon.findByIdAndUpdate(couponId, { isListed: false });
         res.redirect("/admin/coupon");
     } catch (error) {
         console.log("Error in blocking coupon:", error);
@@ -67,7 +69,7 @@ const blockCoupon = async (req, res) => {
 const unblockCoupon = async (req, res) => {
     try {
         const couponId = req.query.id;
-        await Coupon.findByIdAndUpdate(couponId, { islist: true });
+        await Coupon.findByIdAndUpdate(couponId, { isListed: true });
         res.redirect("/admin/coupon");
     } catch (error) {
         console.log("Error in unblocking coupon:", error);

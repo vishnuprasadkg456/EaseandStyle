@@ -1,6 +1,7 @@
 const User = require("../../model/userSchema");
 const Address = require("../../model/addressSchema");
 const Order = require("../../model/orderSchema");
+const Wallet = require("../../model/walletSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
@@ -206,6 +207,7 @@ const userProfile = async (req, res) => {
        
 
         const userdata = await User.findById(userId);
+        const wallet = await Wallet.findOne({ userId });
 
         if (!userdata) {
             console.error("User not found for ID:", userId);
@@ -222,9 +224,10 @@ const userProfile = async (req, res) => {
        })
        .sort({ createdAt: -1 });
       
+       console.log("order details :",orders);
        
 
-        res.render("profile", { user: userdata, userAddress: addressData ,orders});
+        res.render("profile", { user: userdata, userAddress: addressData ,orders,wallet});
     } catch (error) {
         console.error("Error retrieving user profile", error);
         console.error(error.stack); // Log the full error stack

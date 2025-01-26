@@ -157,7 +157,7 @@
                                                 <%= new Date(coupon.expireOn).toLocaleDateString() %>
                                             </td>
                                             <td class="text-start">
-                                                <% if(!coupon.islist) { %>
+                                                <% if(!coupon.isListed) { %>
                                                     <span
                                                         class="badge rounded-pill alert-danger btn-small">Inactive</span>
                                                     <% } else { %>
@@ -166,7 +166,7 @@
                                                         <% } %>
                                             </td>
                                             <td class="text-start">
-                                                <% if(coupon.islist) { %>
+                                                <% if(coupon.isListed) { %>
 
                                                     <a href="/admin/blockCoupon?id=<%= coupon._id %>"><i
                                                             class="icon material-icons md-close circle-icon red-bg"></i></a>
@@ -322,6 +322,10 @@
 
     </script>
     <script>
+
+
+        
+
         // Form validation
         document.getElementById("addCouponForm").addEventListener("submit", function (e) {
             let isValid = true;

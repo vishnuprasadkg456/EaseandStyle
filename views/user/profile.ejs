@@ -373,65 +373,70 @@
                   <!-- user order section -->
                   <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Your Orders</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Order ID</th>
-                                            <th>Date</th>
-                                            <th>Items</th>
-                                            <th>Status</th>
-                                            <th>Total</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% try { %>
-                                            <% if (typeof orders !== 'undefined' && orders && orders.length > 0) { %>
-                                                <% orders.forEach(order => { %>
-                                                    <tr>
-                                                        <td>#<%= order._id.toString().slice(-6) %></td>
-                                                        <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
-                                                        <td>
-                                                            <%= order.orderedItems.map(item => 
-                                                                item.product?.productName || 'Product Unavailable').join(', ') %>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge <%= order.status.toLowerCase() === 'delivered' ? 'bg-success' : 
+                      <div class="card-header">
+                        <h5 class="mb-0">Your Orders</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% try { %>
+                                <% if (typeof orders !=='undefined' && orders && orders.length> 0) { %>
+                                  <% orders.forEach(order=> { %>
+                                    <tr>
+                                      <td>#<%= order._id.toString().slice(-6) %>
+                                      </td>
+                                      <td>
+                                        <%= new Date(order.createdOn).toLocaleDateString() %>
+                                      </td>
+                                      <td>
+                                        <%= order.orderedItems.map(item=>
+                                          item.product?.productName || 'Product Unavailable').join(', ') %>
+                                      </td>
+                                      <td>
+                                        <span
+                                          class="badge <%= order.status.toLowerCase() === 'delivered' ? 'bg-success' : 
                                                                 order.status.toLowerCase() === 'pending' ? 'bg-warning' : 
                                                                 order.status.toLowerCase() === 'cancelled' ? 'bg-danger' : 'bg-info' %>">
-                                                                <%= order.status %>
-                                                            </span>
-                                                        </td>
-                                                        <td>₹<%= order.finalAmount %></td>
-                                                        <td>
-                                                            <a href="/orderDetails?orderId=<%= order._id %>" 
-                                                               class="btn btn-sm btn-outline-primary">View Details</a>
-                                                        </td>
-                                                    </tr>
-                                                <% }); %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="6" class="text-center">No orders found</td>
-                                                </tr>
-                                            <% } %>
-                                        <% } catch (error) { %>
-                                            <tr>
-                                                <td colspan="6" class="text-center">Error loading orders</td>
-                                            </tr>
+                                          <%= order.status %>
+                                        </span>
+                                      </td>
+                                      <td>₹<%= order.finalAmount %>
+                                      </td>
+                                      <td>
+                                        <a href="/orderDetails?orderId=<%= order._id %>"
+                                          class="btn btn-sm btn-outline-primary">View Details</a>
+                                      </td>
+                                    </tr>
+                                    <% }); %>
+                                      <% } else { %>
+                                        <tr>
+                                          <td colspan="6" class="text-center">No orders found</td>
+                                        </tr>
                                         <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
+                                          <% } catch (error) { %>
+                                            <tr>
+                                              <td colspan="6" class="text-center">Error loading orders</td>
+                                            </tr>
+                                            <% } %>
+                            </tbody>
+                          </table>
                         </div>
+                      </div>
                     </div>
-                </div>
-                  
+                  </div>
 
+                  <!-- wallet section -->
                   <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
                     <div class="card">
                       <div class="card-header">
@@ -440,20 +445,48 @@
                       <div class="card-body contact-from-area">
                         <div class="row">
                           <div class="col-lg-8 mx-auto text-center mt-90">
-                            <form>
-                              <div class="form-group">
-                                <label for="walletAmount" class="h4">Amount</label>
-                                <div class="h3"></div>
+                            <div class="wallet-balance mb-4">
+                              <h3>Current Balance</h3>
+                              <div class="h2 text-success">
+                                ₹<%= (wallet && wallet.balance !== undefined) ? wallet.balance.toFixed(2) : "0.00" %>
                               </div>
-                              <button type="button" class="btn btn-success" onclick="">Add Money</button>
-                            </form>
+                            </div>
+                            
+                            <div class="wallet-transactions mt-4">
+                              <h4>Recent Transactions</h4>
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% if (wallet && wallet.transactions && wallet.transactions.length > 0) { %>
+                                    <% wallet.transactions.slice().reverse().slice(0, 5).forEach(transaction => { %>
+                                      <tr>
+                                        <td><%= transaction.date.toLocaleDateString() %></td>
+                                        <td><%= transaction.type %></td>
+                                        <td><%= transaction.amount.toFixed(2) %></td>
+                                        <td><%= transaction.description %></td>
+                                      </tr>
+                                    <% }); %>
+                                  <% } else { %>
+                                    <tr>
+                                      <td colspan="4">No recent transactions</td>
+                                    </tr>
+                                  <% } %>
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  
 
                   <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
                     <div class="card">
@@ -610,6 +643,39 @@
             showCustomAlert("An error occurred while updating the default address. Please try again.", "error");
           }
         });
+      });
+
+      // In your order details or profile page script
+      async function refundToWallet(orderId) {
+        try {
+          const response = await fetch('/refund-cod-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            showCustomAlert(`₹${data.refundedAmount} refunded to wallet`, 'success');
+            // Optionally refresh the page or update wallet balance
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          } else {
+            showCustomAlert(data.message, 'error');
+          }
+        } catch (error) {
+          console.error('Refund error:', error);
+          showCustomAlert('Error processing refund', 'error');
+        }
+      }
+
+      // Add this to cancelled COD order details
+      document.querySelector('.refund-to-wallet-btn').addEventListener('click', () => {
+        refundToWallet('<%= orders._id %>');
       });
     });
   </script>
