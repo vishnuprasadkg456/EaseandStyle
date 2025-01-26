@@ -86,6 +86,7 @@ router.post("/place-order", userAuth, checkOutController.placeOrder);
 //order management
 router.get("/orderDetails", userAuth, orderController.getOrderDetails);
 router.post("/cancelOrder", userAuth,orderController.cancelOrder);
+router.get("/download-invoice", userAuth,orderController.downloadInvoice);
 
 // coupon management
 

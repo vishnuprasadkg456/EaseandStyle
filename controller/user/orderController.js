@@ -2,7 +2,8 @@ const Order = require("../../model/orderSchema");
 const Address = require("../../model/addressSchema");
 const mongoose = require("mongoose");
 const Payment = require("../../model/paymentSchema");
-
+const PDFDocument = require("pdfkit");
+const path = require("path");
 
 
 const getOrderDetails = async (req, res) => {
@@ -114,8 +115,79 @@ const cancelOrder = async (req, res) => {
 };
 
 
+//invoicedetails
+
+const downloadInvoice = async (req, res) => {
+    try {
+        const { orderId } = req.query;
+        const userId = req.session.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            console.error("Invalid orderId");
+            return res.status(400).send("Invalid order ID");
+        }
+
+        const order = await Order.findOne({ _id: orderId, userId })
+            .populate({
+                path: "orderedItems.product",
+                select: "productName salePrice",
+            })
+            .exec();
+
+        if (!order) {
+            console.error("Order not found");
+            return res.status(404).send("Order not found");
+        }
+
+        // Set response headers for file download
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=invoice-${orderId}.pdf`
+        );
+        res.setHeader("Content-Type", "application/pdf");
+
+        // Create a PDF document and pipe it to the response
+        const doc = new PDFDocument();
+        doc.pipe(res);
+
+        // Add content to the PDF
+        doc.fontSize(18).text("Invoice", { align: "center" });
+        doc.moveDown();
+
+        doc.fontSize(12).text(`Order ID: ${order._id}`);
+        doc.text(`Order Date: ${new Date(order.createdOn).toLocaleDateString()}`);
+        doc.text(`Customer: ${req.session.user.name}`);
+        doc.moveDown();
+
+        doc.text("Items Ordered:");
+        doc.moveDown();
+        order.orderedItems.forEach((item, index) => {
+            doc.text(
+                `${index + 1}. ${item.product.productName} x ${item.quantity} @ ₹${item.price} = ₹${item.quantity * item.price}`
+            );
+        });
+
+        doc.moveDown();
+        doc.text(`Subtotal: ₹${order.totalPrice}`);
+        if (order.discount) {
+            doc.text(`Discount: -₹${order.discount}`);
+        }
+        if (order.couponDiscount) {
+            doc.text(`Coupon Discount: -₹${order.couponDiscount}`);
+        }
+        doc.text(`Final Amount: ₹${order.finalAmount}`);
+        doc.end();
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        res.status(500).send("Failed to generate invoice");
+    }
+};
+
+
+
 module.exports = {
 
     getOrderDetails,
     cancelOrder,
+    downloadInvoice,
 };

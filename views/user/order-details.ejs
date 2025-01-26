@@ -162,6 +162,158 @@
             font-weight: 600;
             margin: 5px 0;
         }
+
+        #alertContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 350px;
+        }
+        
+        .custom-alert {
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .custom-alert.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .custom-alert .alert-content {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #fff;
+            border-left: 5px solid;
+        }
+        
+        .custom-alert .alert-icon {
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .custom-alert .alert-message {
+            flex-grow: 1;
+            font-size: 14px;
+        }
+        
+        .custom-alert .alert-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .custom-alert.alert-success {
+            border-left-color: #28a745;
+        }
+        
+        .custom-alert.alert-error {
+            border-left-color: #dc3545;
+        }
+        
+        .custom-alert.alert-warning {
+            border-left-color: #ffc107;
+        }
+
+        .custom-confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+        
+        .confirmation-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .confirmation-content h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .confirmation-content p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .confirmation-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .btn-cancel-confirm, .btn-cancel-dismiss {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-cancel-confirm {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-cancel-confirm:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-cancel-dismiss {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel-dismiss:hover {
+            background-color: #545b62;
+        }
+
+        .download-invoice{
+            margin-top: 10px;
+           
+        }
+
+        .btn, .button {
+            display: inline-block;
+            border: 1px solid transparent;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 0px;
+            color: #fff;
+            border: 1px solid #a75c5c;
+            background-color: #903131;
+            cursor: pointer;
+            -webkit-transition: all 300ms linear 0s;
+            transition: all 300ms linear 0s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn, .button:hover{
+          background-color:   #2a2a2a;
+        }
+
     </style>
 
 
@@ -366,7 +518,15 @@
                                     <%= order.payment.paymentStatus %>
                                 </span>
                             </div>
+                            
                         </div>
+                        
+                    </div>
+
+                    <div class="download-invoice">
+                        <a href="/download-invoice?orderId=<%= order._id %>" class="btn btn-primary">
+                            Download Invoice
+                        </a>
                     </div>
 
                 </div>
@@ -380,25 +540,34 @@
     <script>
         function showCustomAlert(message, type = 'success') {
             const alertContainer = document.getElementById('alertContainer');
-
+        
+            // Create alert element
             const alertEl = document.createElement('div');
-            alertEl.className = `custom-alert ${type}`;
-
+            alertEl.className = `custom-alert alert-${type}`;
             alertEl.innerHTML = `
-            <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} alert-icon ${type}"></i>
-            <p class="alert-message">${message}</p>
-            <button class="alert-close">×</button>
-        `;
-
+                <div class="alert-content">
+                    <div class="alert-icon">
+                        ${type === 'success' ? '✓' : '!'} 
+                    </div>
+                    <div class="alert-message">${message}</div>
+                    <button class="alert-close">&times;</button>
+                </div>
+            `;
+        
+            // Add to container
             alertContainer.appendChild(alertEl);
+        
+            // Trigger show animation
             setTimeout(() => alertEl.classList.add('show'), 10);
-
+        
+            // Close button functionality
             const closeBtn = alertEl.querySelector('.alert-close');
             closeBtn.addEventListener('click', () => {
                 alertEl.classList.remove('show');
                 setTimeout(() => alertEl.remove(), 300);
             });
-
+        
+            // Auto-dismiss
             setTimeout(() => {
                 if (alertEl.parentNode) {
                     alertEl.classList.remove('show');
@@ -406,13 +575,33 @@
                 }
             }, 3000);
         }
-
         // Cancel Order Functionality
         document.addEventListener('DOMContentLoaded', () => {
             const cancelBtn = document.querySelector('.cancel-btn');
             if (cancelBtn) {
-                cancelBtn.addEventListener('click', async () => {
-                    if (confirm('Are you sure you want to cancel this order?')) {
+                cancelBtn.addEventListener('click', () => {
+                    // Create custom confirmation modal
+                    const confirmationModal = document.createElement('div');
+                    confirmationModal.className = 'custom-confirmation-modal';
+                    confirmationModal.innerHTML = `
+                        <div class="confirmation-content">
+                            <h4>Cancel Order</h4>
+                            <p>Are you sure you want to cancel this order?</p>
+                            <div class="confirmation-actions">
+                                <button class="btn-cancel-confirm">Yes, Cancel Order</button>
+                                <button class="btn-cancel-dismiss">No, Keep Order</button>
+                            </div>
+                        </div>
+                    `;
+        
+                    // Add modal to body
+                    document.body.appendChild(confirmationModal);
+        
+                    // Add event listeners for buttons
+                    const confirmButton = confirmationModal.querySelector('.btn-cancel-confirm');
+                    const dismissButton = confirmationModal.querySelector('.btn-cancel-dismiss');
+        
+                    confirmButton.addEventListener('click', async () => {
                         const orderId = cancelBtn.dataset.orderId;
                         try {
                             const response = await fetch('/cancelOrder', {
@@ -422,9 +611,12 @@
                                 },
                                 body: JSON.stringify({ orderId })
                             });
-
+        
                             const data = await response.json();
-
+        
+                            // Remove confirmation modal
+                            confirmationModal.remove();
+        
                             if (data.success) {
                                 showCustomAlert('Order cancelled successfully', 'success');
                                 setTimeout(() => {
@@ -437,7 +629,11 @@
                             console.error('Error cancelling order:', error);
                             showCustomAlert('An error occurred while cancelling the order', 'error');
                         }
-                    }
+                    });
+        
+                    dismissButton.addEventListener('click', () => {
+                        confirmationModal.remove();
+                    });
                 });
             }
         });

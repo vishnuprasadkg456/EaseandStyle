@@ -89,7 +89,7 @@ const getOrderDetails = async (req, res) => {
 
         // Find the order by its ID and populate necessary fields
         const order = await Order.findById({ _id: orderId })
-            .populate('userId', 'name email') // Fetch user details
+            .populate('userId', 'name email phoneNumber') // Fetch user details
             .populate('orderedItems.product') // Fetch product details
             .populate('payment').exec();
             

@@ -183,7 +183,7 @@
             }
 
             .save-btn {
-                border-radius: 16px;
+                border-radius: 0px;
                 font-size: 10px;
                 padding: 5px;
                 margin: 5px;
@@ -196,6 +196,140 @@
             .payment-status{
                 background-color: #00000000;
             }
+
+
+            .custom-confirmation-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1100;
+            }
+            
+            .confirmation-content {
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            .confirmation-content h4 {
+                margin-bottom: 15px;
+                color: #333;
+            }
+            
+            .confirmation-content p {
+                margin-bottom: 20px;
+                color: #666;
+            }
+            
+            .confirmation-actions {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .btn-cancel-confirm, .btn-cancel-dismiss {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+            
+            .btn-cancel-confirm {
+                background-color: #28a745;
+                color: white;
+            }
+            
+            .btn-cancel-confirm:hover {
+                background-color: #218838;
+            }
+            
+            .btn-cancel-dismiss {
+                background-color: #6c757d;
+                color: white;
+            }
+            
+            .btn-cancel-dismiss:hover {
+                background-color: #545b62;
+            }
+            
+            #alertContainer {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1050;
+                max-width: 350px;
+            }
+            
+            .custom-alert {
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            
+            .custom-alert.show {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            
+            .custom-alert .alert-content {
+                display: flex;
+                align-items: center;
+                padding: 15px;
+                background-color: #fff;
+                border-left: 5px solid;
+            }
+            
+            .custom-alert .alert-icon {
+                margin-right: 15px;
+                font-weight: bold;
+                font-size: 20px;
+            }
+            
+            .custom-alert .alert-message {
+                flex-grow: 1;
+                font-size: 14px;
+            }
+            
+            .custom-alert .alert-close {
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #666;
+            }
+            
+            .custom-alert.alert-success {
+                border-left-color: #28a745;
+            }
+            
+            .custom-alert.alert-error {
+                border-left-color: #dc3545;
+            }
+            
+            .custom-alert.alert-warning {
+                border-left-color: #ffc107;
+            }
+
+            .btn-success {
+                color: #fff;
+                background-color: #1a1a1a;
+                border-color: #000000;
+            }
+
         </style>
     </head>
 
@@ -322,7 +456,7 @@
                             <%= order.userId.email %>
                         </p>
                         <p><strong>Phone:</strong>
-                            <%= order.userId.phone %>
+                            <%= order.userId.phoneNumber %>
                         </p>
                         <br>
 
@@ -352,9 +486,9 @@
                                 </p>
                                 <p>Pincode: <%= order.address.pincode %>
                                 </p>
-                                <p>Phone: <%= order.address.phone %>
+                                <p>Ph: <%= order.address.phone %>
                                 </p>
-                                <p>Alt Phone: <%= order.address.altPhone %>
+                                <p>Ph: <%= order.address.altPhone %>
                                 </p>
                                 <% } else { %>
                                     <p>Shipping address not available</p>
@@ -402,32 +536,104 @@
     </section>
 
     <script>
-        document.getElementById('updateOrderStatus').addEventListener('click', async () => {
+        function showCustomAlert(message, type = 'success') {
+            const alertContainer = document.createElement('div');
+            alertContainer.id = 'alertContainer';
+            alertContainer.style.position = 'fixed';
+            alertContainer.style.top = '20px';
+            alertContainer.style.right = '20px';
+            alertContainer.style.zIndex = '1050';
+            alertContainer.style.maxWidth = '350px';
+            document.body.appendChild(alertContainer);
+    
+            const alertEl = document.createElement('div');
+            alertEl.className = `custom-alert alert-${type}`;
+            alertEl.innerHTML = `
+                <div class="alert-content">
+                    <div class="alert-icon">
+                        ${type === 'success' ? '✓' : '!'} 
+                    </div>
+                    <div class="alert-message">${message}</div>
+                    <button class="alert-close">&times;</button>
+                </div>
+            `;
+    
+            alertContainer.appendChild(alertEl);
+    
+            setTimeout(() => alertEl.classList.add('show'), 10);
+    
+            const closeBtn = alertEl.querySelector('.alert-close');
+            closeBtn.addEventListener('click', () => {
+                alertEl.classList.remove('show');
+                setTimeout(() => alertEl.remove(), 300);
+            });
+    
+            setTimeout(() => {
+                if (alertEl.parentNode) {
+                    alertEl.classList.remove('show');
+                    setTimeout(() => alertEl.remove(), 300);
+                }
+            }, 3000);
+        }
+    
+        document.getElementById('updateOrderStatus').addEventListener('click', () => {
             const status = document.getElementById('orderStatus').value;
             const paymentStatus = document.getElementById('paymentStatus').value;
             const orderId = '<%= order._id %>';
-
-            
-            try {
-                const response = await fetch('/admin/updateOrderStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ orderId, status , paymentStatus })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    alert('Order status updated successfully');
-                    location.reload();
-                } else {
-                    alert(data.message || 'Failed to update order status');
+    
+            // Create custom confirmation modal
+            const confirmationModal = document.createElement('div');
+            confirmationModal.className = 'custom-confirmation-modal';
+            confirmationModal.innerHTML = `
+                <div class="confirmation-content">
+                    <h4>Update Order Status</h4>
+                    <p>Are you sure you want to update the order status?</p>
+                    <div class="confirmation-actions">
+                        <button class="btn-cancel-confirm">Yes, Update</button>
+                        <button class="btn-cancel-dismiss">No, Cancel</button>
+                    </div>
+                </div>
+            `;
+    
+            // Add modal to body
+            document.body.appendChild(confirmationModal);
+    
+            // Add event listeners for buttons
+            const confirmButton = confirmationModal.querySelector('.btn-cancel-confirm');
+            const dismissButton = confirmationModal.querySelector('.btn-cancel-dismiss');
+    
+            confirmButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/admin/updateOrderStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ orderId, status, paymentStatus })
+                    });
+    
+                    const data = await response.json();
+                    
+                    // Remove confirmation modal
+                    confirmationModal.remove();
+    
+                    if (data.success) {
+                        showCustomAlert('Order status updated successfully', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        showCustomAlert(data.message || 'Failed to update order status', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                    showCustomAlert('An error occurred while updating the order status', 'error');
                 }
-            } catch (error) {
-                console.error('Error updating order status:', error);
-                alert('An error occurred while updating the order status');
-            }
+            });
+    
+            dismissButton.addEventListener('click', () => {
+                confirmationModal.remove();
+            });
         });
     </script>
     <%- include("../../views/partials/admin/footer") %>

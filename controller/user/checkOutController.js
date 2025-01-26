@@ -229,6 +229,7 @@ const placeOrder = async (req, res) => {
 
         }
 
+        console.log("paymentStatus: " , paymentStatus);
         // Check product stock
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
@@ -277,12 +278,12 @@ const placeOrder = async (req, res) => {
 
         // Create payment record
         const newPayment = new Payment({
-            paymentId: paymentMethod === "razorpay" ? razorpayPaymentId : uuidv4(),
+            transactionId: paymentMethod === "razorpay" ? razorpayPaymentId : uuidv4(),
             orderId: savedOrder._id,
             userId,
             amount: finalAmount,
             paymentMethod,
-            status: paymentStatus,
+             paymentStatus,
         });
 
         const savedPayment = await newPayment.save();
