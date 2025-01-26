@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .sales-dashboard {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 20px;
+        }
+        .sales-summary {
+            background: #f3f2ee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .filter-section {
+            background: #f3f2ee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .report-table {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            margin: 10px 5px;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="sales-dashboard">
+            <h4 class="content-title mb-4">Sales Report Dashboard</h4>
+            
+            <!-- Sales Summary -->
+            <div class="sales-summary row">
+                <div class="col-md-4">
+                    <div class="summary-card">
+                        <h6>Total Sales</h6>
+                        <h3 id="totalSales">₹0</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card">
+                        <h6>Total Orders</h6>
+                        <h3 id="totalOrders">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card">
+                        <h6>Total Discount</h6>
+                        <h3 id="totalDiscount">₹0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Report Type</label>
+                        <select id="reportType" class="form-control">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="customDateRange" style="display:none;">
+                        <label>Start Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-3" id="customEndDateRange" style="display:none;">
+                        <label>End Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-3 align-self-end">
+                        <button class="btn btn-primary" id="generateReport">Generate Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Table -->
+            <div class="report-table">
+                <table class="table table-striped" id="salesReportTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Orders</th>
+                            <th>Total Sales</th>
+                            <th>Discounts</th>
+                            <th>Net Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportBody">
+                        <!-- Dynamic report data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Download Buttons -->
+            <div class="text-center mt-3">
+                <button class="download-btn" id="downloadPDF">Download PDF</button>
+                <button class="download-btn" id="downloadExcel">Download Excel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('reportType').addEventListener('change', function() {
+            const customDateRange = document.getElementById('customDateRange');
+            const customEndDateRange = document.getElementById('customEndDateRange');
+            
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+                customEndDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+                customEndDateRange.style.display = 'none';
+            }
+        });
+
+        document.getElementById('generateReport').addEventListener('click', async () => {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            try {
+                const response = await fetch('/admin/generate-sales-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reportType, startDate, endDate })
+                });
+
+                const data = await response.json();
+                updateReportTable(data);
+                updateSalesSummary(data);
+            } catch (error) {
+                console.error('Error generating report:', error);
+            }
+        });
+
+        function updateReportTable(data) {
+            const reportBody = document.getElementById('reportBody');
+            reportBody.innerHTML = '';
+            
+            data.reports.forEach(report => {
+                const row = `
+                    <tr>
+                        <td>${report.date}</td>
+                        <td>${report.orderCount}</td>
+                        <td>₹${report.totalSales.toFixed(2)}</td>
+                        <td>₹${report.totalDiscount.toFixed(2)}</td>
+                        <td>₹${report.netSales.toFixed(2)}</td>
+                    </tr>
+                `;
+                reportBody.innerHTML += row;
+            });
+        }
+
+        function updateSalesSummary(data) {
+            document.getElementById('totalSales').textContent = `₹${data.totalSales.toFixed(2)}`;
+            document.getElementById('totalOrders').textContent = data.totalOrders;
+            document.getElementById('totalDiscount').textContent = `₹${data.totalDiscount.toFixed(2)}`;
+        }
+
+        document.getElementById('downloadPDF').addEventListener('click', () => {
+            // Placeholder for PDF download logic
+            alert('PDF download functionality to be implemented');
+        });
+
+        document.getElementById('downloadExcel').addEventListener('click', () => {
+            // Placeholder for Excel download logic
+            alert('Excel download functionality to be implemented');
+        });
+    </script>
+</body>
+</html>

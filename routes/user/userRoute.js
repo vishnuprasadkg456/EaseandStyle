@@ -100,8 +100,8 @@ router.get('/wishlist',userAuth,wishlistController.getWishlist);
 router.post('/addToWishlist',userAuth,wishlistController.addToWishlist);
 router.post('/removeFromWishlist',userAuth,wishlistController.removeFromWishlist);
 
-
-
+//Route to verify Razorpay payment
+router.post("/create-razorpay-order", userAuth, checkOutController.createRazorpayOrder);
 
 
 module.exports = router;``

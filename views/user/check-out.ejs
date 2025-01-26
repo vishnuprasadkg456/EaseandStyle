@@ -1,5 +1,9 @@
 <%- include("../../views/partials/user/userHeader")%>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+        
+   
+    
     <style>
         .default-address-card .card {
             border: 1px solid #000000;
@@ -405,6 +409,8 @@
 
     <div id="alertContainer"></div>
 
+  
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const couponModal = document.getElementById('couponSelectionModal');
@@ -528,7 +534,7 @@
                                 // Update the UI with coupon details
                                 applyCouponUI(couponName, discount);
                                 updateTotals(subtotal, discount, finalPrice - discount); // Update with actual values from server
-                                
+
                             } else {
                                 alert(data.message);
                             }
@@ -671,77 +677,8 @@
                     });
                 }
             });
-            // Add event listeners for payment method checkboxes
-            const codCheckbox = $('#payment');
-            const onlineCheckbox = $('#online');
-            const placeOrderBtn = $('#placeOrderBtn');
+          
 
-            // Initially disable the place order button
-            placeOrderBtn.prop('disabled', false); // Changed to false to allow clicking without selection
-
-            // Ensure only one payment method can be selected
-            codCheckbox.change(function () {
-                if (this.checked) {
-                    onlineCheckbox.prop('checked', false);
-                }
-            });
-
-            onlineCheckbox.change(function () {
-                if (this.checked) {
-                    codCheckbox.prop('checked', false);
-                    showAlert('Only Cash on Delivery is available at the moment.', 'warning');
-                }
-            });
-
-            $('#placeOrderBtn').click(function (e) {
-                e.preventDefault();
-                const selectedAddressId = $('#selectedAddressId').val();
-
-                if (!selectedAddressId) {
-                    showAlert('Please select an address to place your order!', 'warning');
-                    return false;
-                }
-
-                if (!codCheckbox.is(':checked') && !onlineCheckbox.is(':checked')) {
-                    showAlert('Please select a payment method!', 'warning');
-                    return false;
-                }
-
-
-
-                if (!codCheckbox.is(':checked')) {
-                    showAlert('Please select Cash on Delivery payment method!', 'warning');
-                    return false;
-                }
-
-                // Place order
-                $.ajax({
-                    url: '/place-order',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        addressId: selectedAddressId,
-                        paymentMethod: 'COD'
-                    }),
-                    success: function (response) {
-                        if (response.orderId) {
-                            showAlert('Order placed successfully!', 'success');
-
-                            setTimeout(() => {
-
-                                //window.location.href = `/userProfile`;
-                                window.location.href = `/orderDetails?orderId=${response.orderId}`;
-                                // Redirect to order details page after 1 second delay
-                            }, 1500);
-                        } else {
-                            showAlert(response.message || 'Failed to place order!', 'danger');
-                        }
-                    },
-                    error: function () {
-                        showAlert('Error placing order. Please try again!', 'danger');
-                    }
-                });
-            });
 
 
             $('#saveAddress').click(function () {
@@ -788,6 +725,147 @@
                     });
                 }
             });
+
+
+
+
+              // Add event listeners for payment method checkboxes
+              const codCheckbox = $('#payment');
+              const onlineCheckbox = $('#online');
+              const placeOrderBtn = $('#placeOrderBtn');
+  
+              // Initially disable the place order button
+              placeOrderBtn.prop('disabled', false); // Changed to false to allow clicking without selection
+  
+              // Ensure only one payment method can be selected
+              // codCheckbox.change(function () {
+              //     if (this.checked) {
+              //         onlineCheckbox.prop('checked', false);
+              //     }
+              // });
+  
+              // onlineCheckbox.change(function () {
+              //   if (this.checked) {
+              //     codCheckbox.prop('checked', false);
+              //   showAlert('Only Cash on Delivery is available at the moment.', 'warning');
+              //}
+              //});
+  
+  
+  
+  
+              //if (!codCheckbox.is(':checked')) {
+              //    showAlert('Please select Cash on Delivery payment method!', 'warning');
+              //    return false;
+              // }
+  
+  
+              $('#placeOrderBtn').click(function (e) {
+                  e.preventDefault();
+                  console.log('Place Order Button Clicked');
+                  const selectedAddressId = $('#selectedAddressId').val();
+                  console.log('Selected Address ID:', selectedAddressId);
+  
+                  if (!selectedAddressId) {
+                      showAlert('Please select an address to place your order!', 'warning');
+                      return false;
+                  }
+  
+                  if (!codCheckbox.is(':checked') && !onlineCheckbox.is(':checked')) {
+                      showAlert('Please select a payment method!', 'warning');
+                      return false;
+                  }
+  
+                  if (onlineCheckbox.is(':checked')) {
+                      // Directly create Razorpay order and open payment gateway
+                      $.ajax({
+                          url: '/create-razorpay-order',
+                          method: 'POST',
+                          success: function (response) {
+                              if (response.success) {
+                                  const options = {
+                                      key: '<%= process.env.RAZORPAY_KEY_ID %>',
+                                      amount: response.amount,
+                                      currency: response.currency,
+                                      name: 'Ease and Style',
+                                      order_id: response.orderId,
+                                      handler: function (paymentResponse) {
+                                        console.log('Payment Response:', paymentResponse);
+                                          // Place order after successful payment
+                                          $.ajax({
+                                              url: '/place-order',
+                                              method: 'POST',
+                                              contentType: 'application/json',
+                                              data: JSON.stringify({
+                                                  addressId: selectedAddressId,
+                                                  paymentMethod: 'razorpay',
+                                                  razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                                                  razorpayOrderId: paymentResponse.razorpay_order_id,
+                                                  razorpaySignature: paymentResponse.razorpay_signature
+                                              }),
+                                              success: function (response) {
+                                                  if (response.orderId) {
+                                                      showAlert('Order placed successfully!', 'success');
+                                                      setTimeout(() => {
+                                                          window.location.href = `/orderDetails?orderId=${response.orderId}`;
+                                                      }, 1500);
+                                                  } else {
+                                                      showAlert('Failed to place order', 'danger');
+                                                  }
+                                              },
+                                              error: function () {
+                                                  showAlert('Error placing order', 'danger');
+                                              }
+                                          });
+                                      },
+                                      theme: {
+                                          color: '#000000'
+                                      }
+                                  };
+  
+                                  const rzp = new Razorpay(options);
+                                  rzp.open();
+                              } else {
+                                  showAlert('Failed to create Razorpay order' +(response.message || ''), 'danger');
+                              }
+                          },
+                          error: function (xhr,status,error) {
+                            console.error('Razorpay Order Creation Error:', {
+                                status: status,
+                                error: error,
+                                responseText: xhr.responseText
+                            });
+                              showAlert('Error creating Razorpay order', 'danger');
+                          }
+                      });
+                  } else if (codCheckbox.is(':checked')) {
+                      // Existing COD order placement logic
+                      $.ajax({
+                          url: '/place-order',
+                          method: 'POST',
+                          contentType: 'application/json',
+                          data: JSON.stringify({
+                              addressId: selectedAddressId,
+                              paymentMethod: 'COD'
+                          }),
+                          success: function (response) {
+                              if (response.orderId) {
+                                  showAlert('Order placed successfully!', 'success');
+                                  setTimeout(() => {
+                                      window.location.href = `/orderDetails?orderId=${response.orderId}`;
+                                  }, 1500);
+                              } else {
+                                  showAlert(response.message || 'Failed to place order!', 'danger');
+                              }
+                          },
+                          error: function () {
+                              showAlert('Error placing order. Please try again!', 'danger');
+                          }
+                      });
+                  }
+              });
+
+
 
             // Function to validate the form
             function validateForm(form) {

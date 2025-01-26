@@ -1,10 +1,262 @@
 <%- include("../../views/partials/admin/header") %>
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Dashboard </h2>
-        </div>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .sales-dashboard {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 20px;
+        }
+
        
-    </div>
-</section>
-<%- include("../../views/partials/admin/footer") %>
+
+        .download-btn i {
+            margin-right: 8px;
+        }
+   
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .sales-dashboard {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: 20px;
+        }
+
+        .sales-summary {
+            background: #f3f2ee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-section {
+            background: #f3f2ee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .report-table {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .download-btn {
+            background-color: #000000;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 5px 5px;
+        }
+
+        .download-btn:hover {
+            background-color: #414141;
+        }
+
+        .btn.btn-primary {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 10px 20px;
+            color: #ffffff;
+            border: none;
+            background-color: #9a1717;
+            border-radius: 0px;
+        }
+    </style>
+
+    <section class="content-main">
+        <div class="container-fluid">
+            <div class="sales-dashboard">
+                <h4 class="content-title mb-4"> Dashboard</h4>
+
+                <!-- Sales Summary -->
+                <div class="sales-summary row">
+                    <div class="col-md-6">
+                        <div class="summary-card">
+                            <h6>Total Sales</h6>
+                            <h3 id="totalSales">₹0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="summary-card">
+                            <h6>Total Orders</h6>
+                            <h3 id="totalOrders">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="sales-summary row">
+                    <div class="col-md-4">
+                        <div class="summary-card">
+                            <h6>Total Discount</h6>
+                            <h3 id="totalDiscount">₹0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card">
+                            <h6>Active Coupons</h6>
+                            <h3 id="activeCoupons">0</h3>
+                        </div>
+                    </div>
+              
+                
+                    <div class="col-md-4">
+                        <div class="summary-card">
+                            <h6>Inactive Coupons</h6>
+                            <h3 id="inactiveCoupons">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Report Type</label>
+                            <select id="reportType" class="form-control">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3" id="customDateRange" style="display:none;">
+                            <label>Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-3" id="customEndDateRange" style="display:none;">
+                            <label>End Date</label>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button class="btn btn-primary" id="generateReport">Generate Report</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Table -->
+                <div class="report-table">
+                    <table class="table table-striped" id="salesReportTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>No.of.Orders</th>
+                                <th>Total Sales</th>
+                                <th>Discounts</th>
+                                <th>Net Sales</th>
+                                <th>Total Items Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportBody">
+                            <!-- Dynamic report data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Download Buttons -->
+                <div class="text-center mt-3">
+                    <button class="download-btn" id="downloadPDF">
+                        <i class="fas fa-file-pdf"></i>Download PDF
+                    </button>
+                    <button class="download-btn" id="downloadExcel">
+                        <i class="fas fa-file-excel"></i>Download Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('reportType').addEventListener('change', function () {
+            const customDateRange = document.getElementById('customDateRange');
+            const customEndDateRange = document.getElementById('customEndDateRange');
+
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+                customEndDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+                customEndDateRange.style.display = 'none';
+            }
+        });
+
+        document.getElementById('generateReport').addEventListener('click', async () => {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            try {
+                const response = await fetch('/admin/generate-sales-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reportType, startDate, endDate })
+                });
+
+                const data = await response.json();
+                updateReportTable(data);
+                updateSalesSummary(data);
+            } catch (error) {
+                console.error('Error generating report:', error);
+            }
+        });
+
+        function updateReportTable(data) {
+            const reportBody = document.getElementById('reportBody');
+            reportBody.innerHTML = '';
+
+            data.reports.forEach(report => {
+                const row = `
+                    <tr>
+                        <td>${report.date}</td>
+                        <td>${report.orderCount}</td>
+                        <td>₹${report.totalSales.toFixed(2)}</td>
+                        <td>₹${report.totalDiscount.toFixed(2)}</td>
+                        <td>₹${report.netSales.toFixed(2)}</td>
+                    </tr>
+                `;
+                reportBody.innerHTML += row;
+            });
+        }
+
+        function updateSalesSummary(data) {
+            document.getElementById('totalSales').textContent = `₹${data.totalSales.toFixed(2)}`;
+            document.getElementById('totalOrders').textContent = data.totalOrders;
+            document.getElementById('totalDiscount').textContent = `₹${data.totalDiscount.toFixed(2)}`;
+            document.getElementById('activeCoupons').textContent = data.activeCoupons || 0;
+            document.getElementById('inactiveCoupons').textContent = data.inactiveCoupons || 0;
+        }
+
+        document.getElementById('downloadPDF').addEventListener('click', () => {
+            // Placeholder for PDF download logic
+            alert('PDF download functionality to be implemented');
+        });
+
+        document.getElementById('downloadExcel').addEventListener('click', () => {
+            // Placeholder for Excel download logic
+            alert('Excel download functionality to be implemented');
+        });
+    </script>
+
+    <%- include("../../views/partials/admin/footer") %>

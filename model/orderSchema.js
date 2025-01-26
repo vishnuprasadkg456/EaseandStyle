@@ -93,6 +93,12 @@ const orderSchema = new Schema({
         ],
         default: "Pending",
     },
+    paymentStatus: {
+        type: String,
+        enum: ["Unpaid", "Paid", "Refunded"],
+        default: "Unpaid",
+    },
+    
     createdOn: {
         type: Date,
         default: Date.now,

@@ -7,7 +7,19 @@ const Order = require("../../model/orderSchema");
 const Payment = require("../../model/paymentSchema");
 const Coupon = require("../../model/couponSchema");
 const { v4: uuidv4 } = require("uuid");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+const env = require("dotenv").config();
 
+
+
+
+
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET, 
+});
 
 
 
@@ -159,10 +171,14 @@ const checkOutAddAddress = async (req, res) => {
 
 
 
+
+
+
+
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user.id;
-        const { addressId, paymentMethod } = req.body;
+        const { addressId, paymentMethod, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized. Please log in." });
@@ -195,56 +211,25 @@ const placeOrder = async (req, res) => {
         });
 
         const discount = cart.discount || 0;
-        const couponDiscount = cart.couponDiscount ;
-        const finalAmount = cart.finalPrice
+        const couponDiscount = cart.couponDiscount;
+        const finalAmount = cart.finalPrice;
 
-        
+        // Verify Razorpay payment if payment method is Razorpay
+        let paymentStatus = "Unpaid";
+        if (paymentMethod === "razorpay") {
+            const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(razorpayOrderId + "|" + razorpayPaymentId)
+                .digest("hex");
 
-        // Create the order
-        const newOrder = new Order({
-            userId,
-            orderedItems: cart.items.map((item) => ({
-                product: item.productId._id,
-                quantity: item.quantity,
-                price: item.productId.salePrice,
-            })),
-            totalPrice: subtotal,
-            discount,
-            couponDiscount,
-            finalAmount,
-            addressRef: selectedAddress._id,
-            address: { 
-                addressType: selectedAddress.addressType,
-                name: selectedAddress.name,
-                landMark : selectedAddress.landMark,
-                city: selectedAddress.city,
-                state: selectedAddress.state,
-                pincode: selectedAddress.pincode,
-                phone: selectedAddress.phone,
-                altPhone: selectedAddress.altPhone,
-            },
-            status: "Pending",
-        });
+            if (generatedSignature !== razorpaySignature) {
+                return res.status(400).json({ message: "Payment verification failed" });
+            }
+            paymentStatus = "Paid";
 
-        const savedOrder = await newOrder.save();
+        }
 
-        
-        // Create payment record
-        const newPayment = new Payment({
-            paymentId: uuidv4(),
-            orderId:savedOrder._id,
-            userId,
-            amount: finalAmount,
-            paymentMethod,
-            status: "Pending", // Update status later upon confirmation
-        });
-
-        const savedPayment = await newPayment.save();
-
-        savedOrder.payment = savedPayment._id;
-        await savedOrder.save();
-
-
+        // Check product stock
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
             if (product.stock < item.quantity) {
@@ -261,7 +246,50 @@ const placeOrder = async (req, res) => {
             await product.save();
         }
 
-       
+        // Create the order
+        const newOrder = new Order({
+            userId,
+            orderedItems: cart.items.map((item) => ({
+                product: item.productId._id,
+                quantity: item.quantity,
+                price: item.productId.salePrice,
+            })),
+            totalPrice: subtotal,
+            discount,
+            couponDiscount,
+            finalAmount,
+            addressRef: selectedAddress._id,
+            address: {
+                addressType: selectedAddress.addressType,
+                name: selectedAddress.name,
+                landMark: selectedAddress.landMark,
+                city: selectedAddress.city,
+                state: selectedAddress.state,
+                pincode: selectedAddress.pincode,
+                phone: selectedAddress.phone,
+                altPhone: selectedAddress.altPhone,
+            },
+            status:  "Pending",
+            paymentStatus,
+        });
+
+        const savedOrder = await newOrder.save();
+
+        // Create payment record
+        const newPayment = new Payment({
+            paymentId: paymentMethod === "razorpay" ? razorpayPaymentId : uuidv4(),
+            orderId: savedOrder._id,
+            userId,
+            amount: finalAmount,
+            paymentMethod,
+            status: paymentStatus,
+        });
+
+        const savedPayment = await newPayment.save();
+
+        // Link payment to the order
+        savedOrder.payment = savedPayment._id;
+        await savedOrder.save();
 
         // Clear cart
         // await Cart.updateOne(
@@ -271,16 +299,18 @@ const placeOrder = async (req, res) => {
 
 
          // Clear cart and reset `finalPrice` and `couponDiscount`
-         await Cart.updateOne(
+
+        // Clear cart and reset `finalPrice` and `couponDiscount`
+        await Cart.updateOne(
             { userId },
-            { 
-                $set: { 
-                    items: [], 
-                    discount: 0, 
-                    couponDiscount: 0, 
-                    finalPrice: 0, 
-                    appliedCoupon: null 
-                } 
+            {
+                $set: {
+                    items: [],
+                    discount: 0,
+                    couponDiscount: 0,
+                    finalPrice: 0,
+                    appliedCoupon: null,
+                },
             }
         );
 
@@ -295,6 +325,68 @@ const placeOrder = async (req, res) => {
 };
 
 
+//RazorPay integration 
+
+const createRazorpayOrder = async (req, res) => {
+
+    console.log("create razorpay order logic hit");
+
+    try {
+        const userId = req.session.user.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized. Please log in." });
+        }
+
+        const cart = await Cart.findOne({ userId }).populate({
+            path: "items.productId",
+            select: "productName salePrice",
+        });
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: "Cart is empty. Add items to proceed." });
+        }
+
+        // Calculate total amount in paise (Razorpay requires amount in paise)
+        const subtotal = cart.items.reduce((sum, item) => {
+            return sum + item.productId.salePrice * item.quantity;
+        }, 0);
+        const discount = cart.discount || 0;
+        const finalAmount = (subtotal - discount) * 100; // Convert to paise
+
+        // Create Razorpay order
+        const options = {
+            amount: finalAmount,
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`,
+            notes: {
+                userId,
+            },
+        };
+
+
+        console.log("Razorpay Options:", options);
+        const razorpayOrder = await razorpay.orders.create(options);
+        console.log("Razorpay Order Created:", razorpayOrder);
+
+
+        // Send the order details to the frontend
+        res.status(200).json({
+            success: true,
+            orderId: razorpayOrder.id,
+            amount: finalAmount,
+            currency: "INR",
+        });
+    } catch (error) {
+        console.error("Detailed Razorpay Error:", {
+            message: error.message,
+            stack: error.stack,
+            errorCode: error.code,
+            errorDetails: error.errorDetails
+        });
+        res.status(500).json({ message: "Failed to create Razorpay order" });
+    }
+};
 
 
 
@@ -304,6 +396,9 @@ module.exports ={
  getCheckOut, 
  getAddress,
  checkOutAddAddress,
- placeOrder
+ placeOrder,
+ createRazorpayOrder,
+ 
+
 
 }

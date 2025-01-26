@@ -9,12 +9,12 @@ const paymentSchema = new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ["Credit Card", "Debit Card", "PayPal", "COD", "UPI", "Bank Transfer"],
+        enum: ["Credit Card", "Debit Card", "PayPal", "COD", "UPI", "Bank Transfer","razorpay"],
         required: true,
     },
     paymentStatus: {
         type: String,
-        enum: ["Pending", "Completed", "Failed", "Refunded"],
+        enum: ["Pending", "Completed", "Failed", "Refunded","Paid"],
         default: "Pending",
         required: true,
     },
