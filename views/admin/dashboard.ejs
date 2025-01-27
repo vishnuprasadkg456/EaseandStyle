@@ -1,6 +1,6 @@
 <%- include("../../views/partials/admin/header") %>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -16,12 +16,32 @@
             margin: 20px;
         }
 
-       
+
 
         .download-btn i {
             margin-right: 8px;
         }
-   
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: -78px;
+            z-index: 1000;
+            display: none;
+            float: left;
+            min-width: 10rem;
+            padding: .5rem 0;
+            margin: .125rem 0 0;
+            font-size: 1rem;
+            color: #212529;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: .25rem;
+        }
+
         body {
             background-color: #f4f6f9;
         }
@@ -84,12 +104,20 @@
             background-color: #9a1717;
             border-radius: 0px;
         }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+       
     </style>
 
     <section class="content-main">
         <div class="container-fluid">
             <div class="sales-dashboard">
-                <h4 class="content-title mb-4"> Dashboard</h4>
+                <h4 class="content-title mb-4">Sales Dashboard</h4>
 
                 <!-- Sales Summary -->
                 <div class="sales-summary row">
@@ -119,8 +147,6 @@
                             <h3 id="activeCoupons">0</h3>
                         </div>
                     </div>
-              
-                
                     <div class="col-md-4">
                         <div class="summary-card">
                             <h6>Inactive Coupons</h6>
@@ -156,15 +182,23 @@
                     </div>
                 </div>
 
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+
                 <!-- Report Table -->
                 <div class="report-table">
                     <table class="table table-striped" id="salesReportTable">
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>No.of.Orders</th>
+                                <th>No. of Orders</th>
                                 <th>Total Sales</th>
                                 <th>Discounts</th>
+                               
                                 <th>Net Sales</th>
                                 <th>Total Items Sold</th>
                             </tr>
@@ -178,85 +212,132 @@
                 <!-- Download Buttons -->
                 <div class="text-center mt-3">
                     <button class="download-btn" id="downloadPDF">
-                        <i class="fas fa-file-pdf"></i>Download PDF
+                        <i class="fas fa-file-pdf"></i> Download PDF
                     </button>
                     <button class="download-btn" id="downloadExcel">
-                        <i class="fas fa-file-excel"></i>Download Excel
+                        <i class="fas fa-file-excel"></i> Download Excel
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="dashboard.js"></script>
+
     <script>
-        document.getElementById('reportType').addEventListener('change', function () {
-            const customDateRange = document.getElementById('customDateRange');
-            const customEndDateRange = document.getElementById('customEndDateRange');
-
-            if (this.value === 'custom') {
-                customDateRange.style.display = 'block';
-                customEndDateRange.style.display = 'block';
-            } else {
-                customDateRange.style.display = 'none';
-                customEndDateRange.style.display = 'none';
-            }
-        });
-
-        document.getElementById('generateReport').addEventListener('click', async () => {
-            const reportType = document.getElementById('reportType').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-
+        // First, create a new function to load initial data when page loads
+        const loadInitialData = async () => {
             try {
-                const response = await fetch('/admin/generate-sales-report', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reportType, startDate, endDate })
-                });
-
+                const response = await fetch('/admin/initial-sales-data');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
-                updateReportTable(data);
-                updateSalesSummary(data);
+                updateDashboardData(data);
+                updateReportTable(data.today);
             } catch (error) {
-                console.error('Error generating report:', error);
+                console.error('Error loading initial data:', error);
+                alert('Failed to load dashboard data');
             }
-        });
+        };
 
-        function updateReportTable(data) {
+        // Function to update dashboard summary cards
+        const updateDashboardData = (data) => {
+            document.getElementById('totalSales').textContent = `₹${data.overall.totalSales.toFixed(2)}`;
+            document.getElementById('totalOrders').textContent = data.overall.totalOrders;
+            document.getElementById('totalDiscount').textContent = `₹${data.overall.totalDiscount.toFixed(2)}`;
+            document.getElementById('activeCoupons').textContent = data.coupons.active;
+            document.getElementById('inactiveCoupons').textContent = data.coupons.inactive;
+        };
+
+        // Modified updateReportTable function
+        const updateReportTable = (data) => {
             const reportBody = document.getElementById('reportBody');
             reportBody.innerHTML = '';
 
-            data.reports.forEach(report => {
-                const row = `
-                    <tr>
-                        <td>${report.date}</td>
-                        <td>${report.orderCount}</td>
-                        <td>₹${report.totalSales.toFixed(2)}</td>
-                        <td>₹${report.totalDiscount.toFixed(2)}</td>
-                        <td>₹${report.netSales.toFixed(2)}</td>
-                    </tr>
-                `;
-                reportBody.innerHTML += row;
+            if (Array.isArray(data.reports)) {
+                data.reports.forEach(report => {
+                    reportBody.innerHTML += `
+                <tr>
+                    <td>${report.date}</td>
+                    <td>${report.orderCount}</td>
+                    <td>₹${report.totalSales.toFixed(2)}</td>
+                    <td>₹${report.totalDiscount.toFixed(2)}</td>
+                    <td>₹${(report.totalSales - report.totalDiscount).toFixed(2)}</td>
+                    <td>${report.totalItems}</td>
+                </tr>
+            `;
+                });
+            }
+        };
+
+        // Modified event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load initial data when page loads
+            loadInitialData();
+
+            // Report type change handler
+            document.getElementById('reportType').addEventListener('change', function () {
+                const customDateRange = document.getElementById('customDateRange');
+                const customEndDateRange = document.getElementById('customEndDateRange');
+                const isCustom = this.value === 'custom';
+                customDateRange.style.display = isCustom ? 'block' : 'none';
+                customEndDateRange.style.display = isCustom ? 'block' : 'none';
             });
-        }
 
-        function updateSalesSummary(data) {
-            document.getElementById('totalSales').textContent = `₹${data.totalSales.toFixed(2)}`;
-            document.getElementById('totalOrders').textContent = data.totalOrders;
-            document.getElementById('totalDiscount').textContent = `₹${data.totalDiscount.toFixed(2)}`;
-            document.getElementById('activeCoupons').textContent = data.activeCoupons || 0;
-            document.getElementById('inactiveCoupons').textContent = data.inactiveCoupons || 0;
-        }
+            // Generate report handler
+            document.getElementById('generateReport').addEventListener('click', async () => {
+                const reportType = document.getElementById('reportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
 
-        document.getElementById('downloadPDF').addEventListener('click', () => {
-            // Placeholder for PDF download logic
-            alert('PDF download functionality to be implemented');
-        });
+                // Show loading spinner
+                document.getElementById('loadingSpinner').style.display = 'block';
 
-        document.getElementById('downloadExcel').addEventListener('click', () => {
-            // Placeholder for Excel download logic
-            alert('Excel download functionality to be implemented');
+                try {
+                    const response = await fetch('/admin/generate-report', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reportType, startDate, endDate })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    updateReportTable(data);
+                } catch (error) {
+                    console.error('Error generating report:', error);
+                    alert('Failed to generate report. Please try again.');
+                } finally {
+                    // Hide loading spinner
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                }
+            });
+
+            // Download handlers
+            document.getElementById('downloadPDF').addEventListener('click', () => {
+                const reportType = document.getElementById('reportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                window.location.href = `/admin/download-pdf?reportType=${reportType}&startDate=${startDate}&endDate=${endDate}`;
+            });
+
+            document.getElementById('downloadExcel').addEventListener('click', () => {
+                const reportType = document.getElementById('reportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                window.location.href = `/admin/download-excel?reportType=${reportType}&startDate=${startDate}&endDate=${endDate}`;
+            });
         });
     </script>
+
 
     <%- include("../../views/partials/admin/footer") %>

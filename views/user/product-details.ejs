@@ -47,29 +47,40 @@
 
 
         .custom-popup {
-            background-color: #fcfcfc; /* Black background */
-            border: 2px solid #000000; /* Maroon border */
-            color: #d3d3d3; /* Light grey text color */
+            background-color: #fcfcfc;
+            /* Black background */
+            border: 2px solid #000000;
+            /* Maroon border */
+            color: #d3d3d3;
+            /* Light grey text color */
             border-radius: 75px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Subtle shadow */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            /* Subtle shadow */
         }
-        
+
         .custom-title {
-            color: #141414; /* Maroonish red for the title */
+            color: #141414;
+            /* Maroonish red for the title */
             font-size: 20px;
             font-weight: bold;
             text-transform: uppercase;
         }
-        
+
         .custom-text {
-            color: #1a1a1a; /* Light grey for the message */
+            color: #1a1a1a;
+            /* Light grey for the message */
             font-size: 16px;
         }
+
         .custom-icon {
-            color: #800000; /* Maroon icon color */
+            color: #800000;
+            /* Maroon icon color */
         }
-        
+
+        .button.button-add-to-cart.cstmbtn{
+            padding: 2px 10px;
+        }
 
 
         /* Responsive Design using Media Queries */
@@ -336,7 +347,11 @@
                                         <h5>
                                             <%= relatedProducts[i].salePrice %>
                                         </h5>
-                                        <a href="/addToCart?id=<%= relatedProducts[i]._id %>">Add to cart</a>
+
+                                        <button type="button" class="button button-add-to-cart cstmbtn"
+                                            data-product-id="<%= relatedProducts[i]._id %>">
+                                            Add to Cart
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -352,10 +367,10 @@
     <script>
         function addToWishlist(element) {
             const productId = element.getAttribute('data-id');
-            
+
             // Prevent default action if any
             event.preventDefault();
-            
+
             $.ajax({
                 url: '/addToWishlist',
                 method: 'POST',
@@ -380,7 +395,7 @@
                             // Optional: Update the UI without reloading
                             // E.g., update wishlist count or show the newly added item
                             updateWishlistUI();
-    
+
                             // Redirect to wishlist page after successful addition
                             window.location.href = '/wishlist';
                         });
@@ -405,7 +420,7 @@
                 error: function (jqXHR) {
                     const response = jqXHR.responseJSON;
                     const errorMessage = response?.message || 'An unexpected error occurred';
-                    
+
                     // Error alert styled the same way as success
                     Swal.fire({
                         icon: 'error',
@@ -425,8 +440,8 @@
             });
         }
     </script>
-    
-    
+
+
     <script>
         // Frontend JavaScript for handling add to cart functionality
         document.addEventListener('DOMContentLoaded', function () {
@@ -434,9 +449,9 @@
             const qtyDown = document.querySelector('.qty-down');
             const qtyUp = document.querySelector('.qty-up');
             const qtyVal = document.querySelector('.qty-val');
-            const addToCartBtn = document.querySelector('.button-add-to-cart');
-
+            const addToCartBtns = document.querySelectorAll('.button-add-to-cart'); // Use querySelectorAll
             let quantity = 1;
+
 
             // Handle quantity changes
             qtyDown.addEventListener('click', function (e) {
@@ -453,56 +468,64 @@
                 qtyVal.textContent = quantity;
             });
 
+
+
+
             // Handle add to cart
-            addToCartBtn.addEventListener('click', async function (e) {
-                e.preventDefault();
+            addToCartBtns.forEach((addToCartBtn) => {
+                addToCartBtn.addEventListener('click', async function (e) {
+                    e.preventDefault();
 
-                const productId = new URLSearchParams(window.location.search).get('id');
 
-                try {
-                    const response = await fetch('/addToCart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            productId: productId,
-                            quantity: quantity
-                        })
-                    });
+                    const productId = new URLSearchParams(window.location.search).get('id');
 
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        // Show success message
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Product added successfully',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            width: '400px', // Small popup
-                            customClass: {
-                                popup: 'custom-popup',
-                                title: 'custom-title',
-                                htmlContainer: 'custom-text',
-                                icon: 'custom-icon',
+                    try {
+                        const response = await fetch('/addToCart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
                             },
-                        }).then(() => {
-                            // Redirect after popup closes
-                            window.location.href = '/cart'; // or '/cart' as required
+                            body: JSON.stringify({
+                                productId: productId,
+                                quantity: quantity
+                            })
                         });
-                        
-                    } else {
-                        throw new Error(data.message || 'Failed to add product to cart');
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Product added successfully',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                width: '400px', // Small popup
+                                customClass: {
+                                    popup: 'custom-popup',
+                                    title: 'custom-title',
+                                    htmlContainer: 'custom-text',
+                                    icon: 'custom-icon',
+                                },
+                            }).then(() => {
+                                // Redirect after popup closes
+                                window.location.href = '/cart'; // or '/cart' as required
+                            });
+
+                        } else {
+                            throw new Error(data.message || 'Failed to add product to cart');
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: error.message
+                        });
                     }
-                } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: error.message
-                    });
-                }
+                });
+
             });
         });
     </script>

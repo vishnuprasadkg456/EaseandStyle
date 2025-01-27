@@ -25,6 +25,8 @@ const productDetails = async (req, res) => {
             _id: { $ne: product._id }, // Exclude the current product
         }).limit(4); // Limit to 4 related products
 
+        console.log("related products data",relatedProducts);
+
         const categoryOffer = findCategory?.categoryOffer || 0;
         const productOffer = product.productOffer || 0;
         const totalOffer = categoryOffer + productOffer;

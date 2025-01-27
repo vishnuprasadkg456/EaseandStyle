@@ -8,6 +8,13 @@ const productController = require("../../controller/admin/productController");
 const bannerController = require("../../controller/admin/bannerController");
 const orderManagmentController = require("../../controller/admin/orderManagmentController");
 const couponController = require("../../controller/admin/couponController");
+const {
+    generateSalesReport,
+    downloadSalesReportPDF,
+    downloadSalesReportExcel,
+    validateReportRequest,
+    getSalesPage
+} = require('../../controller/admin/salesController');
 const {userAuth,adminAuth} = require("../../middlewares/auth");
 const multer = require("multer");
 const storage = require("../../helpers/multer");
@@ -78,6 +85,13 @@ router.get('/deleteCoupon', adminAuth, couponController.deleteCoupon);
 router.get('/blockCoupon', adminAuth, couponController.blockCoupon);
 router.get('/unblockCoupon', adminAuth, couponController.unblockCoupon);
 router.post("/editCoupon",adminAuth, couponController.editCoupon);
+
+
+//sales report management
+router.get('/initial-sales-data',adminAuth, getSalesPage);
+router.post('/generate-report', adminAuth, validateReportRequest, generateSalesReport);
+router.get('/download-pdf', adminAuth, validateReportRequest, downloadSalesReportPDF);
+router.get('/download-excel', adminAuth, validateReportRequest, downloadSalesReportExcel);
 
 
 module.exports = router;
