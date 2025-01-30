@@ -437,6 +437,7 @@
                   </div>
 
                   <!-- wallet section -->
+
                   <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
                     <div class="card">
                       <div class="card-header">
@@ -445,48 +446,24 @@
                       <div class="card-body contact-from-area">
                         <div class="row">
                           <div class="col-lg-8 mx-auto text-center mt-90">
+                            <!-- Wallet Balance Display -->
                             <div class="wallet-balance mb-4">
-                              <h3>Current Balance</h3>
-                              <div class="h2 text-success">
-                                ₹<%= (wallet && wallet.balance !== undefined) ? wallet.balance.toFixed(2) : "0.00" %>
+                              <h3>Your Wallet Balance: ₹<span id="walletBalance"></span></h3>
+                            </div>
+                            <!-- Add Money to Wallet Form -->
+                            <form id="addMoneyForm">
+                              <div class="form-group">
+                                <label for="walletAmount" class="h4">Enter Amount</label>
+                                <input type="number" id="walletAmount" class="form-control"
+                                  placeholder="Enter amount to add" required />
                               </div>
-                            </div>
-                            
-                            <div class="wallet-transactions mt-4">
-                              <h4>Recent Transactions</h4>
-                              <table class="table">
-                                <thead>
-                                  <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Amount</th>
-                                    <th>Type</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <% if (wallet && wallet.transactions && wallet.transactions.length > 0) { %>
-                                    <% wallet.transactions.slice().reverse().slice(0, 5).forEach(transaction => { %>
-                                      <tr>
-                                        <td><%= transaction.date.toLocaleDateString() %></td>
-                                        <td><%= transaction.type %></td>
-                                        <td><%= transaction.amount.toFixed(2) %></td>
-                                        <td><%= transaction.description %></td>
-                                      </tr>
-                                    <% }); %>
-                                  <% } else { %>
-                                    <tr>
-                                      <td colspan="4">No recent transactions</td>
-                                    </tr>
-                                  <% } %>
-                                </tbody>
-                              </table>
-                            </div>
+                              <button type="submit" class="btn btn-success">Add Money</button>
+                            </form>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-
 
                   <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
                     <div class="card">
@@ -495,6 +472,7 @@
                       </div>
                       <div class="card-body">
                         <div class="table-responsive">
+                          <!-- Wallet Transaction History Table -->
                           <table class="table">
                             <thead>
                               <tr>
@@ -503,18 +481,15 @@
                                 <th>Amount</th>
                               </tr>
                             </thead>
-                            <tbody>
-                              <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                              </tr>
+                            <tbody id="walletHistoryTable">
+                              <!-- Wallet History Rows Dynamically Added Here -->
                             </tbody>
                           </table>
                         </div>
                       </div>
                     </div>
                   </div>
+
 
 
                 </div>
@@ -645,38 +620,132 @@
         });
       });
 
-      // In your order details or profile page script
-      async function refundToWallet(orderId) {
+
+
+      const addMoneyForm = document.getElementById("addMoneyForm");
+      const walletBalanceEl = document.getElementById("walletBalance");
+      const walletHistoryTable = document.getElementById("walletHistoryTable");
+
+      // Function to show custom alerts
+      function showCustomAlert(message, type = "success") {
+        const alertContainer = document.getElementById("alertContainer");
+
+        // Create alert element
+        const alertEl = document.createElement("div");
+        alertEl.className = `custom-alert ${type}`;
+
+        // Create alert content
+        alertEl.innerHTML = `
+      <i class="fa ${type === "success" ? "fa-check-circle" : "fa-exclamation-circle"
+          } alert-icon ${type}"></i>
+      <p class="alert-message">${message}</p>
+      <button class="alert-close">×</button>
+    `;
+
+        // Add to container
+        alertContainer.appendChild(alertEl);
+
+        // Trigger animation
+        setTimeout(() => alertEl.classList.add("show"), 10);
+
+        // Add close button functionality
+        const closeBtn = alertEl.querySelector(".alert-close");
+        closeBtn.addEventListener("click", () => {
+          alertEl.classList.remove("show");
+          setTimeout(() => alertEl.remove(), 300);
+        });
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          if (alertEl.parentNode) {
+            alertEl.classList.remove("show");
+            setTimeout(() => alertEl.remove(), 300);
+          }
+        }, 3000);
+      }
+
+      // Fetch and display wallet balance and history
+      async function fetchWalletData() {
         try {
-          const response = await fetch('/refund-cod-order', {
-            method: 'POST',
+          const response = await fetch("/wallet", { method: "GET" });
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch wallet data: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update wallet balance
+            walletBalanceEl.textContent = data.wallet;
+
+            // Populate wallet history
+            walletHistoryTable.innerHTML = ""; // Clear previous rows
+            data.history.forEach((transaction) => {
+              const row = document.createElement("tr");
+
+              const dateCell = document.createElement("td");
+              dateCell.textContent = new Date(transaction.date).toLocaleDateString();
+
+              const statusCell = document.createElement("td");
+              statusCell.textContent = transaction.status;
+
+              const amountCell = document.createElement("td");
+              amountCell.textContent = `₹${transaction.amount}`;
+
+              row.appendChild(dateCell);
+              row.appendChild(statusCell);
+              row.appendChild(amountCell);
+
+              walletHistoryTable.appendChild(row);
+            });
+
+           
+          } else {
+            showCustomAlert("Failed to fetch wallet data.", "error");
+          }
+        } catch (error) {
+          console.error("Error fetching wallet data:", error);
+          showCustomAlert("An error occurred while fetching wallet data.", "error");
+        }
+      }
+
+      // Add Money to Wallet
+      addMoneyForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const amount = parseFloat(document.getElementById("walletAmount").value);
+
+        if (isNaN(amount) || amount <= 0) {
+          showCustomAlert("Please enter a valid amount.", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch("/addMoney", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ orderId })
+            body: JSON.stringify({ amount }),
           });
 
           const data = await response.json();
 
           if (data.success) {
-            showCustomAlert(`₹${data.refundedAmount} refunded to wallet`, 'success');
-            // Optionally refresh the page or update wallet balance
-            setTimeout(() => {
-              location.reload();
-            }, 2000);
+            showCustomAlert("Money added to wallet successfully!", "success");
+            fetchWalletData(); // Refresh wallet data
           } else {
-            showCustomAlert(data.message, 'error');
+            showCustomAlert(data.message || "Failed to add money to wallet.", "error");
           }
         } catch (error) {
-          console.error('Refund error:', error);
-          showCustomAlert('Error processing refund', 'error');
+          console.error("Error adding money to wallet:", error);
+          showCustomAlert("An error occurred while adding money to wallet.", "error");
         }
-      }
-
-      // Add this to cancelled COD order details
-      document.querySelector('.refund-to-wallet-btn').addEventListener('click', () => {
-        refundToWallet('<%= orders._id %>');
       });
+
+      // Initial Fetch of Wallet Data
+      fetchWalletData();
+
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

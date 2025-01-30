@@ -54,16 +54,16 @@ const getOrderDetails = async (req, res) => {
 
 
 
-
 const cancelOrder = async (req, res) => {
     try {
+        const userId = req.session.user.id; // Ensure the user is authenticated
         const { orderId } = req.body;
 
         // Validate the request payload
         if (!orderId) {
             return res.status(400).json({
                 success: false,
-                message: "Order ID is required",
+                message: "Order ID is required.",
             });
         }
 
@@ -72,7 +72,15 @@ const cancelOrder = async (req, res) => {
         if (!order) {
             return res.status(404).json({
                 success: false,
-                message: "Order not found",
+                message: "Order not found.",
+            });
+        }
+
+        // Verify the order belongs to the user
+        if (order.userId.toString() !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized to cancel this order.",
             });
         }
 
@@ -81,7 +89,7 @@ const cancelOrder = async (req, res) => {
         if (!cancelableStatuses.includes(order.status)) {
             return res.status(400).json({
                 success: false,
-                message: `Order cannot be canceled. Current status: ${order.status}`,
+                message: `Order cannot be canceled. Current status: ${order.status}.`,
             });
         }
 
@@ -89,30 +97,56 @@ const cancelOrder = async (req, res) => {
         order.status = "Cancelled";
         order.updatedOn = new Date();
 
-        // If there's an associated payment, update the payment status
+        // Refund the payment if applicable
         if (order.payment) {
             const payment = await Payment.findById(order.payment);
-            if (payment && payment.paymentStatus !== "Refunded") {
-                payment.paymentStatus = "Refunded";
-                await payment.save();
+
+            if (payment) {
+                const refundAmount = payment.amount; // Refund amount
+
+                // Check if the payment hasn't been refunded already
+                if (payment.paymentStatus !== "Refunded") {
+                    // Update the payment status
+                    payment.paymentStatus = "Refunded";
+                    await payment.save();
+
+                    // Refund the amount to the user's wallet
+                    await User.updateOne(
+                        { _id: userId },
+                        {
+                            $inc: { wallet: refundAmount }, // Increment the wallet balance
+                            $push: {
+                                history: {
+                                    amount: refundAmount,
+                                    status: "Refund",
+                                    date: new Date(),
+                                    orderId: order._id, // Link to the canceled order
+                                },
+                            },
+                        }
+                    );
+                }
             }
         }
 
         // Save the updated order
         await order.save();
 
+        // Respond with success
         res.status(200).json({
             success: true,
-            message: "Order canceled successfully",
+            message: "Order canceled successfully. Amount refunded to the wallet.",
         });
     } catch (error) {
         console.error("Error canceling order:", error);
+
         res.status(500).json({
             success: false,
-            message: "An error occurred while canceling the order",
+            message: "An error occurred while canceling the order.",
         });
     }
 };
+
 
 
 //invoicedetails

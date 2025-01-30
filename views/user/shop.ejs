@@ -203,8 +203,9 @@
                 <!-- Sidebar Begin -->
                 <div class="col-lg-3">
                     <div class="shop__sidebar">
+                        <!-- search bar -->
                         <div class="shop__sidebar__search">
-                            <form action="/search" method="POST" class="search-form">
+                            <form action="/search" method="GET" class="search-form">
                                 <input type="text" name="query" placeholder="Search items..." class="search-input">
                                 <button type="submit" class="search-button"><span class="icon_search"></span></button>
                             </form>
@@ -369,22 +370,19 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="product__pagination">
-                                <% if (currentPage> 1) { %>
-                                    <a
-                                        href="/shop?page=<%= currentPage - 1 %><% if (selectedCategory) { %>&category=<%= selectedCategory %><% } %><% if (selectedBrand) { %>&brand=<%= selectedBrand %><% } %><% if (selectedPrice) { %>&price=<%= selectedPrice %><% } %>">←</a>
-                                    <% } %>
-
-                                        <% for (let i=1; i <=totalPages; i++) { %>
-                                            <a class="<%= currentPage === i ? 'active' : '' %>"
-                                                href="/shop?page=<%= i %><% if (selectedCategory) { %>&category=<%= selectedCategory %><% } %><% if (selectedBrand) { %>&brand=<%= selectedBrand %><% } %><% if (selectedPrice) { %>&price=<%= selectedPrice %><% } %>">
-                                                <%= i %>
-                                            </a>
-                                            <% } %>
-
-                                                <% if (currentPage < totalPages) { %>
-                                                    <a
-                                                        href="/shop?page=<%= currentPage + 1 %><% if (selectedCategory) { %>&category=<%= selectedCategory %><% } %><% if (selectedBrand) { %>&brand=<%= selectedBrand %><% } %><% if (selectedPrice) { %>&price=<%= selectedPrice %><% } %>">→</a>
-                                                    <% } %>
+                                <% if (currentPage > 1) { %>
+                                    <a href="/search?page=<%= currentPage - 1 %><% if (selectedCategory) { %>&category=<%= selectedCategory %><% } %><% if (selectedBrand) { %>&brand=<%= selectedBrand %><% } %><% if (selectedPrice) { %>&price=<%= selectedPrice %><% } %><% if (selectedSort) { %>&sort=<%= selectedSort %><% } %>">←</a>
+                                <% } %>
+                            
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <a class="<%= currentPage === i ? 'active' : '' %>" href="/search?page=<%= i %><% if (selectedCategory) { %>&category=<%= selectedCategory %><% } %><% if (selectedBrand) { %>&brand=<%= selectedBrand %><% } %><% if (selectedPrice) { %>&price=<%= selectedPrice %><% } %><% if (selectedSort) { %>&sort=<%= selectedSort %><% } %>">
+                                        <%= i %>
+                                    </a>
+                                <% } %>
+                            
+                                <% if (currentPage < totalPages) { %>
+                                    <a href="/search?page=<%= currentPage + 1 %><% if (selectedCategory) { %>&category=<%= selectedCategory %><% } %><% if (selectedBrand) { %>&brand=<%= selectedBrand %><% } %><% if (selectedPrice) { %>&price=<%= selectedPrice %><% } %><% if (selectedSort) { %>&sort=<%= selectedSort %><% } %>">→</a>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -412,10 +410,14 @@
     <script>
         function applySort() {
             const sortValue = document.getElementById('sort').value;
-            console.log("Selected Sort: ", sortValue);  // Log selected sort value
             const url = new URL(window.location.href);
-            url.searchParams.set('sort', sortValue);
-            window.location.href = url.toString();  // Refresh the page with the new sort
+        
+            // Preserve existing query parameters
+            const params = new URLSearchParams(window.location.search);
+            params.set('sort', sortValue); // Update or add the sort parameter
+        
+            // Redirect to the updated URL
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
         }
 
     </script>

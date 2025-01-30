@@ -37,7 +37,7 @@ router.get("/",userController.loadHomePage);
 
 router.get("/shop",userAuth,userController.loadShoppingPage);
 router.get("/filter",userAuth,userController.filterProduct);
-router.post("/search",userAuth,userController.searchProducts);
+router.get("/search",userAuth,userController.searchProducts);
 
 //contacts
 router.get("/contacts",userAuth,userController.contacts);
@@ -107,8 +107,9 @@ router.post("/create-razorpay-order", userAuth, checkOutController.createRazorpa
 
 
 //refund for cod wallet management
-router.get('/getWallet',userAuth,walletController.getWallet);
+router.get('/wallet',userAuth,walletController. getWalletData);
 router.post('/refund-cod-order',userAuth,walletController.refundCodWallet);
+router.post('/addMoney',userAuth,walletController.addMoneyToWallet);
 
 
 

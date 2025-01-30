@@ -41,15 +41,18 @@ const userSchema = new Schema({
         ref:"Cart",
 
     }],
-    wallet : [{
-        type: Schema.Types.ObjectId,
-        ref:"Wishlist"
-    }], 
-    wishlist: [
+    wallet: {
+        type: Number,
+        default: 0, // Initial wallet balance is 0
+    },
+    history: [
         {
-          type: Schema.Types.ObjectId,
-          ref: "Product",
-        }],
+            amount: Number, // Transaction amount
+            status: String, // e.g., "credit", "debit", "refund"
+            date: Date, // Transaction date
+            orderId: String, // Optional: Link to the order
+        },
+    ],
     orderHistory : [{
         type:Schema.Types.ObjectId,
         ref:"order"
