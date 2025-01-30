@@ -216,12 +216,76 @@ const downloadInvoice = async (req, res) => {
         res.status(500).send("Failed to generate invoice");
     }
 };
+const requestReturn = async (req, res) => {
+    try {
+        const { orderId, returnReason } = req.body; // Add returnReason to the destructured request body
+        const userId = req.session.user.id;
 
+        // Validate the request payload
+        if (!orderId) {
+            return res.status(400).json({
+                success: false,
+                message: "Order ID is required.",
+            });
+        }
 
+        // Validate the return reason
+        if (!returnReason || returnReason.trim() === "") {
+            return res.status(400).json({
+                success: false,
+                message: "Return reason is required.",
+            });
+        }
+
+        // Fetch the order by ID
+        const order = await Order.findOne({ _id: orderId, userId });
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found.",
+            });
+        }
+
+        // Check if the order is eligible for return
+        if (order.status !== "Delivered") {
+            return res.status(400).json({
+                success: false,
+                message: "Return can only be requested for delivered orders.",
+            });
+        }
+
+        // Check if a return request already exists
+        if (order.status === "Return Requested" || order.status === "Returned") {
+            return res.status(400).json({
+                success: false,
+                message: "Return request already submitted.",
+            });
+        }
+
+        // Update the order status to "Return Requested" and store the return reason
+        order.status = "Return Requested";
+        order.returnReason = returnReason; // Save the return reason
+        order.updatedOn = new Date();
+        await order.save();
+
+        // Respond with success
+        res.status(200).json({
+            success: true,
+            message: "Return request submitted successfully.",
+        });
+    } catch (error) {
+        console.error("Error submitting return request:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while submitting the return request.",
+        });
+    }
+};
 
 module.exports = {
 
     getOrderDetails,
     cancelOrder,
     downloadInvoice,
+    requestReturn,
 };

@@ -98,6 +98,11 @@ const orderSchema = new Schema({
         enum: ["Unpaid", "Paid", "Refunded"],
         default: "Unpaid",
     },
+    returnReason:{
+
+        type:String,
+        default:null
+    },
     
     createdOn: {
         type: Date,

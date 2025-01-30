@@ -314,6 +314,104 @@
           background-color:   #2a2a2a;
         }
 
+        .cancel-btn, .btn-return {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .cancel-btn:hover, .btn-return:hover {
+            background-color: #ff3333;
+        }
+
+        .custom-confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+        
+        .confirmation-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .confirmation-content h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .confirmation-content p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .confirmation-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .btn-confirm, .btn-dismiss {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-confirm {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-confirm:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-dismiss {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-dismiss:hover {
+            background-color: #545b62;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
     </style>
 
 
@@ -463,7 +561,9 @@
                                                     <button class="cancel-btn" data-order-id="<%= order._id %>">
                                                         Cancel Order
                                                     </button>
-                                                    <% } %>
+                                                    <% }else if(order.status === 'Delivered'){ %>
+                                                        <button class="btn-return" data-order-id="<%=order._id%>">Request Return</button>
+                                                        <%}%>
                 </div>
 
                 <!-- Shipping Address -->
@@ -523,11 +623,13 @@
                         
                     </div>
 
-                    <div class="download-invoice">
-                        <a href="/download-invoice?orderId=<%= order._id %>" class="btn btn-primary">
-                            Download Invoice
-                        </a>
-                    </div>
+                    <% if (order.status === 'Delivered') { %>
+                        <div class="download-invoice">
+                            <a href="/download-invoice?orderId=<%= order._id %>" class="btn btn-primary">
+                                Download Invoice
+                            </a>
+                        </div>
+                    <% } %>
 
                 </div>
             </div>
@@ -540,7 +642,7 @@
     <script>
         function showCustomAlert(message, type = 'success') {
             const alertContainer = document.getElementById('alertContainer');
-        
+    
             // Create alert element
             const alertEl = document.createElement('div');
             alertEl.className = `custom-alert alert-${type}`;
@@ -553,20 +655,20 @@
                     <button class="alert-close">&times;</button>
                 </div>
             `;
-        
+    
             // Add to container
             alertContainer.appendChild(alertEl);
-        
+    
             // Trigger show animation
             setTimeout(() => alertEl.classList.add('show'), 10);
-        
+    
             // Close button functionality
             const closeBtn = alertEl.querySelector('.alert-close');
             closeBtn.addEventListener('click', () => {
                 alertEl.classList.remove('show');
                 setTimeout(() => alertEl.remove(), 300);
             });
-        
+    
             // Auto-dismiss
             setTimeout(() => {
                 if (alertEl.parentNode) {
@@ -575,68 +677,121 @@
                 }
             }, 3000);
         }
+    
+        // Function to create a confirmation modal with return reason
+        function createConfirmationModal(title, message, confirmCallback, includeReason = false) {
+            const confirmationModal = document.createElement('div');
+            confirmationModal.className = 'custom-confirmation-modal';
+            confirmationModal.innerHTML = `
+                <div class="confirmation-content">
+                    <h4>${title}</h4>
+                    <p>${message}</p>
+                    ${includeReason ? `
+                        <div class="form-group">
+                            <label for="returnReason">Reason for Return:</label>
+                            <textarea id="returnReason" rows="3" placeholder="Enter your reason for return"></textarea>
+                        </div>
+                    ` : ''}
+                    <div class="confirmation-actions">
+                        <button class="btn-confirm">Yes</button>
+                        <button class="btn-dismiss">No</button>
+                    </div>
+                </div>
+            `;
+    
+            // Add modal to body
+            document.body.appendChild(confirmationModal);
+    
+            // Add event listeners for buttons
+            const confirmButton = confirmationModal.querySelector('.btn-confirm');
+            const dismissButton = confirmationModal.querySelector('.btn-dismiss');
+    
+            confirmButton.addEventListener('click', async () => {
+                const returnReason = includeReason ? confirmationModal.querySelector('#returnReason').value : null;
+                confirmationModal.remove(); // Remove modal
+                await confirmCallback(returnReason); // Execute the confirmation callback with return reason
+            });
+    
+            dismissButton.addEventListener('click', () => {
+                confirmationModal.remove(); // Remove modal
+            });
+        }
+    
         // Cancel Order Functionality
         document.addEventListener('DOMContentLoaded', () => {
             const cancelBtn = document.querySelector('.cancel-btn');
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', () => {
-                    // Create custom confirmation modal
-                    const confirmationModal = document.createElement('div');
-                    confirmationModal.className = 'custom-confirmation-modal';
-                    confirmationModal.innerHTML = `
-                        <div class="confirmation-content">
-                            <h4>Cancel Order</h4>
-                            <p>Are you sure you want to cancel this order?</p>
-                            <div class="confirmation-actions">
-                                <button class="btn-cancel-confirm">Yes, Cancel Order</button>
-                                <button class="btn-cancel-dismiss">No, Keep Order</button>
-                            </div>
-                        </div>
-                    `;
-        
-                    // Add modal to body
-                    document.body.appendChild(confirmationModal);
-        
-                    // Add event listeners for buttons
-                    const confirmButton = confirmationModal.querySelector('.btn-cancel-confirm');
-                    const dismissButton = confirmationModal.querySelector('.btn-cancel-dismiss');
-        
-                    confirmButton.addEventListener('click', async () => {
-                        const orderId = cancelBtn.dataset.orderId;
-                        try {
-                            const response = await fetch('/cancelOrder', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({ orderId })
-                            });
-        
-                            const data = await response.json();
-        
-                            // Remove confirmation modal
-                            confirmationModal.remove();
-        
-                            if (data.success) {
-                                showCustomAlert('Order cancelled successfully', 'success');
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 2000);
-                            } else {
-                                showCustomAlert(data.message || 'Failed to cancel order', 'error');
+                    createConfirmationModal(
+                        'Cancel Order',
+                        'Are you sure you want to cancel this order?',
+                        async () => {
+                            const orderId = cancelBtn.dataset.orderId;
+                            try {
+                                const response = await fetch('/cancelOrder', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ orderId })
+                                });
+    
+                                const data = await response.json();
+    
+                                if (data.success) {
+                                    showCustomAlert('Order cancelled successfully', 'success');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 2000);
+                                } else {
+                                    showCustomAlert(data.message || 'Failed to cancel order', 'error');
+                                }
+                            } catch (error) {
+                                console.error('Error cancelling order:', error);
+                                showCustomAlert('An error occurred while cancelling the order', 'error');
                             }
-                        } catch (error) {
-                            console.error('Error cancelling order:', error);
-                            showCustomAlert('An error occurred while cancelling the order', 'error');
                         }
-                    });
-        
-                    dismissButton.addEventListener('click', () => {
-                        confirmationModal.remove();
-                    });
+                    );
+                });
+            }
+    
+            // Request Return Functionality
+            const returnBtn = document.querySelector('.btn-return');
+            if (returnBtn) {
+                returnBtn.addEventListener('click', () => {
+                    createConfirmationModal(
+                        'Request Return',
+                        'Are you sure you want to request a return for this order?',
+                        async (returnReason) => {
+                            const orderId = returnBtn.dataset.orderId;
+                            try {
+                                const response = await fetch('/request-return', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ orderId, returnReason }) // Include returnReason in the request body
+                                });
+    
+                                const data = await response.json();
+    
+                                if (data.success) {
+                                    showCustomAlert('Return request submitted successfully', 'success');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 2000);
+                                } else {
+                                    showCustomAlert(data.message || 'Failed to submit return request', 'error');
+                                }
+                            } catch (error) {
+                                console.error('Error submitting return request:', error);
+                                showCustomAlert('An error occurred while submitting the return request', 'error');
+                            }
+                        },
+                        true // Include return reason field
+                    );
                 });
             }
         });
     </script>
-
     <%- include("../../views/partials/user/userFooter") %>
