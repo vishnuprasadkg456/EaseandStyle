@@ -27,7 +27,7 @@ const loadHomePage = async (req, res) => {
             endDate :{$gte:currentDate}
         });
         let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}});
-        productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));//latest arrival to be shown
+        productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));//latest arrival to be shown
         productData = productData.slice(0,4);
 
         console.log("User from session or req.user:", user);
@@ -260,7 +260,7 @@ const logout = async (req,res)=>{
 //sortProduct
 
 const sortProduct = (sortOption) => {
-    let sortCriteria = { createdOn: -1 }; // Default sorting by creation date
+    let sortCriteria = { createdAt: -1 }; // Default sorting by creation date
 
     switch (sortOption) {
         case 'price-low-high':
@@ -454,7 +454,7 @@ const searchProducts = async (req, res) => {
             searchResult.sort((a, b) => b.productName.localeCompare(a.productName));
         } else {
             // Default sorting by creation date (newest first)
-            searchResult.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+            searchResult.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
 
         // Pagination logic
