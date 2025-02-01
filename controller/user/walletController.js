@@ -88,33 +88,61 @@ const refundCodWallet = async (req, res) => {
 }
 
 
-
 const getWalletData = async (req, res) => {
     try {
         const userId = req.session.user.id;
 
-        const user = await User.findById(userId, "wallet history");
+        // Find the user and populate their wallet information
+        const user = await User.findById(userId).populate('wallet');
 
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: "User not found",
+                message: "User not found"
             });
+        }
+
+        // Find or create wallet if it doesn't exist
+        let wallet = await Wallet.findOne({ userId: user._id });
+        if (!wallet) {
+            wallet = new Wallet({
+                userId: user._id,
+                balance: 0,
+                transactions: []
+            });
+            await wallet.save();
+            
+            // Update user with wallet reference
+            user.wallet = wallet._id;
+            await user.save();
         }
 
         res.status(200).json({
             success: true,
-            wallet: user.wallet || 0,
-            history: user.history || [],
+            walletData: {
+                balance: wallet.balance,
+                transactions: wallet.transactions.map(transaction => ({
+                    transactionId: transaction.transactionId,
+                    type: transaction.type,
+                    amount: transaction.amount,
+                    description: transaction.description,
+                    date: transaction.date
+                })),
+                refundStatus: wallet.refundStatus
+            }
         });
+
     } catch (error) {
         console.error("Error fetching wallet data:", error);
         res.status(500).json({
             success: false,
-            message: "Failed to fetch wallet data",
+            message: "Failed to fetch wallet data"
         });
     }
 };
+
+
+
 
 const addMoneyToWallet = async (req, res) => {
     try {

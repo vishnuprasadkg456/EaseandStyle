@@ -477,8 +477,10 @@
                             <thead>
                               <tr>
                                 <th>Date</th>
-                                <th>Status</th>
+                                <th>Type</th>
                                 <th>Amount</th>
+                                <th>Description</th>
+                                <th>Transaction ID</th>
                               </tr>
                             </thead>
                             <tbody id="walletHistoryTable">
@@ -667,48 +669,75 @@
       // Fetch and display wallet balance and history
       async function fetchWalletData() {
         try {
-          const response = await fetch("/wallet", { method: "GET" });
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch wallet data: ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (data.success) {
-            // Update wallet balance
-            walletBalanceEl.textContent = data.wallet;
-
-            // Populate wallet history
-            walletHistoryTable.innerHTML = ""; // Clear previous rows
-            data.history.forEach((transaction) => {
-              const row = document.createElement("tr");
-
-              const dateCell = document.createElement("td");
-              dateCell.textContent = new Date(transaction.date).toLocaleDateString();
-
-              const statusCell = document.createElement("td");
-              statusCell.textContent = transaction.status;
-
-              const amountCell = document.createElement("td");
-              amountCell.textContent = `₹${transaction.amount}`;
-
-              row.appendChild(dateCell);
-              row.appendChild(statusCell);
-              row.appendChild(amountCell);
-
-              walletHistoryTable.appendChild(row);
-            });
-
-           
-          } else {
-            showCustomAlert("Failed to fetch wallet data.", "error");
-          }
+            const response = await fetch("/wallet", { method: "GET" });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to fetch wallet data: ${response.status}`);
+            }
+    
+            const data = await response.json();
+    
+            if (data.success) {
+                // Update wallet balance
+                walletBalanceEl.textContent = `${data.walletData.balance}`;
+    
+                // Populate wallet history
+                walletHistoryTable.innerHTML = ""; // Clear previous rows
+                
+                data.walletData.transactions.forEach((transaction) => {
+                    const row = document.createElement("tr");
+    
+                    // Date cell
+                    const dateCell = document.createElement("td");
+                    dateCell.textContent = new Date(transaction.date).toLocaleDateString();
+    
+                    // Transaction type cell
+                    const typeCell = document.createElement("td");
+                    typeCell.textContent = transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1);
+                    // Add appropriate styling based on transaction type
+                    typeCell.className = transaction.type === "credit" ? "text-success" : "text-danger";
+    
+                    // Amount cell
+                    const amountCell = document.createElement("td");
+                    amountCell.textContent = `₹${transaction.amount}`;
+                    amountCell.className = transaction.type === "credit" ? "text-success" : "text-danger";
+    
+                    // Description cell
+                    const descriptionCell = document.createElement("td");
+                    descriptionCell.textContent = transaction.description || "-";
+    
+                    // Transaction ID cell
+                    const transactionIdCell = document.createElement("td");
+                    transactionIdCell.textContent = transaction.transactionId;
+                    transactionIdCell.className = "text-muted small";
+    
+                    // Append all cells to row
+                    row.appendChild(dateCell);
+                    row.appendChild(typeCell);
+                    row.appendChild(amountCell);
+                    row.appendChild(descriptionCell);
+                    row.appendChild(transactionIdCell);
+    
+                    walletHistoryTable.appendChild(row);
+                });
+    
+                // If you want to show refund status somewhere
+                if (data.walletData.refundStatus !== 'Not Refunded') {
+                    const refundStatusEl = document.getElementById('refundStatus');
+                    if (refundStatusEl) {
+                        refundStatusEl.textContent = data.walletData.refundStatus;
+                        refundStatusEl.className = 'badge badge-info';
+                    }
+                }
+    
+            } else {
+                showCustomAlert("Failed to fetch wallet data.", "error");
+            }
         } catch (error) {
-          console.error("Error fetching wallet data:", error);
-          showCustomAlert("An error occurred while fetching wallet data.", "error");
+            console.error("Error fetching wallet data:", error);
+            showCustomAlert("An error occurred while fetching wallet data.", "error");
         }
-      }
+    }
 
       // Add Money to Wallet
       addMoneyForm.addEventListener("submit", async (e) => {

@@ -336,9 +336,11 @@
                                         <img src="/uploads/re-image/<%=products[i].productImage[0]%>"
                                             alt="<%=products[i].productName%>" class="product-image" />
                                         <div class="product-hover">
-                                            <button class="wishlist-btn">
+                                            <a class="wishlist-btn" 
+                                            href="#" data-id="<%= products[i]._id %>"
+                                                            onclick="addToWishlist(this)">
                                                 <i class="fa-solid fa-heart " style="color: #333;"></i>
-                                            </button>
+                                            </a>
 
                                         </div>
                                     </div>
@@ -489,6 +491,81 @@
                 });
             });
         });
+
+        function addToWishlist(element) {
+            const productId = element.getAttribute('data-id');
+
+            // Prevent default action if any
+            event.preventDefault();
+
+            $.ajax({
+                url: '/addToWishlist',
+                method: 'POST',
+                data: { productId: productId },
+                success: function (response) {
+                    if (response.success) {
+                        // Success alert
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500, // Small popup duration
+                            width: '400px', // Custom width for the popup
+                            customClass: {
+                                popup: 'custom-popup',
+                                title: 'custom-title',
+                                htmlContainer: 'custom-text',
+                                icon: 'custom-icon',
+                            },
+                        }).then(() => {
+                            // Optional: Update the UI without reloading
+                            // E.g., update wishlist count or show the newly added item
+                            updateWishlistUI();
+
+                            // Redirect to wishlist page after successful addition
+                            window.location.href = '/wishlist';
+                        });
+                    } else {
+                        // Error alert styled the same way as success
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500, // Small popup duration
+                            width: '400px', // Custom width for the popup
+                            customClass: {
+                                popup: 'custom-popup',
+                                title: 'custom-title',
+                                htmlContainer: 'custom-text',
+                                icon: 'custom-icon',
+                            },
+                        });
+                    }
+                },
+                error: function (jqXHR) {
+                    const response = jqXHR.responseJSON;
+                    const errorMessage = response?.message || 'An unexpected error occurred';
+
+                    // Error alert styled the same way as success
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!',
+                        text: errorMessage,
+                        showConfirmButton: false,
+                        timer: 1500, // Small popup duration
+                        width: '400px', // Custom width for the popup
+                        customClass: {
+                            popup: 'custom-popup',
+                            title: 'custom-title',
+                            htmlContainer: 'custom-text',
+                            icon: 'custom-icon',
+                        },
+                    });
+                }
+            });
+        }
         
     </script>
 

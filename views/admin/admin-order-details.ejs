@@ -193,7 +193,8 @@
                 padding-bottom: 15px;
                 font-size: 12px;
             }
-            .payment-status{
+
+            .payment-status {
                 background-color: #00000000;
             }
 
@@ -210,7 +211,7 @@
                 align-items: center;
                 z-index: 1100;
             }
-            
+
             .confirmation-content {
                 background-color: white;
                 padding: 30px;
@@ -220,49 +221,50 @@
                 width: 90%;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
-            
+
             .confirmation-content h4 {
                 margin-bottom: 15px;
                 color: #333;
             }
-            
+
             .confirmation-content p {
                 margin-bottom: 20px;
                 color: #666;
             }
-            
+
             .confirmation-actions {
                 display: flex;
                 justify-content: center;
                 gap: 15px;
             }
-            
-            .btn-cancel-confirm, .btn-cancel-dismiss {
+
+            .btn-cancel-confirm,
+            .btn-cancel-dismiss {
                 padding: 10px 20px;
                 border: none;
                 border-radius: 4px;
                 cursor: pointer;
                 transition: background-color 0.3s ease;
             }
-            
+
             .btn-cancel-confirm {
                 background-color: #28a745;
                 color: white;
             }
-            
+
             .btn-cancel-confirm:hover {
                 background-color: #218838;
             }
-            
+
             .btn-cancel-dismiss {
                 background-color: #6c757d;
                 color: white;
             }
-            
+
             .btn-cancel-dismiss:hover {
                 background-color: #545b62;
             }
-            
+
             #alertContainer {
                 position: fixed;
                 top: 20px;
@@ -270,21 +272,21 @@
                 z-index: 1050;
                 max-width: 350px;
             }
-            
+
             .custom-alert {
                 opacity: 0;
                 transform: translateX(100%);
                 transition: all 0.3s ease;
                 margin-bottom: 10px;
                 border-radius: 8px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
-            
+
             .custom-alert.show {
                 opacity: 1;
                 transform: translateX(0);
             }
-            
+
             .custom-alert .alert-content {
                 display: flex;
                 align-items: center;
@@ -292,18 +294,18 @@
                 background-color: #fff;
                 border-left: 5px solid;
             }
-            
+
             .custom-alert .alert-icon {
                 margin-right: 15px;
                 font-weight: bold;
                 font-size: 20px;
             }
-            
+
             .custom-alert .alert-message {
                 flex-grow: 1;
                 font-size: 14px;
             }
-            
+
             .custom-alert .alert-close {
                 background: none;
                 border: none;
@@ -311,15 +313,15 @@
                 cursor: pointer;
                 color: #666;
             }
-            
+
             .custom-alert.alert-success {
                 border-left-color: #28a745;
             }
-            
+
             .custom-alert.alert-error {
                 border-left-color: #dc3545;
             }
-            
+
             .custom-alert.alert-warning {
                 border-left-color: #ffc107;
             }
@@ -330,6 +332,43 @@
                 border-color: #000000;
             }
 
+            .return-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .btn-confirm-return {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                width: 8.rem;
+                height: 30px;
+                padding: 1px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-confirm-return:hover {
+                background-color: #218838;
+            }
+
+            .btn-reject-return {
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                width: 8.rem;
+                height: 30px;
+                padding: 1px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-reject-return:hover {
+                background-color: #c82333;
+            }
         </style>
     </head>
 
@@ -361,28 +400,47 @@
                         <div class="order-info__item">
                             <span>Status</span>
                             <select id="orderStatus" class="order-status">
-                                <% ['Pending', 'Processing' , 'Shipped' ,'Delivered','Cancelled',"Cancelled","Return Requested","Returned" ].forEach(status=> {
-                                    %>
-                                    <option value="<%= status %>" <%=status===order.status ? 'selected' : '' %>><%=
-                                            status %>
+                                <% ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Requested', 'Returned','Return Confirmed'].forEach(status => { %>
+                                    <option value="<%= status %>" <%= status === order.status ? 'selected' : '' %>>
+                                        <%= status %>
                                     </option>
-                                    <% }); %>
+                                <% }); %>
                             </select>
                         </div>
-                        <div class="order-info__item">
-                            <span>Subtotal</span>
-                            <span>₹<%= order.totalPrice %></span>
-                        </div>
-                        <% if (order.discount) { %>
+
+
+                        <!-- Return Request Section -->
+                        <% if (order.status==='Return Requested' ) { %>
                             <div class="order-info__item">
-                                <span>Discount</span>
-                                <span>-₹<%= order.discount %></span>
+                                <span><strong>Return Reason:</strong></span>
+                                <div>
+                                    <p>
+                                        <%= order.returnReason || 'No reason provided' %>
+                                    </p>
+                                    <div class="return-actions">
+                                        <button class="btn-confirm-return" data-order-id="<%= order._id %>">Confirm
+                                            Return</button>
+                                        <button class="btn-reject-return" data-order-id="<%= order._id %>">Reject
+                                            Return</button>
+                                    </div>
+                                </div>
                             </div>
                             <% } %>
+
                                 <div class="order-info__item">
-                                    <span>Final Amount</span>
-                                    <span>₹<%= order.finalAmount %></span>
+                                    <span>Subtotal</span>
+                                    <span>₹<%= order.totalPrice %></span>
                                 </div>
+                                <% if (order.discount) { %>
+                                    <div class="order-info__item">
+                                        <span>Discount</span>
+                                        <span>-₹<%= order.discount %></span>
+                                    </div>
+                                    <% } %>
+                                        <div class="order-info__item">
+                                            <span>Final Amount</span>
+                                            <span>₹<%= order.finalAmount %></span>
+                                        </div>
                     </div>
 
                     <!-- Product Details -->
@@ -414,7 +472,7 @@
 
                                                 <!-- Order Timeline -->
                                                 <div class="tracking-timeline">
-                                                    <% const statuses=['Pending', 'Processing' , 'Shipped' , 'Delivered'
+                                                    <% const statuses=['Pending', 'Processing' , 'Shipped' , 'Delivered','Return Requested','Return Confirmed','Returned'
                                                         ]; %>
                                                         <% statuses.forEach(status=> { %>
                                                             <div
@@ -430,9 +488,12 @@
                                                                 <div class="timeline-description">
                                                                     <%= status==='Pending' ? 'Order placed' :
                                                                         status==='Processing'
-                                                                        ? 'Order is being processed' :
+                                                                        ? 'Order is being processed' :status==='Return Requested'? 'Return request has been initiated':
                                                                         status==='Shipped' ? 'Order has been shipped'
-                                                                        : 'Order has been delivered' %>
+                                                                        : status==='Return Confirmed' ? 'Return confirmed':
+                                                                         status==='Delivered' ? 'Order has been delivered' :
+                                                                          status==="Returned"?'Order Returned':''
+                                                                         %>
                                                                 </div>
                                                             </div>
                                                             <% }); %>
@@ -516,10 +577,10 @@
                                 <span>Payment Status:</span>
                                 <span class="payment-status status-<%= order.payment.paymentStatus.toLowerCase() %>">
                                     <%= order.payment.paymentStatus %>
-                               </span>
+                                </span>
                                 <select id="paymentStatus" class="payment-status">
-                                    
-                                    <% ['Pending', 'Completed' , 'Failed' , 'Refunded' ].forEach(status=> { %>
+
+                                    <% ['Pending', 'Completed' , 'Failed' , 'Refunded','Paid' ].forEach(status=> { %>
                                         <option value="<%= status %>" <%=status===order.payment.paymentStatus
                                             ? 'selected' : '' %>><%= status %>
                                         </option>
@@ -545,7 +606,7 @@
             alertContainer.style.zIndex = '1050';
             alertContainer.style.maxWidth = '350px';
             document.body.appendChild(alertContainer);
-    
+
             const alertEl = document.createElement('div');
             alertEl.className = `custom-alert alert-${type}`;
             alertEl.innerHTML = `
@@ -557,17 +618,17 @@
                     <button class="alert-close">&times;</button>
                 </div>
             `;
-    
+
             alertContainer.appendChild(alertEl);
-    
+
             setTimeout(() => alertEl.classList.add('show'), 10);
-    
+
             const closeBtn = alertEl.querySelector('.alert-close');
             closeBtn.addEventListener('click', () => {
                 alertEl.classList.remove('show');
                 setTimeout(() => alertEl.remove(), 300);
             });
-    
+
             setTimeout(() => {
                 if (alertEl.parentNode) {
                     alertEl.classList.remove('show');
@@ -575,12 +636,12 @@
                 }
             }, 3000);
         }
-    
+
         document.getElementById('updateOrderStatus').addEventListener('click', () => {
             const status = document.getElementById('orderStatus').value;
             const paymentStatus = document.getElementById('paymentStatus').value;
             const orderId = '<%= order._id %>';
-    
+
             // Create custom confirmation modal
             const confirmationModal = document.createElement('div');
             confirmationModal.className = 'custom-confirmation-modal';
@@ -594,14 +655,14 @@
                     </div>
                 </div>
             `;
-    
+
             // Add modal to body
             document.body.appendChild(confirmationModal);
-    
+
             // Add event listeners for buttons
             const confirmButton = confirmationModal.querySelector('.btn-cancel-confirm');
             const dismissButton = confirmationModal.querySelector('.btn-cancel-dismiss');
-    
+
             confirmButton.addEventListener('click', async () => {
                 try {
                     const response = await fetch('/admin/updateOrderStatus', {
@@ -609,14 +670,14 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ orderId, status, paymentStatus })
+                        body: JSON.stringify({ orderId, status, paymentStatus  })
                     });
-    
+
                     const data = await response.json();
-                    
+
                     // Remove confirmation modal
                     confirmationModal.remove();
-    
+
                     if (data.success) {
                         showCustomAlert('Order status updated successfully', 'success');
                         setTimeout(() => {
@@ -630,10 +691,70 @@
                     showCustomAlert('An error occurred while updating the order status', 'error');
                 }
             });
-    
+
             dismissButton.addEventListener('click', () => {
                 confirmationModal.remove();
             });
         });
+
+
+        const confirmReturnBtn = document.querySelector('.btn-confirm-return');
+        if (confirmReturnBtn) {
+            confirmReturnBtn.addEventListener('click', async () => {
+                const orderId = confirmReturnBtn.dataset.orderId;
+                const confirmation = confirm('Are you sure you want to confirm this return?');
+                if (confirmation) {
+                    try {
+                        const response = await fetch('/admin/confirmReturn', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ orderId }),
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showCustomAlert('Return confirmed successfully', 'success');
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            showCustomAlert(data.message || 'Failed to confirm return', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error confirming return:', error);
+                        showCustomAlert('An error occurred while confirming the return', 'error');
+                    }
+                }
+            });
+        }
+
+        // Handle Reject Return Button
+        const rejectReturnBtn = document.querySelector('.btn-reject-return');
+        if (rejectReturnBtn) {
+            rejectReturnBtn.addEventListener('click', async () => {
+                const orderId = rejectReturnBtn.dataset.orderId;
+                const confirmation = confirm('Are you sure you want to reject this return?');
+                if (confirmation) {
+                    try {
+                        const response = await fetch('/admin/rejectReturn', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ orderId }),
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showCustomAlert('Return rejected successfully', 'success');
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            showCustomAlert(data.message || 'Failed to reject return', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error rejecting return:', error);
+                        showCustomAlert('An error occurred while rejecting the return', 'error');
+                    }
+                }
+            });
+        }
     </script>
     <%- include("../../views/partials/admin/footer") %>

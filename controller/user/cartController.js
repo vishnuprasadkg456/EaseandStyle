@@ -51,7 +51,7 @@ const calculateCartTotals = async (cart) => {
 // Get Cart
 const cart = async (req, res) => {
     try {
-        const userId = req.session.user.id;
+        const userId = req.session.user.id||req.session.user._id;
 
         // Find cart and populate product details
         let cart = await Cart.findOne({ userId }).populate({
@@ -109,7 +109,7 @@ const cart = async (req, res) => {
 const addToCart = async (req, res) => {
     try {
         const { productId, quantity } = req.body;
-        const userId = req.session.user.id;
+        const userId = req.session.user.id||req.session.user._id;
         const product = await Product.findById(productId);
 
        
@@ -181,8 +181,7 @@ const addToCart = async (req, res) => {
 const updateCartQuantity = async (req, res) => {
     try {
         const { productId, action } = req.body;
-        const userId = req.session.user.id;
-
+        const userId = req.session.user.id||req.session.user._id;
         const cart = await Cart.findOne({ userId });
         if (!cart) {
             return res.status(404).json({ success: false, message: "Cart not found" });
@@ -238,8 +237,7 @@ const updateCartQuantity = async (req, res) => {
 const removeItemFromCart = async (req, res) => {
     try {
         const { productId } = req.body;
-        const userId = req.session.user.id;
-
+        const userId = req.session.user.id||req.session.user._id;
         const cart = await Cart.findOne({ userId });
         if (!cart) {
             return res.status(404).json({ success: false, message: "Cart not found" });

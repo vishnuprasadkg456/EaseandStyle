@@ -42,8 +42,8 @@ const userSchema = new Schema({
 
     }],
     wallet: {
-        type: Number,
-        default: 0, // Initial wallet balance is 0
+        type: Schema.Types.ObjectId,
+        ref: "Wallet"
     },
     history: [
         {
@@ -118,6 +118,25 @@ const userSchema = new Schema({
        type : Date,
        default : null
     }
+});
+
+// Middleware to create a wallet when a new user is created
+userSchema.pre('save', async function(next) {
+    if (this.isNew && !this.wallet) {
+        try {
+            const Wallet = mongoose.model('Wallet');
+            const wallet = new Wallet({
+                userId: this._id,
+                balance: 0,
+                transactions: []
+            });
+            await wallet.save();
+            this.wallet = wallet._id;
+        } catch (error) {
+            next(error);
+        }
+    }
+    next();
 });
 
 const User = mongoose.model("User", userSchema);

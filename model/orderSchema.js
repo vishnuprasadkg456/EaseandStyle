@@ -89,6 +89,7 @@ const orderSchema = new Schema({
             "Delivered",
             "Cancelled",
             "Return Requested",
+            "Return Confirmed",
             "Returned",
         ],
         default: "Pending",

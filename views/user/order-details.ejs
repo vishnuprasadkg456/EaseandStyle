@@ -522,8 +522,8 @@
                                                         // Add additional statuses dynamically if applicable
                                                         if (order.status === 'Cancelled') {
                                                             statuses.push('Cancelled');
-                                                        } else if (['Return Requested', 'Returned'].includes(order.status)) {
-                                                            statuses.push('Return Requested', 'Returned');
+                                                        } else if (['Return Confirmed','Return Requested', 'Returned'].includes(order.status)) {
+                                                            statuses.push('Return Requested','Return Confirmed', 'Returned');
                                                         }
                                                     %>
                                                     
@@ -545,6 +545,8 @@
                                                                     Order has been cancelled
                                                                 <% } else if (status === 'Return Requested') { %>
                                                                     Return request has been initiated
+                                                                <% } else if (status === 'Return Confirmed') { %>
+                                                                        Return confirmed
                                                                 <% } else if (status === 'Returned') { %>
                                                                     Order has been returned
                                                                 <% } else { %>

@@ -292,6 +292,7 @@
                         <div class="checkout__input__checkbox">
                             <label for="payment">
                                 Cash on Delivery
+                                <input type="hidden" id="finalAmount" value="<%= cart.finalPrice %>">
                                 <input type="checkbox" id="payment" name="paymentMethod" value="COD">
                                 <span class="checkmark"></span>
                             </label>
@@ -733,32 +734,21 @@
               const codCheckbox = $('#payment');
               const onlineCheckbox = $('#online');
               const placeOrderBtn = $('#placeOrderBtn');
+
+              const finalAmount = parseFloat($('#finalAmount').val()); // Get final price from hidden input
+
+              // Disable COD checkbox if finalPrice > 1000
+              if (finalAmount > 1000) {
+                  codCheckbox.prop('disabled', true);
+                  codCheckbox.parent().css('opacity', '0.5'); // Optional: Reduce opacity to indicate it's disabled
+                  showAlert('Cash on Delivery is not available for orders above ₹1000.', 'warning');
+              }
+          
   
               // Initially disable the place order button
               placeOrderBtn.prop('disabled', false); // Changed to false to allow clicking without selection
   
-              // Ensure only one payment method can be selected
-              // codCheckbox.change(function () {
-              //     if (this.checked) {
-              //         onlineCheckbox.prop('checked', false);
-              //     }
-              // });
-  
-              // onlineCheckbox.change(function () {
-              //   if (this.checked) {
-              //     codCheckbox.prop('checked', false);
-              //   showAlert('Only Cash on Delivery is available at the moment.', 'warning');
-              //}
-              //});
-  
-  
-  
-  
-              //if (!codCheckbox.is(':checked')) {
-              //    showAlert('Please select Cash on Delivery payment method!', 'warning');
-              //    return false;
-              // }
-  
+             
   
               $('#placeOrderBtn').click(function (e) {
                   e.preventDefault();
