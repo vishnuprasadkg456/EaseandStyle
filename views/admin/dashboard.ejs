@@ -1,6 +1,6 @@
 <%- include("../../views/partials/admin/header") %>
 
-   
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -110,8 +110,6 @@
             text-align: center;
             padding: 20px;
         }
-
-       
     </style>
 
     <section class="content-main">
@@ -198,7 +196,7 @@
                                 <th>No. of Orders</th>
                                 <th>Total Sales</th>
                                 <th>Discounts</th>
-                               
+
                                 <th>Net Sales</th>
                                 <th>Total Items Sold</th>
                             </tr>
@@ -209,6 +207,66 @@
                     </table>
                 </div>
 
+
+                <!-- Add this after the report table section -->
+                <div class="row mt-4">
+                    <!-- Top Products -->
+                    <div class="col-md-4">
+                        <div class="report-table">
+                            <h5 class="mb-3">Best Selling Products</h5>
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Units Sold</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProductsBody">
+                                    <!-- Data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Categories -->
+                    <div class="col-md-4">
+                        <div class="report-table">
+                            <h5 class="mb-3">Best Selling Categories</h5>
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Units Sold</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topCategoriesBody">
+                                    <!-- Data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Brands -->
+                    <div class="col-md-4">
+                        <div class="report-table">
+                            <h5 class="mb-3">Best Selling Brands</h5>
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Brand</th>
+                                        <th>Units Sold</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topBrandsBody">
+                                    <!-- Data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 <!-- Download Buttons -->
                 <div class="text-center mt-3">
                     <button class="download-btn" id="downloadPDF">
@@ -252,6 +310,39 @@
             document.getElementById('totalDiscount').textContent = `₹${data.overall.totalDiscount.toFixed(2)}`;
             document.getElementById('activeCoupons').textContent = data.coupons.active;
             document.getElementById('inactiveCoupons').textContent = data.coupons.inactive;
+
+
+            // Update top products
+            const topProductsBody = document.getElementById('topProductsBody');
+            topProductsBody.innerHTML = data.topProducts.map(product => `
+        <tr>
+            <td>${product.name}</td>
+            <td>${product.quantity.toLocaleString()}</td>
+            <td>₹${product.revenue.toFixed(2)}</td>
+        </tr>
+    `).join('');
+
+            // Update top categories
+            const topCategoriesBody = document.getElementById('topCategoriesBody');
+            topCategoriesBody.innerHTML = data.topCategories.map(category => `
+        <tr>
+            <td>${category.name}</td>
+            <td>${category.quantity.toLocaleString()}</td>
+            <td>₹${category.revenue.toFixed(2)}</td>
+        </tr>
+    `).join('');
+
+            // Update top brands
+            const topBrandsBody = document.getElementById('topBrandsBody');
+            topBrandsBody.innerHTML = data.topBrands.map(brand => `
+        <tr>
+            <td>${brand.name}</td>
+            <td>${brand.quantity.toLocaleString()}</td>
+            <td>₹${brand.revenue.toFixed(2)}</td>
+        </tr>
+    `).join('');
+
+
         };
 
         // Modified updateReportTable function
@@ -319,6 +410,8 @@
                     document.getElementById('loadingSpinner').style.display = 'none';
                 }
             });
+
+
 
             // Download handlers
             document.getElementById('downloadPDF').addEventListener('click', () => {

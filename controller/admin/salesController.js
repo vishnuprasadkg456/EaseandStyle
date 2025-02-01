@@ -63,27 +63,160 @@ const getSalesPage = async (req,res)=>{
             Coupon.countDocuments({ isListed: false })
         ]);
 
-        res.json({
-            overall: {
-                totalSales: overall[0]?.totalSales || 0,
-                totalOrders: overall[0]?.totalOrders || 0,
-                totalDiscount: overall[0]?.totalDiscount || 0
+       // Add new aggregations for top products, categories, and brands
+       const [topProducts, topCategories, topBrands] = await Promise.all([
+        // Top Products
+        Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    paymentStatus: 'Paid'
+                }
             },
-            today: {
-                reports: todayReport.map(report => ({
-                    date: report._id,
-                    orderCount: report.orderCount,
-                    totalSales: report.totalSales,
-                    totalDiscount: report.totalDiscount,
-                    totalItems: report.totalItems
-                }))
+            { $unwind: '$orderedItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
             },
-            coupons: {
-                active: activeCoupons,
-                inactive: inactiveCoupons
-            }
-        });
+            { $unwind: '$productDetails' },
+            {
+                $group: {
+                    _id: {
+                        productId: '$orderedItems.product',
+                        productName: '$productDetails.productName'
+                    },
+                    totalQuantity: { $sum: '$orderedItems.quantity' },
+                    totalRevenue: { 
+                        $sum: { 
+                            $multiply: ['$orderedItems.quantity', '$orderedItems.price'] 
+                        }
+                    }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 }
+        ]),
 
+        // Top Categories
+        Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    paymentStatus: 'Paid'
+                }
+            },
+            { $unwind: '$orderedItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'productDetails.category',
+                    foreignField: '_id',
+                    as: 'categoryDetails'
+                }
+            },
+            { $unwind: '$categoryDetails' },
+            {
+                $group: {
+                    _id: {
+                        categoryId: '$productDetails.category',
+                        categoryName: '$categoryDetails.name' // Assuming your category schema has a 'name' field
+                    },
+                    totalQuantity: { $sum: '$orderedItems.quantity' },
+                    totalRevenue: { 
+                        $sum: { 
+                            $multiply: ['$orderedItems.quantity', '$orderedItems.price'] 
+                        }
+                    }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 }
+        ]),
+
+        // Top Brands
+        Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    paymentStatus: 'Paid'
+                }
+            },
+            { $unwind: '$orderedItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' },
+            {
+                $group: {
+                    _id: '$productDetails.brand',
+                    totalQuantity: { $sum: '$orderedItems.quantity' },
+                    totalRevenue: { 
+                        $sum: { 
+                            $multiply: ['$orderedItems.quantity', '$orderedItems.price'] 
+                        }
+                    }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 }
+        ])
+    ]);
+
+    res.json({
+        overall: {
+            totalSales: overall[0]?.totalSales || 0,
+            totalOrders: overall[0]?.totalOrders || 0,
+            totalDiscount: overall[0]?.totalDiscount || 0
+        },
+        today: {
+            reports: todayReport.map(report => ({
+                date: report._id,
+                orderCount: report.orderCount,
+                totalSales: report.totalSales,
+                totalDiscount: report.totalDiscount,
+                totalItems: report.totalItems
+            }))
+        },
+        coupons: {
+            active: activeCoupons,
+            inactive: inactiveCoupons
+        },
+        topProducts: topProducts.map(product => ({
+            name: product._id.productName,
+            quantity: product.totalQuantity,
+            revenue: product.totalRevenue
+        })),
+        topCategories: topCategories.map(category => ({
+            name: category._id.categoryName || 'Unknown Category',
+            quantity: category.totalQuantity,
+            revenue: category.totalRevenue
+        })),
+        topBrands: topBrands.map(brand => ({
+            name: brand._id || 'Unknown Brand',
+            quantity: brand.totalQuantity,
+            revenue: brand.totalRevenue
+        }))
+    });
+
+    
     }catch(error){
 
         console.error('Error fetching initial sales data:', error);
