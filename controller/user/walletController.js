@@ -7,12 +7,11 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const env = require("dotenv").config();
 
+const DELIVERY_CHARGE =40;
 
-const refundCodWallet = async (req, res) => {
 
-
+const refundToWallet = async (req, res) => {
     try {
-
         const { orderId } = req.body;
         const userId = req.user._id;
 
@@ -27,11 +26,11 @@ const refundCodWallet = async (req, res) => {
             });
         }
 
-        // Validate refund conditions
-        if (order.status !== 'Cancelled' || order.payment.paymentMethod !== 'COD') {
+        // Updated validation to check for either Cancelled or Returned status
+        if (!['Cancelled', 'Returned'].includes(order.status)) {
             return res.status(400).json({
                 success: false,
-                message: 'Only cancelled COD orders can be refunded'
+                message: 'Only cancelled or returned orders can be refunded'
             });
         }
 
@@ -43,49 +42,47 @@ const refundCodWallet = async (req, res) => {
             });
         }
 
-        // Find or create wallet
-        let wallet = await Wallet.findOne({ userId });
+        // Find or create wallet using findOneAndUpdate with upsert
+        const wallet = await Wallet.findOneAndUpdate(
+            { userId },
+            {
+                $inc: { balance: order.finalAmount - DELIVERY_CHARGE },
+                $push: {
+                    transactions: {
+                        type: 'credit',
+                        amount: order.finalAmount - DELIVERY_CHARGE,
+                        description: `Refund for ${order.status.toLowerCase()} order #${order.orderId}`
+                    }
+                }
+            },
+            {
+                new: true,
+                upsert: true,
+                setDefaultsOnInsert: true
+            }
+        );
 
-        if (!wallet) {
-            wallet = new Wallet({
-                userId,
-                balance: 0,
-                transactions: []
-            });
-        }
-
-        // Add refund transaction
-        wallet.transactions.push({
-            type: 'credit',
-            amount: order.finalAmount,
-            description: `Refund for cancelled COD order #${order.orderId}`
+        // Update order refund status
+        await Order.findByIdAndUpdate(orderId, {
+            refundStatus: 'Refunded to Wallet'
         });
-
-        // Save wallet and update order
-        await Promise.all([
-            wallet.save(),
-            Order.findByIdAndUpdate(orderId, {
-                refundStatus: 'Refunded to Wallet'
-            })
-        ]);
 
         res.json({
             success: true,
             message: 'Order amount refunded to wallet',
-            refundedAmount: order.finalAmount
+            refundedAmount: order.finalAmount - DELIVERY_CHARGE,
+            currentBalance: wallet.balance
         });
 
-
     } catch (error) {
-
         console.error('Wallet refund error:', error);
         res.status(500).json({
             success: false,
             message: 'Error processing refund'
         });
     }
+};
 
-}
 
 
 const getWalletData = async (req, res) => {
@@ -202,7 +199,7 @@ const addMoneyToWallet = async (req, res) => {
 
 
 module.exports = {
-    refundCodWallet,
+    refundToWallet,
     getWalletData,
     addMoneyToWallet
 

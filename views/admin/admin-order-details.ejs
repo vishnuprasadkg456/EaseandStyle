@@ -580,7 +580,7 @@
                                 </span>
                                 <select id="paymentStatus" class="payment-status">
 
-                                    <% ['Pending', 'Completed' , 'Failed' , 'Refunded','Paid' ].forEach(status=> { %>
+                                    <% ["Unpaid", "Paid", "Refunded","Pending"].forEach(status=> { %>
                                         <option value="<%= status %>" <%=status===order.payment.paymentStatus
                                             ? 'selected' : '' %>><%= status %>
                                         </option>

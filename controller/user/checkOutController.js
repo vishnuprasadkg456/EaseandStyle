@@ -22,6 +22,7 @@ const razorpay = new Razorpay({
 });
 
 
+const DELIVERY_CHARGE = 40;
 
 const getCheckOut = async(req,res)=>{
     try {
@@ -62,7 +63,7 @@ const getCheckOut = async(req,res)=>{
             subtotal += item.productId.salePrice * item.quantity;
         });
 
-        const total = subtotal - discount;
+        const total = subtotal - discount + DELIVERY_CHARGE;
         
         const productName = cart.items.map(item => item.productId.productName);
 
@@ -71,6 +72,7 @@ const getCheckOut = async(req,res)=>{
             cart,
             subtotal,
             discount,
+            deliveryCharge:DELIVERY_CHARGE,
             total,
             savedAddresses,
             defaultAddress,
@@ -212,7 +214,7 @@ const placeOrder = async (req, res) => {
 
         const discount = cart.discount || 0;
         const couponDiscount = cart.couponDiscount;
-        const finalAmount = cart.finalPrice;
+        const finalAmount = cart.finalPrice + DELIVERY_CHARGE;
 
         // Verify Razorpay payment if payment method is Razorpay
         let paymentStatus = "Unpaid";
@@ -258,6 +260,7 @@ const placeOrder = async (req, res) => {
             totalPrice: subtotal,
             discount,
             couponDiscount,
+            deliveryCharge: DELIVERY_CHARGE,
             finalAmount,
             addressRef: selectedAddress._id,
             address: {

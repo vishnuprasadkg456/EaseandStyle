@@ -96,7 +96,7 @@ const orderSchema = new Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ["Unpaid", "Paid", "Refunded"],
+        enum: ["Unpaid", "Paid", "Refunded","Pending"],
         default: "Unpaid",
     },
     returnReason:{

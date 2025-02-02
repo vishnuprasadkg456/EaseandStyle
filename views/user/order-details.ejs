@@ -425,7 +425,7 @@
                         <h4>Order Details</h4>
                         <div class="breadcrumb__links">
                             <a href="/">Home</a>
-                            <a href="/profile">My Orders</a>
+                            <a href="/userProfile"> Profile</a>
                             <span>Order Details</span>
                         </div>
                     </div>
@@ -571,6 +571,20 @@
                 <!-- Shipping Address -->
                 <div class="col-lg-4">
                     <div class="cart__total">
+
+
+                         <!-- Add new customer details section -->
+                     <h6>Customer Details</h6>
+                     <br>
+                     <div class="customer-details">
+                     <p><strong>Name:</strong> <%= order.userId.name %></p>
+                     <p><strong>Email:</strong> <%= order.userId.email %></p>
+                     <p><strong>Phone:</strong> <%= order.userId.phoneNumber %></p>
+                     </div>
+
+                    <hr class="my-4">
+        
+
                         <h6>Shipping Address</h6>
                         <br>
                         <div class="shipping-address">
@@ -598,6 +612,7 @@
                                     <% } %>
                         </div>
 
+                        <hr class="my-4">
                         <!--payment details  -->
                         <div class="payment-info mt-4">
                             <h6>Payment Details</h6>

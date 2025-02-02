@@ -3,6 +3,8 @@ const Address = require("../../model/addressSchema");
 const mongoose = require("mongoose");
 const Payment = require("../../model/paymentSchema");
 const PDFDocument = require("pdfkit");
+const User = require("../../model/userSchema");
+const Wallet = require("../../model/walletSchema");
 const path = require("path");
 
 
@@ -21,6 +23,7 @@ const getOrderDetails = async (req, res) => {
 
         const order = await Order.findOne({ _id: orderId, userId })
             .populate('payment')
+            .populate('userId')
             .populate({
                 path: 'orderedItems.product',
                 select: 'productName productImage salePrice',
@@ -28,7 +31,7 @@ const getOrderDetails = async (req, res) => {
             .exec();
 
 
-        console.log("order details : ", order);
+        // console.log("order details : ", order);
 
         if (!order) {
             console.error("Order not found");
@@ -68,7 +71,7 @@ const cancelOrder = async (req, res) => {
         }
 
         // Fetch the order by ID
-        const order = await Order.findById(orderId).populate("payment"); // Populate payment if it's a reference
+        const order = await Order.findById(orderId).populate("payment");
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -97,37 +100,76 @@ const cancelOrder = async (req, res) => {
         order.status = "Cancelled";
         order.updatedOn = new Date();
 
-        // Refund the payment if applicable
-        if (order.payment) {
-            const payment = await Payment.findById(order.payment);
-
-            if (payment) {
-                const refundAmount = payment.amount; // Refund amount
-
-                // Check if the payment hasn't been refunded already
-                if (payment.paymentStatus !== "Refunded") {
-                    // Update the payment status
-                    payment.paymentStatus = "Refunded";
-                    await payment.save();
-
-                    // Refund the amount to the user's wallet
-                    await User.updateOne(
-                        { _id: userId },
-                        {
-                            $inc: { wallet: refundAmount }, // Increment the wallet balance
-                            $push: {
-                                history: {
-                                    amount: refundAmount,
-                                    status: "Refund",
-                                    date: new Date(),
-                                    orderId: order._id, // Link to the canceled order
-                                },
-                            },
-                        }
-                    );
+         let wallet = await Wallet.findOne({ userId: order.userId._id });
+                if (!wallet) {
+                    wallet = new Wallet({
+                        userId: order.userId._id,
+                        balance: 0,
+                        transactions: []
+                    });
                 }
+
+        // Handle refund if status is being changed to "Returned" or "Return Confirmed"
+        if ((order.status==="Cancelled") && 
+            order.payment.paymentStatus === "Paid") {  // Check order's payment status
+            
+            // Check if a refund transaction already exists for this order
+            const refundExists = wallet.transactions.some(
+                t => t.description.includes(order.orderId) && t.type === "credit"
+            );
+
+            if (!refundExists) {
+                // Create new wallet transaction
+                const transaction = {
+                    transactionId: new mongoose.Types.ObjectId(),
+                    type: "credit",
+                    amount: order.finalAmount,
+                    description: `Refund for order ${order.orderId}`,
+                    date: new Date()
+                };
+
+                // Update wallet using findOneAndUpdate to ensure atomic operation
+                wallet = await Wallet.findOneAndUpdate(
+                    { userId: order.userId._id },
+                    {
+                        $inc: { balance: order.finalAmount },
+                        $push: {
+                            transactions: transaction
+                        }
+                    },
+                    { new: true, upsert: true }
+                );
+    
+
+                await User.findByIdAndUpdate(
+                    order.userId._id,
+                    {
+                        $push: {
+                            history: {
+                                amount: order.finalAmount,
+                                status: "refund",
+                                date: new Date(),
+                                orderId: order.orderId
+                            }
+                        }
+                    }
+                );
+
+
+               
+
+                
             }
         }
+
+        if (order.payment&&order.paymentStatus==="Paid") {
+            const payment = await Payment.findById(order.payment);
+       
+        payment.paymentStatus = "Refunded";
+        await payment.save();
+       console.log("payment.paymentStatus", payment.paymentStatus);
+    }
+
 
         // Save the updated order
         await order.save();

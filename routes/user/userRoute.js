@@ -109,7 +109,7 @@ router.post("/create-razorpay-order", userAuth, checkOutController.createRazorpa
 
 //refund for cod wallet management
 router.get('/wallet',userAuth,walletController. getWalletData);
-router.post('/refund-cod-order',userAuth,walletController.refundCodWallet);
+router.post('/refund-cod-order',userAuth,walletController.refundToWallet);
 router.post('/addMoney',userAuth,walletController.addMoneyToWallet);
 
 
