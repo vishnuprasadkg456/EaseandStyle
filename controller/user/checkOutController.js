@@ -65,6 +65,7 @@ const getCheckOut = async(req,res)=>{
 
         const total = subtotal - discount+cart.deliveryCharge;
         
+        
         const productName = cart.items.map(item => item.productId.productName);
 
         res.render('check-out',{
@@ -214,7 +215,7 @@ const placeOrder = async (req, res) => {
 
         const discount = cart.discount || 0;
         const couponDiscount = cart.couponDiscount;
-        const finalAmount = cart.finalPrice ;
+        const finalAmount = cart.finalPrice  ;
 
         // Verify Razorpay payment if payment method is Razorpay
         let paymentStatus = "Unpaid";
@@ -350,12 +351,7 @@ const createRazorpayOrder = async (req, res) => {
             return res.status(400).json({ message: "Cart is empty. Add items to proceed." });
         }
 
-        // Calculate total amount in paise (Razorpay requires amount in paise)
-        const subtotal = cart.items.reduce((sum, item) => {
-            return sum + item.productId.salePrice * item.quantity;
-        }, 0);
-        const discount = cart.discount || 0;
-        const finalAmount = (subtotal - discount) * 100; // Convert to paise
+        const finalAmount = Math.round(cart.finalPrice * 100);
 
         // Create Razorpay order
         const options = {

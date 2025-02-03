@@ -272,7 +272,10 @@ function getDateRangeQuery(reportType, startDate, endDate) {
             throw new Error('Invalid report type');
     }
 
-    return { queryConditions, dateFormat };
+    return { 
+        queryConditions, 
+        dateFormat: reportType === 'custom' ? 'YYYY-MM-DD' : dateFormat 
+    };
 }
 
 const validateReportRequest = (req, res, next) => {
@@ -423,8 +426,28 @@ const downloadSalesReportPDF = async (req, res) => {
         let currentY = doc.y + 20;
 
         // Report Details
+        let dateRangeText = '';
+        switch (reportType) {
+            case 'daily':
+                dateRangeText = `Today: ${moment().format('MMMM D, YYYY')}`;
+                break;
+            case 'weekly':
+                dateRangeText = `Week of: ${moment().startOf('week').format('MMMM D')} - ${moment().endOf('week').format('MMMM D, YYYY')}`;
+                break;
+            case 'monthly':
+                dateRangeText = `Month of: ${moment().format('MMMM YYYY')}`;
+                break;
+            case 'yearly':
+                dateRangeText = `Year: ${moment().format('YYYY')}`;
+                break;
+            case 'custom':
+                dateRangeText = `${moment(startDate).format('MMMM D, YYYY')} - ${moment(endDate).format('MMMM D, YYYY')}`;
+                break;
+        }
+
+        // Report Details
         doc.fontSize(12)
-           .text(`Report Type: ${reportType.toUpperCase()}`, 50, currentY)
+           .text(`Report Type: ${dateRangeText}`, 50, currentY)
            .text(`Generated On: ${moment().format('YYYY-MM-DD HH:mm:ss')}`, 50, currentY + 20);
         
         currentY = doc.y + 30;

@@ -115,6 +115,11 @@ const orderSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    deliveryCharge: {
+        type: Number,
+        default: 40,
+      },
+      
     deliveryDate: {
         type: Date,
         default: function () {

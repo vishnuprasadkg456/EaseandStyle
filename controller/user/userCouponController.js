@@ -71,11 +71,13 @@ const applyCoupon = async (req, res) => {
         const couponDiscount = Math.min(coupon.offerPrice, cart.finalPrice);
         const finalPrice = Math.max(cart.finalPrice - couponDiscount, 0);
 
+       
         // Store the applied coupon in the cart
         cart.appliedCoupon = couponId;
         cart.couponDiscount = Number(couponDiscount.toFixed(2));
         cart.finalPrice = Number(finalPrice.toFixed(2));
-
+        cart.finalPrice += cart.deliveryCharge;
+        console.log("final price after coupon applied :",cart.finalPrice);
         await cart.save();
 
         res.status(200).json({

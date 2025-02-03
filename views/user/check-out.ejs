@@ -239,7 +239,7 @@
                                 <li>Discount <span>-₹<%= discount %></span></li>
                                 <% } %>
                                 <li>Delivery Charge <span>₹<%=cart.deliveryCharge%></span></li>
-                                    <li>Total <span>₹<%=cart.finalPrice%></span></li>
+                                    <li>Total <span>₹<%=total%></span></li>
                         </ul>
 
 
@@ -459,6 +459,7 @@
                     <li>Subtotal <span>₹${subtotal.toFixed(2)}</span></li>
                     <li>Product Discount <span>-₹${productDiscount.toFixed(2)}</span></li>
                     <li>Coupon Discount <span>-₹${couponDiscount.toFixed(2)}</span></li>
+                    <li>Delivery Charge <span>₹<%=cart.deliveryCharge%></span></li>
                     <li>Total <span>₹${finalPrice.toFixed(2)}</span></li>
                 `;
             }

@@ -439,7 +439,7 @@
                                     <% } %>
                                     <div class="order-info__item">
                                         <span>Delivery Charge</span>
-                                        <span>₹<%= order.finalAmount-order.totalPrice%></span>
+                                        <span>₹<%= order.deliveryCharge%></span>
                                     </div>
                                         <div class="order-info__item">
                                             <span>Final Amount</span>
@@ -679,14 +679,12 @@
 
                     const data = await response.json();
 
-                    // Remove confirmation modal
+                   
                     confirmationModal.remove();
 
                     if (data.success) {
                         showCustomAlert('Order status updated successfully', 'success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 2000);
+                        setTimeout(() => location.reload(), 2000);
                     } else {
                         showCustomAlert(data.message || 'Failed to update order status', 'error');
                     }
