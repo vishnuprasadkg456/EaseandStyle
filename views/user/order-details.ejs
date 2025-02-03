@@ -478,6 +478,10 @@
                                         <span>-₹<%= order.couponDiscount %></span>
                                     </div>
                                     <% } %>
+                                    <div class="order-info__item">
+                                        <span>Delivery Charge</span>
+                                        <span>₹<%= order.finalAmount-order.totalPrice%></span>
+                                    </div>
                                         <div class="order-info__item">
                                             <span>Final Amount</span>
                                             <span>₹<%= order.finalAmount %></span>

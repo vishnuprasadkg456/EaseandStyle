@@ -7,7 +7,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const env = require("dotenv").config();
 
-const DELIVERY_CHARGE =40;
+
 
 
 const refundToWallet = async (req, res) => {
@@ -46,11 +46,11 @@ const refundToWallet = async (req, res) => {
         const wallet = await Wallet.findOneAndUpdate(
             { userId },
             {
-                $inc: { balance: order.finalAmount - DELIVERY_CHARGE },
+                $inc: { balance: order.finalAmount  },
                 $push: {
                     transactions: {
                         type: 'credit',
-                        amount: order.finalAmount - DELIVERY_CHARGE,
+                        amount: order.finalAmount ,
                         description: `Refund for ${order.status.toLowerCase()} order #${order.orderId}`
                     }
                 }
@@ -70,7 +70,7 @@ const refundToWallet = async (req, res) => {
         res.json({
             success: true,
             message: 'Order amount refunded to wallet',
-            refundedAmount: order.finalAmount - DELIVERY_CHARGE,
+            refundedAmount: order.finalAmount ,
             currentBalance: wallet.balance
         });
 

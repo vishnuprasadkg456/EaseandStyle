@@ -39,7 +39,7 @@ const calculateCartTotals = async (cart) => {
         cart.discount = productOffer;
     }
 
-    cart.finalPrice = cart.totalPrice - (cart.discount || 0);
+    cart.finalPrice = cart.totalPrice - (cart.discount || 0)+cart.deliveryCharge;
 };
 
 

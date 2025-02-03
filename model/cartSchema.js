@@ -67,6 +67,10 @@ const cartSchema = new Schema(
             type: Number,
             default: 0,
         },
+        deliveryCharge:{
+            type:Number,
+            default:40,
+        }
     },
     { timestamps: true }
 );

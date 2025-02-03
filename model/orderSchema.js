@@ -90,6 +90,7 @@ const orderSchema = new Schema({
             "Cancelled",
             "Return Requested",
             "Return Confirmed",
+            "Return Rejected",
             "Returned",
         ],
         default: "Pending",
@@ -126,6 +127,7 @@ const orderSchema = new Schema({
             message: "Delivery date must be after the order creation date.",
         },
     },
+   
 });
 
 const Order = mongoose.model("Order", orderSchema);
