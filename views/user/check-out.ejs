@@ -783,6 +783,7 @@
                                       order_id: response.orderId,
                                       handler: function (paymentResponse) {
                                         console.log('Payment Response:', paymentResponse);
+                                        
                                           // Place order after successful payment
                                           $.ajax({
                                               url: '/place-order',
@@ -793,7 +794,8 @@
                                                   paymentMethod: 'razorpay',
                                                   razorpayPaymentId: paymentResponse.razorpay_payment_id,
                                                   razorpayOrderId: paymentResponse.razorpay_order_id,
-                                                  razorpaySignature: paymentResponse.razorpay_signature
+                                                  razorpaySignature: paymentResponse.razorpay_signature,
+                                                  paymentData:paymentResponse
                                               }),
                                               success: function (response) {
                                                   if (response.orderId) {

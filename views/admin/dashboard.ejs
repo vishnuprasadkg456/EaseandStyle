@@ -110,6 +110,17 @@
             text-align: center;
             padding: 20px;
         }
+
+        .report-table canvas {
+            height: 400px !important;
+            width: 100% !important;
+        }
+
+        @media (max-width: 768px) {
+            .report-table canvas {
+                min-height: 300px;
+            }
+        }
     </style>
 
     <section class="content-main">
@@ -180,12 +191,23 @@
                     </div>
                 </div>
 
+                <!-- Chart Section -->
+                <div class="report-table mb-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mb-3">Sales Trend</h5>
+                            <canvas id="salesChart" style="width: 100%; height: 400px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Loading Spinner -->
                 <div id="loadingSpinner" class="loading-spinner">
                     <div class="spinner-border text-primary" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
+
 
                 <!-- Report Table -->
                 <div class="report-table">
@@ -281,13 +303,147 @@
     </section>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="dashboard.js"></script>
 
     <script>
-        // First, create a new function to load initial data when page loads
+
+        // Initialize chart variable
+        let salesChart;
+
+        // Function to initialize chart
+        function initializeChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Total Sales',
+                            backgroundColor: 'rgba(11, 11, 11, 0.9)',
+                            borderColor: '#3f3f40',
+                            borderWidth: 1,
+                            data: []
+                        },
+                        {
+                            label: 'Net Sales',
+                            backgroundColor: 'rgba(154, 23, 23, 1)',
+                            borderColor: '#700009',
+                            borderWidth: 1,
+                            data: []
+                        },
+                        {
+                            label: 'Discounts',
+                            backgroundColor: 'rgba(255, 198, 88, 0.7)',
+                            borderColor: '#ffc658',
+                            borderWidth: 1,
+                            data: []
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    let value = context.parsed.y;
+
+                                    if (value !== null) {
+                                        value = value.toFixed(2);
+                                        label += ': ₹' + parseFloat(value).toLocaleString('en-IN', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        });
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return '₹' + value.toLocaleString('en-IN', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+                            },
+                            grid: {
+                                borderDash: [2, 4]
+                            }
+                        }
+                    },
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.9
+                }
+            });
+        }
+
+        // Function to update chart data
+        function updateChart(data) {
+            if (!salesChart) {
+                initializeChart();
+            }
+
+            const labels = [];
+            const totalSales = [];
+            const netSales = [];
+            const discounts = [];
+
+            if (Array.isArray(data.reports)) {
+                data.reports.forEach(report => {
+                    labels.push(report.date);
+
+                    // Ensure all values are properly parsed as numbers
+                    const totalSaleValue = parseFloat((report.totalSales + report.totalDiscount).toFixed(2));
+                    const netSaleValue = parseFloat(report.totalSales.toFixed(2));
+                    const discountValue = parseFloat(report.totalDiscount.toFixed(2));
+
+                    totalSales.push(totalSaleValue);
+                    netSales.push(netSaleValue);
+                    discounts.push(discountValue); // Now pushing just the number value
+                });
+            }
+
+            salesChart.data.labels = labels;
+            salesChart.data.datasets[0].data = totalSales;
+            salesChart.data.datasets[1].data = netSales;
+            salesChart.data.datasets[2].data = discounts;
+
+            salesChart.update();
+        }
+
+
+        // Modified loadInitialData function
         const loadInitialData = async () => {
             try {
                 const response = await fetch('/admin/initial-sales-data');
@@ -297,6 +453,7 @@
                 const data = await response.json();
                 updateDashboardData(data);
                 updateReportTable(data.today);
+                updateChart(data.today); // Add chart update
             } catch (error) {
                 console.error('Error loading initial data:', error);
                 alert('Failed to load dashboard data');
@@ -356,9 +513,9 @@
                 <tr>
                     <td>${report.date}</td>
                     <td>${report.orderCount}</td>
-                    <td>₹${report.totalSales.toFixed(2)}</td>
+                    <td>₹${(report.totalSales + report.totalDiscount).toFixed(2)}</td>
                     <td>₹${report.totalDiscount.toFixed(2)}</td>
-                    <td>₹${(report.totalSales - report.totalDiscount).toFixed(2)}</td>
+                    <td>₹${(report.totalSales).toFixed(2)}</td>
                     <td>${report.totalItems}</td>
                 </tr>
             `;
@@ -380,13 +537,12 @@
                 customEndDateRange.style.display = isCustom ? 'block' : 'none';
             });
 
-            // Generate report handler
+            // Modified generate report handler to include chart update
             document.getElementById('generateReport').addEventListener('click', async () => {
                 const reportType = document.getElementById('reportType').value;
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
 
-                // Show loading spinner
                 document.getElementById('loadingSpinner').style.display = 'block';
 
                 try {
@@ -402,15 +558,14 @@
 
                     const data = await response.json();
                     updateReportTable(data);
+                    updateChart(data); // Add chart update
                 } catch (error) {
                     console.error('Error generating report:', error);
                     alert('Failed to generate report. Please try again.');
                 } finally {
-                    // Hide loading spinner
                     document.getElementById('loadingSpinner').style.display = 'none';
                 }
             });
-
 
 
             // Download handlers

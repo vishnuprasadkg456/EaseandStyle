@@ -98,7 +98,7 @@ const updateOrderStatus = async (req, res) => {
                 );
 
 
-               
+
             }
         }
 
@@ -116,13 +116,18 @@ const updateOrderStatus = async (req, res) => {
         //         await payment.save();
         //     }
         // }
+        const payment = await Payment.findById(order.payment);
+        if (order.status === "Returned" && order.paymentStatus === "Paid") {
 
-        if (order.status==="Returned" && order.paymentStatus === "Paid") {
-            const payment = await Payment.findById(order.payment);
 
             payment.paymentStatus = "Refunded";
             await payment.save();
             console.log("payment.paymentStatus", payment.paymentStatus);
+        }
+        if (payment) {
+            payment.paymentStatus = paymentStatus;
+            order.paymentStatus = paymentStatus;
+            await payment.save();
         }
 
         // Save the updated order

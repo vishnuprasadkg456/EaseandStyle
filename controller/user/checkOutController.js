@@ -181,12 +181,13 @@ const checkOutAddAddress = async (req, res) => {
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user.id;
-        const { addressId, paymentMethod, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+        const { addressId, paymentMethod, razorpayPaymentId, razorpayOrderId, razorpaySignature ,paymentData} = req.body;
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized. Please log in." });
         }
 
+        console.log("payment data : ",paymentData);
         // Fetch user's cart
         const cart = await Cart.findOne({ userId }).populate({
             path: "items.productId",

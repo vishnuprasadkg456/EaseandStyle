@@ -33,7 +33,7 @@ const calculateCartTotals = async (cart) => {
         cart.discount = productOffer;
     }
 
-    cart.finalPrice = cart.totalPrice - (cart.discount || 0);
+    cart.finalPrice = cart.totalPrice - (cart.discount || 0)+cart.deliveryCharge;
 };
 
 const applyCoupon = async (req, res) => {
@@ -76,7 +76,7 @@ const applyCoupon = async (req, res) => {
         cart.appliedCoupon = couponId;
         cart.couponDiscount = Number(couponDiscount.toFixed(2));
         cart.finalPrice = Number(finalPrice.toFixed(2));
-        cart.finalPrice += cart.deliveryCharge;
+        // cart.finalPrice += cart.deliveryCharge;
         console.log("final price after coupon applied :",cart.finalPrice);
         await cart.save();
 
@@ -91,6 +91,8 @@ const applyCoupon = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to apply coupon" });
     }
 };
+
+
 const removeCoupon = async (req, res) => {
     try {
         const userId = req.session.user.id;
