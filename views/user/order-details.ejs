@@ -1,6 +1,6 @@
 <%- include("../../views/partials/user/userHeader") %>
 
-
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <style>
         .order-details {
@@ -170,21 +170,21 @@
             z-index: 1050;
             max-width: 350px;
         }
-        
+
         .custom-alert {
             opacity: 0;
             transform: translateX(100%);
             transition: all 0.3s ease;
             margin-bottom: 10px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .custom-alert.show {
             opacity: 1;
             transform: translateX(0);
         }
-        
+
         .custom-alert .alert-content {
             display: flex;
             align-items: center;
@@ -192,18 +192,18 @@
             background-color: #fff;
             border-left: 5px solid;
         }
-        
+
         .custom-alert .alert-icon {
             margin-right: 15px;
             font-weight: bold;
             font-size: 20px;
         }
-        
+
         .custom-alert .alert-message {
             flex-grow: 1;
             font-size: 14px;
         }
-        
+
         .custom-alert .alert-close {
             background: none;
             border: none;
@@ -211,15 +211,15 @@
             cursor: pointer;
             color: #666;
         }
-        
+
         .custom-alert.alert-success {
             border-left-color: #28a745;
         }
-        
+
         .custom-alert.alert-error {
             border-left-color: #dc3545;
         }
-        
+
         .custom-alert.alert-warning {
             border-left-color: #ffc107;
         }
@@ -236,7 +236,7 @@
             align-items: center;
             z-index: 1100;
         }
-        
+
         .confirmation-content {
             background-color: white;
             padding: 30px;
@@ -246,55 +246,57 @@
             width: 90%;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .confirmation-content h4 {
             margin-bottom: 15px;
             color: #333;
         }
-        
+
         .confirmation-content p {
             margin-bottom: 20px;
             color: #666;
         }
-        
+
         .confirmation-actions {
             display: flex;
             justify-content: center;
             gap: 15px;
         }
-        
-        .btn-cancel-confirm, .btn-cancel-dismiss {
+
+        .btn-cancel-confirm,
+        .btn-cancel-dismiss {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
+
         .btn-cancel-confirm {
             background-color: #dc3545;
             color: white;
         }
-        
+
         .btn-cancel-confirm:hover {
             background-color: #c82333;
         }
-        
+
         .btn-cancel-dismiss {
             background-color: #6c757d;
             color: white;
         }
-        
+
         .btn-cancel-dismiss:hover {
             background-color: #545b62;
         }
 
-        .download-invoice{
+        .download-invoice {
             margin-top: 10px;
-           
+
         }
 
-        .btn, .button {
+        .btn,
+        .button {
             display: inline-block;
             border: 1px solid transparent;
             font-size: 12px;
@@ -310,11 +312,13 @@
             letter-spacing: 0.5px;
         }
 
-        .btn, .button:hover{
-          background-color:   #2a2a2a;
+        .btn,
+        .button:hover {
+            background-color: #2a2a2a;
         }
 
-        .cancel-btn, .btn-return {
+        .cancel-btn,
+        .btn-return {
             background-color: #ff4d4d;
             color: white;
             border: none;
@@ -324,8 +328,9 @@
             transition: background-color 0.3s ease;
             margin-top: 10px;
         }
-        
-        .cancel-btn:hover, .btn-return:hover {
+
+        .cancel-btn:hover,
+        .btn-return:hover {
             background-color: #ff3333;
         }
 
@@ -341,7 +346,7 @@
             align-items: center;
             z-index: 1100;
         }
-        
+
         .confirmation-content {
             background-color: white;
             padding: 30px;
@@ -351,45 +356,46 @@
             width: 90%;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .confirmation-content h4 {
             margin-bottom: 15px;
             color: #333;
         }
-        
+
         .confirmation-content p {
             margin-bottom: 20px;
             color: #666;
         }
-        
+
         .confirmation-actions {
             display: flex;
             justify-content: center;
             gap: 15px;
         }
-        
-        .btn-confirm, .btn-dismiss {
+
+        .btn-confirm,
+        .btn-dismiss {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
+
         .btn-confirm {
             background-color: #dc3545;
             color: white;
         }
-        
+
         .btn-confirm:hover {
             background-color: #c82333;
         }
-        
+
         .btn-dismiss {
             background-color: #6c757d;
             color: white;
         }
-        
+
         .btn-dismiss:hover {
             background-color: #545b62;
         }
@@ -397,13 +403,13 @@
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
         }
-        
+
         .form-group textarea {
             width: 100%;
             padding: 10px;
@@ -411,7 +417,6 @@
             border-radius: 4px;
             resize: vertical;
         }
-
     </style>
 
 
@@ -478,10 +483,10 @@
                                         <span>-₹<%= order.couponDiscount %></span>
                                     </div>
                                     <% } %>
-                                    <div class="order-info__item">
-                                        <span>Delivery Charge</span>
-                                        <span>₹<%= order.deliveryCharge%></span>
-                                    </div>
+                                        <div class="order-info__item">
+                                            <span>Delivery Charge</span>
+                                            <span>₹<%= order.deliveryCharge%></span>
+                                        </div>
                                         <div class="order-info__item">
                                             <span>Final Amount</span>
                                             <span>₹<%= order.finalAmount %></span>
@@ -520,55 +525,67 @@
                                                 <!-- Order Timeline -->
                                                 <div class="tracking-timeline">
                                                     <% 
-                                                        // Define statuses to display
-                                                        const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered'];
-                                                
-                                                        // Add additional statuses dynamically if applicable
-                                                        if (order.status === 'Cancelled') {
-                                                            statuses.push('Cancelled');
-                                                        } else if (['Return Confirmed','Return Requested', 'Returned'].includes(order.status)) {
-                                                            statuses.push('Return Requested','Return Confirmed', 'Returned');
-                                                        }
-                                                    %>
+                                                    // Define statuses to display
+                                                    let statuses = ['Pending', 'Processing', 'Shipped', 'Delivered'];
                                                     
-                                                    <% statuses.forEach(status => { %>
-                                                        <div class="timeline-item <%= order.status === status ? 'active' : '' %>">
-                                                            <div class="timeline-date">
-                                                                <%= order.status === status ? new Date(order.updatedOn).toLocaleDateString() : '-' %>
+                                                    // Add additional statuses dynamically if applicable
+                                                    if (order.status === 'Cancelled') {
+                                                        statuses.push('Cancelled');
+                                                    } else if (['Return Confirmed', 'Return Requested', 'Returned'].includes(order.status)) {
+                                                        statuses.push('Return Requested', 'Return Confirmed', 'Returned');
+                                                    }
+                                                    %>
+
+                                                        <% statuses.forEach(status=> { %>
+                                                            <div
+                                                                class="timeline-item <%= order.status === status ? 'active' : '' %>">
+                                                                <div class="timeline-date">
+                                                                    <%= order.status===status ? new
+                                                                        Date(order.updatedOn).toLocaleDateString() : '-'
+                                                                        %>
+                                                                </div>
+                                                                <div class="timeline-status">
+                                                                    <%= status %>
+                                                                </div>
+                                                                <div class="timeline-description">
+                                                                    <% if (['Pending', 'Processing' , 'Shipped'
+                                                                        , 'Delivered' ].includes(status)) { %>
+                                                                        <%= status==='Pending' ? 'Order placed' :
+                                                                            status==='Processing'
+                                                                            ? 'Order is being processed' :
+                                                                            status==='Shipped'
+                                                                            ? 'Order has been shipped' :
+                                                                            status==='Delivered'
+                                                                            ? 'Order has been delivered' : '' %>
+                                                                            <% } else if (status==='Cancelled' ) { %>
+                                                                                Order has been cancelled
+                                                                                <% } else if
+                                                                                    (status==='Return Requested' ) { %>
+                                                                                    Return request has been initiated
+                                                                                    <% } else if
+                                                                                        (status==='Return Confirmed' ) {
+                                                                                        %>
+                                                                                        Return confirmed
+                                                                                        <% } else if
+                                                                                            (status==='Returned' ) { %>
+                                                                                            Order has been returned
+                                                                                            <% } else { %>
+                                                                                                Unknown status
+                                                                                                <% } %>
+                                                                </div>
                                                             </div>
-                                                            <div class="timeline-status">
-                                                                <%= status %>
-                                                            </div>
-                                                            <div class="timeline-description">
-                                                                <% if (['Pending', 'Processing', 'Shipped', 'Delivered'].includes(status)) { %>
-                                                                    <%= status === 'Pending' ? 'Order placed' :
-                                                                        status === 'Processing' ? 'Order is being processed' :
-                                                                        status === 'Shipped' ? 'Order has been shipped' :
-                                                                        status === 'Delivered' ? 'Order has been delivered' : '' %>
-                                                                <% } else if (status === 'Cancelled') { %>
-                                                                    Order has been cancelled
-                                                                <% } else if (status === 'Return Requested') { %>
-                                                                    Return request has been initiated
-                                                                <% } else if (status === 'Return Confirmed') { %>
-                                                                        Return confirmed
-                                                                <% } else if (status === 'Returned') { %>
-                                                                    Order has been returned
-                                                                <% } else { %>
-                                                                    Unknown status
-                                                                <% } %>
-                                                            </div>
-                                                        </div>
-                                                    <% }); %>
+                                                            <% }); %>
                                                 </div>
-                                                
+
 
                                                 <!-- Cancel Order Button -->
                                                 <% if (['Pending', 'Processing' ].includes(order.status)) { %>
                                                     <button class="cancel-btn" data-order-id="<%= order._id %>">
                                                         Cancel Order
                                                     </button>
-                                                    <% }else if(order.status === 'Delivered'){ %>
-                                                        <button class="btn-return" data-order-id="<%=order._id%>">Request Return</button>
+                                                    <% }else if(order.status==='Delivered' ){ %>
+                                                        <button class="btn-return"
+                                                            data-order-id="<%=order._id%>">Request Return</button>
                                                         <%}%>
                 </div>
 
@@ -577,17 +594,23 @@
                     <div class="cart__total">
 
 
-                         <!-- Add new customer details section -->
-                     <h6>Customer Details</h6>
-                     <br>
-                     <div class="customer-details">
-                     <p><strong>Name:</strong> <%= order.userId.name %></p>
-                     <p><strong>Email:</strong> <%= order.userId.email %></p>
-                     <p><strong>Phone:</strong> <%= order.userId.phoneNumber %></p>
-                     </div>
+                        <!-- Add new customer details section -->
+                        <h6>Customer Details</h6>
+                        <br>
+                        <div class="customer-details">
+                            <p><strong>Name:</strong>
+                                <%= order.userId.name %>
+                            </p>
+                            <p><strong>Email:</strong>
+                                <%= order.userId.email %>
+                            </p>
+                            <p><strong>Phone:</strong>
+                                <%= order.userId.phoneNumber %>
+                            </p>
+                        </div>
 
-                    <hr class="my-4">
-        
+                        <hr class="my-4">
+
 
                         <h6>Shipping Address</h6>
                         <br>
@@ -639,18 +662,25 @@
                                     <%= order.payment.paymentStatus %>
                                 </span>
                             </div>
-                            
+
+                            <div class="payment-info__item">
+                            <input type="hidden" id="orderId" value="<%= order._id %>">
+                            <input type="hidden" id="paymentStatus" value="<%= order.paymentStatus %>">
+
+                            <button id="payNowBtn" class="btn btn-primary" style="display: none;">Pay Now</button>
+                             </div>
+
                         </div>
-                        
+
                     </div>
 
-                    <% if (order.status === 'Delivered') { %>
+                    <% if (order.status==='Delivered' ) { %>
                         <div class="download-invoice">
                             <a href="/download-invoice?orderId=<%= order._id %>" class="btn btn-primary">
                                 Download Invoice
                             </a>
                         </div>
-                    <% } %>
+                        <% } %>
 
                 </div>
             </div>
@@ -661,9 +691,12 @@
     <div id="alertContainer"></div>
 
     <script>
+
+
+
         function showCustomAlert(message, type = 'success') {
             const alertContainer = document.getElementById('alertContainer');
-    
+
             // Create alert element
             const alertEl = document.createElement('div');
             alertEl.className = `custom-alert alert-${type}`;
@@ -676,20 +709,20 @@
                     <button class="alert-close">&times;</button>
                 </div>
             `;
-    
+
             // Add to container
             alertContainer.appendChild(alertEl);
-    
+
             // Trigger show animation
             setTimeout(() => alertEl.classList.add('show'), 10);
-    
+
             // Close button functionality
             const closeBtn = alertEl.querySelector('.alert-close');
             closeBtn.addEventListener('click', () => {
                 alertEl.classList.remove('show');
                 setTimeout(() => alertEl.remove(), 300);
             });
-    
+
             // Auto-dismiss
             setTimeout(() => {
                 if (alertEl.parentNode) {
@@ -698,7 +731,7 @@
                 }
             }, 3000);
         }
-    
+
         // Function to create a confirmation modal with return reason
         function createConfirmationModal(title, message, confirmCallback, includeReason = false) {
             const confirmationModal = document.createElement('div');
@@ -719,25 +752,25 @@
                     </div>
                 </div>
             `;
-    
+
             // Add modal to body
             document.body.appendChild(confirmationModal);
-    
+
             // Add event listeners for buttons
             const confirmButton = confirmationModal.querySelector('.btn-confirm');
             const dismissButton = confirmationModal.querySelector('.btn-dismiss');
-    
+
             confirmButton.addEventListener('click', async () => {
                 const returnReason = includeReason ? confirmationModal.querySelector('#returnReason').value : null;
                 confirmationModal.remove(); // Remove modal
                 await confirmCallback(returnReason); // Execute the confirmation callback with return reason
             });
-    
+
             dismissButton.addEventListener('click', () => {
                 confirmationModal.remove(); // Remove modal
             });
         }
-    
+
         // Cancel Order Functionality
         document.addEventListener('DOMContentLoaded', () => {
             const cancelBtn = document.querySelector('.cancel-btn');
@@ -756,9 +789,9 @@
                                     },
                                     body: JSON.stringify({ orderId })
                                 });
-    
+
                                 const data = await response.json();
-    
+
                                 if (data.success) {
                                     showCustomAlert('Order cancelled successfully', 'success');
                                     setTimeout(() => {
@@ -775,7 +808,7 @@
                     );
                 });
             }
-    
+
             // Request Return Functionality
             const returnBtn = document.querySelector('.btn-return');
             if (returnBtn) {
@@ -793,9 +826,9 @@
                                     },
                                     body: JSON.stringify({ orderId, returnReason }) // Include returnReason in the request body
                                 });
-    
+
                                 const data = await response.json();
-    
+
                                 if (data.success) {
                                     showCustomAlert('Return request submitted successfully', 'success');
                                     setTimeout(() => {
@@ -814,5 +847,90 @@
                 });
             }
         });
+
+
+
+        
+        $(document).ready(function () {
+            const orderId = $('#orderId').val(); // Hidden input storing the order ID
+            const paymentStatus = $('#paymentStatus').val(); // Hidden input storing payment status
+
+            console.log("payment status :", paymentStatus);
+            // Show "Pay Now" button only if payment is pending
+            if (paymentStatus === 'Pending') {
+                $('#payNowBtn').show();
+            }
+
+            // Handle "Pay Now" button click
+            $('#payNowBtn').click(function () {
+                $.ajax({
+                    url: '/create-razorpay-order',
+                    method: 'POST',
+                    data: JSON.stringify({ orderId: orderId }), // Send order ID to recreate payment order
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success) {
+                            const options = {
+                                key: '<%= process.env.RAZORPAY_KEY_ID %>',
+                                amount: response.amount,
+                                currency: response.currency,
+                                name: 'Ease and Style',
+                                order_id: response.orderId,
+                                handler: function (paymentResponse) {
+                                    console.log('Payment Response:', paymentResponse);
+
+                                    // Update order after successful payment
+                                    $.ajax({
+                                        url: '/update-order-payment',
+                                        method: 'POST',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            orderId: orderId,
+                                            razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                                            razorpayOrderId: paymentResponse.razorpay_order_id,
+                                            razorpaySignature: paymentResponse.razorpay_signature,
+                                            paymentStatus: 'success'
+                                        }),
+                                        success: function (res) {
+                                            console.log("Update Order Response:", res);
+                                            if (res.success) {
+                                                showCustomAlert('Payment successful! updating...', 'success');
+                                                setTimeout(() => {
+                                                    window.location.href = window.location.href;
+
+                                                }, 1500);
+                                            } else {
+                                                showCustomAlert('Failed to update order!', 'danger');
+                                            }
+                                        },
+                                        error: function () {
+                                            showCustomAlert('Error updating order. Please contact support!', 'danger');
+                                        }
+                                    });
+                                },
+                                modal: {
+                                    ondismiss: function () {
+                                        showCustomAlert('Payment was not completed. Try again!', 'warning');
+                                    }
+                                },
+                                theme: {
+                                    color: '#000000'
+                                }
+                            };
+
+                            const rzp = new Razorpay(options);
+                            rzp.open();
+                        } else {
+                            showCustomAlert('Failed to initiate Razorpay payment', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showCustomAlert('Error processing payment. Try again!', 'danger');
+                    }
+                });
+            });
+        });
+
+
     </script>
     <%- include("../../views/partials/user/userFooter") %>

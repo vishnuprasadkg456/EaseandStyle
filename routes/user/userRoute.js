@@ -105,6 +105,8 @@ router.post('/removeFromWishlist',userAuth,wishlistController.removeFromWishlist
 
 //Route to verify Razorpay payment
 router.post("/create-razorpay-order", userAuth, checkOutController.createRazorpayOrder);
+router.post("/update-order-payment", userAuth, checkOutController.updateOrderPayment);
+
 
 
 //refund for cod wallet management

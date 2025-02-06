@@ -638,6 +638,7 @@
                     alertEl.classList.remove('show');
                     setTimeout(() => alertEl.remove(), 300);
                 }
+                location.reload();
             }, 3000);
         }
 
@@ -683,8 +684,9 @@
                     confirmationModal.remove();
 
                     if (data.success) {
+                       
                         showCustomAlert('Order status updated successfully', 'success');
-                        setTimeout(() => location.reload(), 2000);
+                       
                     } else {
                         showCustomAlert(data.message || 'Failed to update order status', 'error');
                     }
