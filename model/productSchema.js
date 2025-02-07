@@ -1,83 +1,84 @@
 const mongoose = require("mongoose");
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
-const productSchema = new Schema ({
-    productName : {
+const productSchema = new Schema(
+  {
+    productName: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    brand: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    subCategory: {
+      type: String,
+      required: false,
+    },
+    regularPrice: {
+      type: Number,
+      required: true,
+    },
+    salePrice: {
+      type: Number,
+      required: true,
+    },
 
-        type : String,
-        required : true,
+    productOffer: {
+      type: Number,
+      default: 0,
     },
-    description : {
-
-        type: String,
-        required : true,
-    },
-    brand : {
-        type : String,
-        required:true
-    },
-    category : {
-        type : Schema.Types.ObjectId,
-        ref : "Category",
-        required : true,
-    },
-    subCategory : {
-        type :String,
-        required : false,
-    },
-    regularPrice : {
-        type : Number,
-        required : true
-    },
-    salePrice : {
-        type : Number,
-        required : true
-    },
-    
-    productOffer : {
-        type : Number,
-        default : 0,
-    },
-    quantity : {
-        type : Number,
-        default : true
+    quantity: {
+      type: Number,
+      default: true,
     },
     maxPerPerson: {
-        type: Number,
-        default: 10 // Default maximum quantity
+      type: Number,
+      default: 10, // Default maximum quantity
     },
-    variants : {
-        sizes : [String],
-        colors : [String],
-        fabric : String,
-        fit : String
+    variants: {
+      sizes: [String],
+      colors: [String],
+      fabric: String,
+      fit: String,
     },
-    productImage : {
-        type : [String],
-        required : true 
+    productImage: {
+      type: [String],
+      required: true,
     },
-    isfeatured  : {
-        type : Boolean,
-        default : false
+    isfeatured: {
+      type: Boolean,
+      default: false,
     },
-       isBlocked :{
-        type : Boolean,
-        default : false
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
-    tags : [String],
-    createdAt : {
-        type : Date,
-        default : Date.now
+    tags: [String],
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
 
-    status : {
-      type :String,
-      enum : ["Available","Out Of Stock","Discontinued"],
-       required : true,
-        default : "Available"
+    status: {
+      type: String,
+      enum: ["Available", "Out Of Stock", "Discontinued"],
+      required: true,
+      default: "Available",
     },
-},{timestamps:true});
+  },
+  { timestamps: true }
+);
 
-const Product = mongoose.model("Product",productSchema);
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;
