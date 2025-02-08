@@ -118,6 +118,7 @@ router.get(
   userAuth,
   userCouponController.getAvailableCoupons
 );
+
 router.post("/applyCoupon", userAuth, userCouponController.applyCoupon);
 router.post("/removeCoupon", userAuth, userCouponController.removeCoupon);
 router.get(

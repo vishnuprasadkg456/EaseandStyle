@@ -35,7 +35,7 @@ const addToWishlist = async (req, res) => {
     try {
         console.log("addtowishlist logic hit ");
         const { productId } = req.body; 
-        const userId = req.session.user.id; // Assuming user session contains user.id
+        const userId = req.session.user.id||req.session.user._id; // Assuming user session contains user.id
 
         // Check if the product exists
         const product = await Product.findById(productId);

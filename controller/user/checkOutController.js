@@ -27,7 +27,7 @@ const razorpay = new Razorpay({
 const getCheckOut = async(req,res)=>{
     try {
         const user = req.session.user;
-        const userId = req.session.user.id;
+        const userId = req.session.user.id||req.session.user._id;
 
         if(!userId){
             return res.redirect("/login");
