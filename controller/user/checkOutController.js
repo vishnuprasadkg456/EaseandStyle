@@ -251,7 +251,7 @@ const placeOrder = async (req, res) => {
         // Update product stock
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
-            product.stock -= item.quantity;
+            product.quantity -= item.quantity;
             await product.save();
         }
 
