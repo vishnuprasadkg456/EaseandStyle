@@ -9,11 +9,17 @@ const mongoose = require('mongoose');
 const getOrders = async (req, res) => {
     try {
         const orders = await Order.find()
-            .populate('userId')
+            .populate({
+                path:'userId',
+                select:'name email'
+            })
             .populate({
                 path: 'orderedItems.product', // Populate product details within orderedItems
                 select: 'productName productImage', //  productName and productImage fields
             });
+
+            console.log('Total orders found:', orders.length);
+            console.log('Orders with null userId:', orders.filter(order => !order.userId).length);
 
         res.render('order-management', { orders });
     } catch (error) {
