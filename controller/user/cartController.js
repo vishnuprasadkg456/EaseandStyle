@@ -112,7 +112,10 @@ const addToCart = async (req, res) => {
         const userId = req.session.user.id||req.session.user._id;
         const product = await Product.findById(productId);
 
-       
+       if(!userId) {
+
+        return res.status(401).json({success:false,message:"user not found"});
+       }
 
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });

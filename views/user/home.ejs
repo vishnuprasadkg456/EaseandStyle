@@ -293,6 +293,18 @@
                             })
                         });
                         
+                        const contentType = response.headers.get('content-type');
+                if (response.status === 401 || (contentType && contentType.includes('text/html'))) {
+                    window.location.href = '/login';
+                    return;
+                }
+        
+                        // Ensure response is JSON before parsing
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Unexpected response from server');
+                        }
+        
+
                         const data = await response.json();
                         
                         if (response.ok) {
