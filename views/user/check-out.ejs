@@ -807,7 +807,7 @@
                                                     showAlert('Order placed successfully!', 'success');
                                                     setTimeout(() => {
                                                         window.location.href = `/orderDetails?orderId=${response.orderId}`;
-                                                    }, 1500);
+                                                    }, 500);
                                                 } else {
                                                     showAlert('Failed to place order', 'danger');
                                                 }
@@ -834,7 +834,7 @@
                                                         showAlert('Order placed with pending payment!', 'warning');
                                                         setTimeout(() => {
                                                             window.location.href = `/orderDetails?orderId=${response.orderId}`;
-                                                        }, 1500);
+                                                        }, 500);
                                                     }
                                                 }
                                             });
@@ -876,7 +876,7 @@
                                   showAlert('Order placed successfully!', 'success');
                                   setTimeout(() => {
                                       window.location.href = `/orderDetails?orderId=${response.orderId}`;
-                                  }, 1500);
+                                  }, 500);
                               } else {
                                   showAlert(response.message || 'Failed to place order!', 'danger');
                               }
@@ -928,7 +928,7 @@
                     $('.alert').fadeOut('slow', function () {
                         $(this).remove();
                     });
-                }, 5000);
+                }, 4000);
             }
 
         });
