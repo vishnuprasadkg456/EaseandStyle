@@ -26,7 +26,7 @@ const loadHomePage = async (req, res) => {
             startDate : {$lte:currentDate},
             endDate :{$gte:currentDate}
         });
-        let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}});
+        let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gte:0}});
         productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));//latest arrival to be shown
         productData = productData.slice(0,4);
 
@@ -438,7 +438,7 @@ const searchProducts = async (req, res) => {
             searchResult = await Product.find({
                 productName: { $regex: ".*" + search + ".*", $options: "i" },
                 isBlocked: false,
-                quantity: { $gt: 0 },
+                quantity: { $gte: 0 },
                 category: { $in: categoryIds }
             }).lean();
         }
