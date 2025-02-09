@@ -26,14 +26,30 @@ router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
-router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/signup" }),
+router.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.user = req.user;
-    res.redirect("/");
+      // Ensure user data is properly set in session
+      if (req.user) {
+          req.session.user = {
+              _id: req.user._id,
+              id: req.user._id,
+              name: req.user.name,
+              email: req.user.email
+          };
+          req.session.save((err) => {
+              if (err) {
+                  console.error("Session save error:", err);
+                  return res.redirect('/login');
+              }
+              res.redirect('/');
+          });
+      } else {
+          res.redirect('/login');
+      }
   }
 );
+
 
 //login management
 router.get("/login", userController.loadLogin);
