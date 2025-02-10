@@ -755,7 +755,8 @@
               placeOrderBtn.prop('disabled', false); // Changed to false to allow clicking without selection
   
              
-  
+
+              
               $('#placeOrderBtn').click(function (e) {
                 e.preventDefault();
                 console.log('Place Order Button Clicked');
@@ -772,54 +773,44 @@
                     return false;
                 }
             
-                if (onlineCheckbox.is(':checked')) {
-                    // Directly create Razorpay order and open payment gateway
-                    $.ajax({
-                        url: '/create-razorpay-order',
-                        method: 'POST',
-                        success: function (response) {
-                            if (response.success) {
-                                const options = {
-                                    key: '<%= process.env.RAZORPAY_KEY_ID %>',
-                                    amount: response.amount,
-                                    currency: response.currency,
-                                    name: 'Ease and Style',
-                                    order_id: response.orderId,
-                                    handler: function (paymentResponse) {
-                                        console.log('Payment Response:', paymentResponse);
-                                        
-                                        // Place order after payment attempt
-                                        $.ajax({
-                                            url: '/place-order',
-                                            method: 'POST',
-                                            contentType: 'application/json',
-                                            data: JSON.stringify({
-                                                addressId: selectedAddressId,
-                                                paymentMethod: 'razorpay',
-                                                razorpayPaymentId: paymentResponse.razorpay_payment_id,
-                                                razorpayOrderId: paymentResponse.razorpay_order_id,
-                                                razorpaySignature: paymentResponse.razorpay_signature,
-                                                paymentData: paymentResponse,
-                                                paymentStatus: 'success'
-                                            }),
-                                            success: function (response) {
-                                                if (response.orderId) {
-                                                    showAlert('Order placed successfully!', 'success');
-                                                    setTimeout(() => {
-                                                        window.location.href = `/orderDetails?orderId=${response.orderId}`;
-                                                    }, 500);
-                                                } else {
-                                                    showAlert('Failed to place order', 'danger');
-                                                }
-                                            },
-                                            error: function () {
-                                                showAlert('Error placing order', 'danger');
-                                            }
-                                        });
-                                    },
-                                    modal: {
-                                        ondismiss: function() {
-                                            // Handle payment modal dismissal
+                // First, check product quantities before proceeding
+                $.ajax({
+                    url: '/check-product-quantities',
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            // If quantities are available, proceed with order placement
+                            proceedWithOrder();
+                        } else {
+                            // Show which products are out of stock or have insufficient quantity
+                            showAlert(response.message || 'Some products in your cart are out of stock!', 'warning');
+                            // Optionally refresh the cart to show updated quantities
+                            window.location.href = '/cart';
+                        }
+                    },
+                    error: function() {
+                        showAlert('Error checking product availability. Please try again!', 'danger');
+                    }
+                });
+            
+                function proceedWithOrder() {
+                    if (onlineCheckbox.is(':checked')) {
+                        // Razorpay payment flow
+                        $.ajax({
+                            url: '/create-razorpay-order',
+                            method: 'POST',
+                            success: function (response) {
+                                if (response.success) {
+                                    const options = {
+                                        key: '<%= process.env.RAZORPAY_KEY_ID %>',
+                                        amount: response.amount,
+                                        currency: response.currency,
+                                        name: 'Ease and Style',
+                                        order_id: response.orderId,
+                                        handler: function (paymentResponse) {
+                                            console.log('Payment Response:', paymentResponse);
+                                            
+                                            // Place order after payment attempt
                                             $.ajax({
                                                 url: '/place-order',
                                                 method: 'POST',
@@ -827,68 +818,98 @@
                                                 data: JSON.stringify({
                                                     addressId: selectedAddressId,
                                                     paymentMethod: 'razorpay',
-                                                    paymentStatus: 'failed'
+                                                    razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                                                    razorpayOrderId: paymentResponse.razorpay_order_id,
+                                                    razorpaySignature: paymentResponse.razorpay_signature,
+                                                    paymentData: paymentResponse,
+                                                    paymentStatus: 'success'
                                                 }),
                                                 success: function (response) {
                                                     if (response.orderId) {
-                                                        showAlert('Order placed with pending payment!', 'warning');
+                                                        showAlert('Order placed successfully!', 'success');
                                                         setTimeout(() => {
                                                             window.location.href = `/orderDetails?orderId=${response.orderId}`;
                                                         }, 500);
+                                                    } else {
+                                                        showAlert('Failed to place order', 'danger');
                                                     }
+                                                },
+                                                error: function () {
+                                                    showAlert('Error placing order', 'danger');
                                                 }
                                             });
+                                        },
+                                        modal: {
+                                            ondismiss: function() {
+                                                // Handle payment modal dismissal
+                                                $.ajax({
+                                                    url: '/place-order',
+                                                    method: 'POST',
+                                                    contentType: 'application/json',
+                                                    data: JSON.stringify({
+                                                        addressId: selectedAddressId,
+                                                        paymentMethod: 'razorpay',
+                                                        paymentStatus: 'failed'
+                                                    }),
+                                                    success: function (response) {
+                                                        if (response.orderId) {
+                                                            showAlert('Order placed with pending payment!', 'warning');
+                                                            setTimeout(() => {
+                                                                window.location.href = `/orderDetails?orderId=${response.orderId}`;
+                                                            }, 500);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        },
+                                        theme: {
+                                            color: '#000000'
                                         }
-                                    },
-                                    theme: {
-                                        color: '#000000'
-                                    }
-                                };
-            
-                                const rzp = new Razorpay(options);
-                                rzp.open();
-                            } else {
-                                showAlert('Failed to create Razorpay order' + (response.message || ''), 'danger');
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Razorpay Order Creation Error:', {
-                                status: status,
-                                error: error,
-                                responseText: xhr.responseText
-                            });
-                            showAlert('Error creating Razorpay order', 'danger');
-                        }
-                    });
+                                    };
                 
-                  } else if (codCheckbox.is(':checked')) {
-                      // Existing COD order placement logic
-                      $.ajax({
-                          url: '/place-order',
-                          method: 'POST',
-                          contentType: 'application/json',
-                          data: JSON.stringify({
-                              addressId: selectedAddressId,
-                              paymentMethod: 'COD'
-                          }),
-                          success: function (response) {
-                              if (response.orderId) {
-                                  showAlert('Order placed successfully!', 'success');
-                                  setTimeout(() => {
-                                      window.location.href = `/orderDetails?orderId=${response.orderId}`;
-                                  }, 500);
-                              } else {
-                                  showAlert(response.message || 'Failed to place order!', 'danger');
-                              }
-                          },
-                          error: function () {
-                              showAlert('Error placing order. Please try again!', 'danger');
-                          }
-                      });
-                  }
-              });
-
-
+                                    const rzp = new Razorpay(options);
+                                    rzp.open();
+                                } else {
+                                    showAlert('Failed to create Razorpay order' + (response.message || ''), 'danger');
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error('Razorpay Order Creation Error:', {
+                                    status: status,
+                                    error: error,
+                                    responseText: xhr.responseText
+                                });
+                                showAlert('Error creating Razorpay order', 'danger');
+                            }
+                        });
+                    
+                    } else if (codCheckbox.is(':checked')) {
+                        // COD order placement
+                        $.ajax({
+                            url: '/place-order',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                addressId: selectedAddressId,
+                                paymentMethod: 'COD'
+                            }),
+                            success: function (response) {
+                                if (response.orderId) {
+                                    showAlert('Order placed successfully!', 'success');
+                                    setTimeout(() => {
+                                        window.location.href = `/orderDetails?orderId=${response.orderId}`;
+                                    }, 500);
+                                } else {
+                                    showAlert(response.message || 'Failed to place order!', 'danger');
+                                }
+                            },
+                            error: function () {
+                                showAlert('Error placing order. Please try again!', 'danger');
+                            }
+                        });
+                    }
+                }
+            });
 
             // Function to validate the form
             function validateForm(form) {

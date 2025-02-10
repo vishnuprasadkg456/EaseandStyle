@@ -173,7 +173,85 @@ const checkOutAddAddress = async (req, res) => {
 
 
 
+const verifyStock = async(req,res)=>{
+    try {
+        // Get user's cart
+        const userId = req.session.user.id;
+        const cart = await Cart.findOne({ userId })
+            .populate({
+                path: 'items.productId',
+                select: 'productName quantity status'
+            });
 
+        if (!cart || !cart.items.length) {
+            return res.json({
+                success: false,
+                message: 'Cart is empty'
+            });
+        }
+
+        // Check each product's quantity
+        const insufficientProducts = [];
+        
+        for (const cartItem of cart.items) {
+            // Get latest product data from database
+            const currentProduct = await Product.findById(cartItem.productId._id);
+            
+            if (!currentProduct) {
+                insufficientProducts.push({
+                    name: cartItem.productId.productName,
+                    message: 'Product no longer available'
+                });
+                continue;
+            }
+
+            // Check if product is available
+            if (currentProduct.status !== 'Available') {
+                insufficientProducts.push({
+                    name: currentProduct.productName,
+                    message: `Product is ${currentProduct.status}`
+                });
+                continue;
+            }
+
+            // Check if requested quantity is available
+            if (currentProduct.quantity < cartItem.quantity) {
+                insufficientProducts.push({
+                    name: currentProduct.productName,
+                    requested: cartItem.quantity,
+                    available: currentProduct.quantity,
+                    message: `Only ${currentProduct.quantity} units available`
+                });
+            }
+        }
+
+        if (insufficientProducts.length > 0) {
+            // Create user-friendly message
+            const message = insufficientProducts.map(p => 
+                `${p.name}: ${p.message}`
+            ).join(', ');
+
+            return res.json({
+                success: false,
+                message: 'Insufficient quantity for some products: ' + message,
+                insufficientProducts
+            });
+        }
+
+        // If we get here, all quantities are sufficient
+        return res.json({
+            success: true,
+            message: 'All products are available in requested quantities'
+        });
+
+    } catch (error) {
+        console.error('Error checking product quantities:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while checking product quantities'
+        });
+    }
+}
 
 
 
@@ -464,7 +542,7 @@ module.exports ={
  checkOutAddAddress,
  placeOrder,
  createRazorpayOrder,
- updateOrderPayment
-
+ updateOrderPayment,
+ verifyStock
 
 }

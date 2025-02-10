@@ -119,6 +119,7 @@ router.delete(
 router.get("/checkOut", userAuth, checkOutController.getCheckOut);
 router.get("/get-address/:id", userAuth, checkOutController.getAddress);
 router.post("/add-address", userAuth, checkOutController.checkOutAddAddress);
+router.get("/check-product-quantities",userAuth,checkOutController.verifyStock);
 router.post("/place-order", userAuth, checkOutController.placeOrder);
 
 //order management
