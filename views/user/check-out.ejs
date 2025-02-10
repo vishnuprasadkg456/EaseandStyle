@@ -509,7 +509,7 @@
                             // Reset totals
                             updateTotals(subtotsl, productDiscount, finalPrice); // Example values, update with actual values from server
                         } else {
-                            alert('Failed to remove coupon');
+                            showAlert('Failed to remove coupon');
                         }
                     })
                     .catch(error => {
@@ -543,7 +543,7 @@
                                 updateTotals(subtotal, discount, finalPrice - discount); // Update with actual values from server
 
                             } else {
-                                alert(data.message);
+                                showAlert(data.message);
                             }
                         })
                         .catch(error => {
