@@ -7,6 +7,9 @@ const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
 const session = require("express-session");
 const mongoose = require("mongoose");
+
+
+
 //otp generation
 function generateOtp() {
   const digits = "1234567890";

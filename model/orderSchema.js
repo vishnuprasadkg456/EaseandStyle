@@ -129,7 +129,9 @@ const orderSchema = new Schema({
       message: "Delivery date must be after the order creation date.",
     },
   },
-});
+},
+{ timestamps: true }
+);
 
 const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;
