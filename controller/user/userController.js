@@ -3,6 +3,7 @@ const Category =  require("../../model/categorySchema");
 const Product = require("../../model/productSchema"); 
 const Brand = require("../../model/brandSchema");
 const Banner = require("../../model/bannerSchema");
+const Order = require("../../model/orderSchema");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
 const bcrypt = require("bcrypt");
@@ -18,6 +19,49 @@ const pageNotFound = async (req, res) => {
 };
 
 
+
+//popular product aggregation
+const getPopularProducts = async () => {
+    try {
+        const popularProducts = await Order.aggregate([
+            { $unwind: "$orderedItems" }, // Deconstruct the orderedItems array
+            {
+                $group: {
+                    _id: "$orderedItems.product",
+                    count: { $sum: "$orderedItems.quantity" }, // Sum up the quantities ordered
+                },
+            },
+            { $sort: { count: -1 } }, // Sort by popularity (descending)
+            { $limit: 4 }, // Limit to top 4 products
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productDetails",
+                },
+            },
+            { $unwind: "$productDetails" },
+            {
+                $project: {
+                    _id: "$productDetails._id",
+                    productName: "$productDetails.productName",
+                    salePrice: "$productDetails.salePrice",
+                    productImage: "$productDetails.productImage",
+                    count: 1,
+                },
+            },
+        ]);
+        return popularProducts;
+    } catch (error) {
+        console.error("Error fetching popular products:", error);
+        return [];
+    }
+};
+
+
+
+//home page 
 const loadHomePage = async (req, res) => {
     try {
         const user = req.session.user || null;
@@ -28,14 +72,18 @@ const loadHomePage = async (req, res) => {
             endDate: { $gte: currentDate },
         });
 
-        let productData = await Product.find({
+        //new arrival
+        let newProducts = await Product.find({
             isBlocked: false,
             category: { $in: categories.map(category => category._id) },
             quantity: { $gte: 0 },
         });
 
-        productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        productData = productData.slice(0, 4);
+        newProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        newProducts = newProducts.slice(0, 4);
+
+        //popular products
+        let popularProducts = await getPopularProducts();
 
         if (user) {
             const userData = await User.findOne({ _id: user.id });
@@ -44,10 +92,10 @@ const loadHomePage = async (req, res) => {
                 res.clearCookie("connect.sid");
                 return res.redirect("/login"); // Redirect blocked user to login
             }
-            return res.render("home", { user: userData, products: productData, banners });
+            return res.render("home", { user: userData, products: newProducts,popularProducts, banners });
         }
 
-        res.render("home", { user: null, products: productData, banners });
+        res.render("home", { user: null, products: newProducts,popularProducts, banners });
     } catch (error) {
         console.error("Error in loadHomePage:", error);
         res.status(500).send("Server error");
