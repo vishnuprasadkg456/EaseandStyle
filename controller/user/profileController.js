@@ -211,7 +211,7 @@ const postNewPassword = async (req, res) => {
 
 const userProfile = async (req, res) => {
   try {
-    const userId = req.session.user?._id || req.session.user?.id;
+    const userId = req.session.user.id;
 
     const userdata = await User.findById(userId);
     const wallet = await Wallet.findOne({ userId });
@@ -231,7 +231,7 @@ const userProfile = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
-    console.log("order details :", orders);
+    // console.log("order details :", orders);
 
     res.render("profile", {
       user: userdata,

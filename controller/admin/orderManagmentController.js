@@ -123,22 +123,21 @@ const updateOrderStatus = async (req, res) => {
         //     }
         // }
         const payment = await Payment.findById(order.payment);
+        
         if (order.status === "Returned" && order.paymentStatus === "Paid") {
 
 
             payment.paymentStatus = "Refunded";
+            order.paymentStatus = payment.paymentStatus;
             await payment.save();
             console.log("payment.paymentStatus", payment.paymentStatus);
         }
-        if (payment) {
-            payment.paymentStatus = paymentStatus;
-            order.paymentStatus = paymentStatus;
-            await payment.save();
-        }
+        
 
         // Save the updated order
         await order.save();
-
+        console.log("payment status after saving ", order.paymentStatus);
+       
         // Fetch the updated wallet to get the correct balance
         const updatedWallet = await Wallet.findOne({ userId: order.userId._id });
 
