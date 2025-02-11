@@ -136,7 +136,7 @@ const updateOrderStatus = async (req, res) => {
 
         // Save the updated order
         await order.save();
-        console.log("payment status after saving ", order.paymentStatus);
+        console.log("order(user) payment status after saving ", order.paymentStatus);
        
         // Fetch the updated wallet to get the correct balance
         const updatedWallet = await Wallet.findOne({ userId: order.userId._id });
