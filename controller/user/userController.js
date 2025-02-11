@@ -16,34 +16,45 @@ const pageNotFound = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 };
+
+
 const loadHomePage = async (req, res) => {
     try {
-        // const user = req.session.user || req.user;
-        const user =  req.session.user || req.user
-        const categories = await Category.find({isListed:true});
+        const user = req.session.user || null;
+        const categories = await Category.find({ isListed: true });
         const currentDate = new Date();
         const banners = await Banner.find({
-            startDate : {$lte:currentDate},
-            endDate :{$gte:currentDate}
+            startDate: { $lte: currentDate },
+            endDate: { $gte: currentDate },
         });
-        let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},quantity:{$gte:0}});
-        productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));//latest arrival to be shown
-        productData = productData.slice(0,4);
 
-        console.log("User from session or req.user:", user);
+        let productData = await Product.find({
+            isBlocked: false,
+            category: { $in: categories.map(category => category._id) },
+            quantity: { $gte: 0 },
+        });
+
+        productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        productData = productData.slice(0, 4);
 
         if (user) {
-            const userData = await User.findOne({_id: user._id})||user;
-            res.render("home",{user : userData ,  products: productData,banners });
-           // res.render("home", { user });
-        } else {
-            res.render("home" , {products:productData,banners});
+            const userData = await User.findOne({ _id: user.id });
+            if (userData && userData.isBlocked) {
+                req.session.destroy(); // Ensure the session is cleared if user is blocked
+                res.clearCookie("connect.sid");
+                return res.redirect("/login"); // Redirect blocked user to login
+            }
+            return res.render("home", { user: userData, products: productData, banners });
         }
+
+        res.render("home", { user: null, products: productData, banners });
     } catch (error) {
         console.error("Error in loadHomePage:", error);
         res.status(500).send("Server error");
     }
 };
+
+
 
 //loadSignup page
 const loadSignup = async (req, res) => {

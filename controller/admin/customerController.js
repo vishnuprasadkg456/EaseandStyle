@@ -63,15 +63,31 @@ const customerInfo = async (req, res) => {
     }
 };
 
-const customerBlocked = async (req,res)=>{
+
+const customerBlocked = async (req, res) => {
     try {
-        let id=req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:true}});
-        res.redirect("/admin/users");
+        let id = req.query.id;
+        await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
+
+        if (req.session.user && req.session.user.id === id) {
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Failed to destroy session:", err);
+                    return res.redirect("/admin/users");
+                }
+                console.log("Session destroyed successfully");
+                res.clearCookie("connect.sid"); // Explicitly clear the session cookie
+                res.redirect("/admin/users");
+            });
+        } else {
+            res.redirect("/admin/users");
+        }
     } catch (error) {
+        console.error("Error blocking customer:", error);
         res.redirect("/pageerror");
     }
 };
+
 
 const customerunBlocked = async (req,res)=>{
     try {
